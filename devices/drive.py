@@ -4,10 +4,10 @@ import json
 
 
 class DriveController:
-    def __init__(self, controller, is_client):
+    def __init__(self, controller, on_update_callback=None):
         self.controller = controller
         self.mqtt_client = mqtt.Client()
-        self.is_client = is_client
+        self.on_update_callback = on_update_callback
         self.mqtt_client.on_connect = self.on_connect
         self.mqtt_client.on_message = self.on_message
         self.mqtt_client.connect("10.0.0.2", port=1883)
@@ -55,10 +55,9 @@ class DriveController:
                 self.controller.set_pwm(15, 0, 0)
             status = {"speed": self.speed, "direction": self.direction}
             self.mqtt_client.publish("/dev/drive/status/update", json.dumps(status))
-        if self.is_client and topic == "/dev/drive/status/update":
+        if self.on_update_callback and topic == "/dev/drive/status/update":
             status = json.loads(message)
-            self.speed = status["speed"]
-            self.direction = status["direction"]
+            self.on_update_callback(status)
 
     def set_speed(self, speed):
         self.mqtt_client.publish("/dev/drive/speed", str(speed))
