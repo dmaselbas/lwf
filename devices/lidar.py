@@ -1,8 +1,16 @@
+import atexit
+import json
+import struct
 import threading
 import time
+import traceback
+from datetime import timedelta
 
-from rplidar import RPLidar
+import numpy as np
+import pandas as pd
 import paho.mqtt.client as mqtt
+from rplidar import RPLidar
+
 
 class LidarController:
 
@@ -10,23 +18,31 @@ class LidarController:
         self.callback = on_update_callback
         self.publish_thread = None
         self.mqtt_client = mqtt.Client()
-        self.mqtt_client.connect("10.0.0.2", 1883)  # Replace with your MQTT broker address and port
-
+        self.mqtt_client.connect("192.168.4.59", 1883)  # Replace with your MQTT broker address and port
+        self.lidar_on = True
         if on_update_callback is not None:
             self.mqtt_client.on_message = self.on_message
             self.mqtt_client.subscribe("/dev/lidar/update")
 
         if on_update_callback is None:
-            self.lidar = RPLidar("/dev/ttyUSB0")
+            self.lidar = RPLidar("/dev/ttyUSB0", baudrate=460800)
+            self.lidar.start_motor()
+            self.lidar.connect()
             self.publish_thread = threading.Thread(target=self.publish_lidar_data)
             self.publish_thread.start()
+        atexit.register(self.shutdown)
 
-    def __del__(self):
+    def shutdown_lidar(self):
         if self.lidar is not None:
             self.lidar.stop()
             self.lidar.stop_motor()
+            self.lidar.reset()
             self.lidar.disconnect()
+            self.lidar = None
+        self.lidar_on = False
 
+    def shutdown(self):
+        self.shutdown_lidar()
         if self.publish_thread is not None:
             self.publish_thread.join()
 
@@ -38,26 +54,36 @@ class LidarController:
             self.callback(scan_data)
 
     def publish_lidar_data(self):
-        last_health_time = time.time()
-
-        while True:
+        while self.lidar_on:
             try:
                 for scan in self.lidar.iter_scans():
-                    # Process and publish the scan data
-                    # Convert the scan data to a string or JSON format
-                    scan_data = str(scan)  # Example: convert to string
-
-                    # Publish the scan data to the MQTT topic
-                    self.mqtt_client.publish("/dev/lidar/update", scan_data)
-                current_time = time.time()
-                if current_time - last_health_time >= 30:
-                    # Get lidar health and publish it every 30 seconds
-                    health_data = self.lidar.get_health()
-                    self.mqtt_client.publish("/dev/lidar/health", str(health_data))
-                    last_health_time = current_time
-
+                    scan_qualities, scan_angles, scan_distances = zip(*scan)
+                    scan_df = pd.DataFrame({
+                        "quality":  scan_qualities,
+                        "angle":    scan_angles,
+                        "distance": scan_distances,
+                        })
+                    new_index = pd.Index(np.arange(0, 360, 1), name="angle")
+                    scan_df = (scan_df.assign(
+                            angle=lambda df: df["angle"].astype(int),
+                            distance=lambda df: df["distance"].div(25.4))
+                               .drop_duplicates(subset="angle", keep="last")
+                               .sort_values(by="angle", ascending=True)
+                               .set_index("angle")
+                               .reindex(new_index)
+                               .reset_index()
+                               .ffill())
+                    self.mqtt_client.publish("/dev/lidar/update", scan_df.to_json(orient="records"))
             except Exception as e:
                 print(f"Error publishing lidar data: {e}")
+                traceback.print_exc()
+                print(self.lidar.get_health())
+                self.lidar.stop()
+                time.sleep(1)
+                self.lidar.reset()
+                time.sleep(10)
+        self.shutdown_lidar()
 
 
-            time.sleep(1)
+if __name__ == "__main__":
+    lidar = LidarController(on_update_callback=None)
