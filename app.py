@@ -1,20 +1,19 @@
 # user_interface/app.py
 
+
 import streamlit as st
 from servicess.navigation_service import NavigationService
 
 # Initialize the NavigationService instance
-navigation_service = NavigationService()
-
-# Create a new Streamlit tab
-st.tab("Navigation Controller")
+navigation_service = NavigationService(mqtt_broker_address="192.168.4.59")
 
 # Create a layout with buttons for each directional method
 col1, col2, col3, col4 = st.columns(4)
 
 # Add a video component to the left of the direction buttons
 with col1:
-    st.video(src="http://<raspberry_pi_ip>:8000/video.mjpg", format="video/mjpg")
+    pass
+    # st.video("http://192.168.4.59:8080/stream?advanced_headers=1", format="video/mjpg", autoplay=True)
 
 with col2:
     if st.button("Left"):
@@ -28,11 +27,11 @@ with col4:
     if st.button("Right"):
         navigation_service.move_right()
 
-with st.expander("Advanced Controls"):
+with st.container():
     col5, col6 = st.columns(2)
 
     with col5:
-        speed = st.slider("Speed", min_value=0, max_value=100, value=0)
+        speed = st.slider("Speed", min_value=0, max_value=4095, value=0)
         if st.button("Set Speed"):
             navigation_service.set_speed(speed)
 
@@ -42,6 +41,5 @@ with st.expander("Advanced Controls"):
 
 # Run the app
 if __name__ == "__main__":
-    st.title("Weed Fucker 5000")
     st.sidebar.title("Navigation")
-    st.sidebar.subheader("Control the robot's movement")
+    st.sidebar.subheader("Drive")

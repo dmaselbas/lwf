@@ -2,9 +2,9 @@ from devices.drive import DriveController
 
 class NavigationService:
 
-    def __init__(self):
+    def __init__(self, mqtt_broker_address="10.0.0.1"):
         self.state = {}
-        self.drive_controller = DriveController(on_update_callback=self.drive_update_callback)
+        self.drive_controller = DriveController(on_update_callback=self.drive_update_callback, mqtt_broker_address=mqtt_broker_address)
 
     def drive_update_callback(self, status):
         self.state.update(status)

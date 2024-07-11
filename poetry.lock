@@ -1894,6 +1894,20 @@ files = [
 ]
 
 [[package]]
+name = "smbus3"
+version = "0.5.5"
+description = "smbus3 is a drop-in replacement for smbus2, smbus-cffi, smbus-python written in pure Python, intended for use with Python 3.8+ on Unix-like systems"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "smbus3-0.5.5-py3-none-any.whl", hash = "sha256:7f4cc169975543e67e4b7404168ce918e656f6f8daca5de2bd30527298058083"},
+    {file = "smbus3-0.5.5.tar.gz", hash = "sha256:91eed38fb6b7d2f893fbfc3f37006aa41e6913fdda5b3a9a79238b353760f92e"},
+]
+
+[package.extras]
+docs = ["sphinx (>=7.0.0)"]
+
+[[package]]
 name = "smmap"
 version = "5.0.1"
 description = "A pure Python implementation of a sliding window memory map manager"
@@ -2185,4 +2199,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.12"
-content-hash = "309d659ea033b3d52e5e5ccaecd70a7d3c3d2fbd44c9d983df478e3c713b34c2"
+content-hash = "778f029082fa44f2aed6d4d831d92ff2b32bd1510974a64bc3e776ea8102e0dc"

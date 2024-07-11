@@ -3,7 +3,6 @@ name = "weed-fucker-5000"
 version = "0.1.0"
 description = ""
 authors = ["Dustin Maselbas <dmaselbas@gmail.com>"]
-package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.12"
@@ -21,6 +20,7 @@ pynmea2 = "^1.19.0"
 plotly = "^5.22.0"
 streamlit = "^1.36.0"
 python-daemon = "^3.0.1"
+smbus3 = "^0.5.5"
 
 
 [build-system]

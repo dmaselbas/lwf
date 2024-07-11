@@ -1,75 +1,69 @@
 from devices.pwm_controller import PWMController
-import paho.mqtt.client as mqtt
-import json
 
 
 class DriveController:
-    def __init__(self, controller, on_update_callback=None):
-        self.controller = controller
-        self.mqtt_client = mqtt.Client()
-        self.on_update_callback = on_update_callback
-        self.mqtt_client.on_connect = self.on_connect
-        self.mqtt_client.on_message = self.on_message
-        self.mqtt_client.connect("10.0.0.2", port=1883)
-        self.mqtt_client.loop_start()
-
+    def __init__(self,  pwm_controller:PWMController):
+        self.pwm_controller = pwm_controller
+        self.l1_pwm = 13
+        self.l1_forward = 13
+        self.l1_reverse = 13
+        self.l2_pwm = 13
+        self.l2_forward = 13
+        self.l2_reverse = 13
+        self.l3_pwm = 13
+        self.l3_forward = 13
+        self.l3_reverse = 13
+        self.r1_pwm = 13
+        self.r1_forward = 13
+        self.r1_reverse = 13
+        self.r2_pwm = 13
+        self.r2_forward = 13
+        self.r2_reverse = 13
+        self.r3_pwm = 13
+        self.r3_forward = 13
+        self.r3_reverse = 13
         self.speed = 0
+        self.stop()
         self.direction = "forward"
+        self.forward()
 
-    def on_connect(self, client, userdata, flags, rc):
-        if self.is_client:
-            print("Connected to MQTT broker")
-            client.subscribe("/dev/drive/status/update")
-        else:
-            client.subscribe("/dev/drive")
+    def _set_direction(self, left_forward: bool, right_forward: bool):
+        self.pwm_controller.set_pwm(self.l1_forward, 4096 if left_forward else 0)
+        self.pwm_controller.set_pwm(self.l1_reverse, 0 if left_forward else 4096)
+        self.pwm_controller.set_pwm(self.l2_forward, 4096 if left_forward else 0)
+        self.pwm_controller.set_pwm(self.l3_forward, 4096 if left_forward else 0)
+        self.pwm_controller.set_pwm(self.r1_forward, 4096 if right_forward else 0)
+        self.pwm_controller.set_pwm(self.r1_reverse, 0 if right_forward else 4096)
+        self.pwm_controller.set_pwm(self.r2_forward, 4096 if right_forward else 0)
+        self.pwm_controller.set_pwm(self.r3_forward, 4096 if right_forward else 0)
 
-    def on_message(self, client, userdata, msg):
-        topic = msg.topic
-        message = msg.payload.decode()
-
-        if topic == "/dev/drive" and "update" not in topic:
-            if "speed" in message:
-                self.speed = int(message.split(":")[-1])
-                self.speed = min(self.speed, 0)
-                self.speed = max(self.speed, 100)
-                scaled_speed = int(self.speed * 4096 / 100)
-                self.controller.set_pwm(13, scaled_speed, 0)
-                self.controller.set_pwm(15, scaled_speed, 0)
-            elif message == "left":
-                self.direction = "left"
-                self.controller.set_pwm(14, 4095, 0)
-                self.controller.set_pwm(12, 0, 0)
-            elif message == "right":
-                self.direction = "right"
-                self.controller.set_pwm(14, 0, 0)
-                self.controller.set_pwm(12, 4095, 0)
-            elif message == "reverse":
-                self.direction = "reverse"
-                self.controller.set_pwm(14, 4095, 0)
-                self.controller.set_pwm(12, 4095, 0)
-            elif message == "stop":
-                self.speed = 0
-                self.controller.set_pwm(12, 0, 0)
-                self.controller.set_pwm(13, 0, 0)
-                self.controller.set_pwm(14, 0, 0)
-                self.controller.set_pwm(15, 0, 0)
-            status = {"speed": self.speed, "direction": self.direction}
-            self.mqtt_client.publish("/dev/drive/status/update", json.dumps(status))
-        if self.on_update_callback and topic == "/dev/drive/status/update":
-            status = json.loads(message)
-            self.on_update_callback(status)
+    def _set_speed(self, value):
+        self.pwm_controller.set_pwm(self.l1_pwm, value)
+        self.pwm_controller.set_pwm(self.l2_pwm, value)
+        self.pwm_controller.set_pwm(self.l3_pwm, value)
+        self.pwm_controller.set_pwm(self.r1_pwm, value)
+        self.pwm_controller.set_pwm(self.r2_pwm, value)
+        self.pwm_controller.set_pwm(self.r3_pwm, value)
 
     def set_speed(self, speed):
-        self.mqtt_client.publish("/dev/drive/speed", str(speed))
+        self.speed = speed
+        self._set_speed(self.speed)
 
     def move_left(self):
-        self.mqtt_client.publish("/dev/drive", "left")
+        self.direction = "left"
+        self._set_direction(False, True)
 
     def move_right(self):
-        self.mqtt_client.publish("/dev/drive", "right")
+        self.direction = "right"
+        self._set_direction(True, False)
 
     def reverse(self):
-        self.mqtt_client.publish("/dev/drive", "reverse")
+        self.direction = "reverse"
+        self._set_direction(False, False)
+
+    def forward(self):
+        self.direction = "forward"
+        self._set_direction(True, True)
 
     def stop(self):
-        self.mqtt_client.publish("/dev/drive", "stop")
+        self.set_speed(0)

@@ -1,44 +1,76 @@
 import paho.mqtt.client as mqtt
+import time
 from smbus3 import SMBus
 
 
 class PCA9685:
-    def __init__(self, address=0x40):
+    def __init__(self, address=0x40, busnum=1):
+        self.bus = SMBus(busnum)
         self.address = address
-        self.bus = SMBus(1)  # Use I2C bus 1
-        self.bus.write_byte(self.address, 0x00)  # Reset the PCA9685
+        self.PCA9685_MODE1 = 0x00
+        self.PCA9685_MODE2 = 0x01
+        self.PCA9685_PRESCALE = 0xFE
+        self.LED0_ON_L = 0x06
+        self.LED0_OFF_L = 0x08
+        self.ALL_LED_ON_L = 0xFA
+        self.ALL_LED_OFF_L = 0xFC
+        self.MODE1_RESTART = 0x80
+        self.MODE1_SLEEP = 0x10
+        self.MODE1_AI = 0x20
+        self.MODE2_OUTDRV = 0x04
 
-    def set_pwm_frequency(self, frequency):
-        prescale = 25000000.0 / (4096.0 * float(frequency)) - 1.0
-        prescale = int(round(prescale))
-        self.bus.write_byte_data(self.address, 0xFE, prescale)
+        self._init_device()
+        self.pwm_values = [0] * 16
+    def _init_device(self):
+        self.set_all_pwm(0, 0)
+        self.bus.write_byte_data(self.address, self.PCA9685_MODE2, self.MODE2_OUTDRV)
+        self.bus.write_byte_data(self.address, self.PCA9685_MODE1, self.MODE1_AI | self.MODE1_SLEEP)
+        time.sleep(0.005)
+        mode1 = self.bus.read_byte_data(self.address, self.PCA9685_MODE1)
+        mode1 = mode1 & ~self.MODE1_SLEEP
+        self.bus.write_byte_data(self.address, self.PCA9685_MODE1, mode1)
+        time.sleep(0.005)
+        self.set_pwm_freq(30)
 
-    def set_pwm(self, channel, on_value, off_value):
-        self.bus.write_word_data(self.address, 0x06 + 4 * channel, on_value)
-        self.bus.write_word_data(self.address, 0x08 + 4 * channel, off_value)
+    def set_pwm_freq(self, freq_hz):
+        prescale_val = 25000000.0
+        prescale_val /= 4096.0
+        prescale_val /= float(freq_hz)
+        prescale_val -= 1.0
+        prescale = int(prescale_val + 0.5)
+
+        old_mode = self.bus.read_byte_data(self.address, self.PCA9685_MODE1)
+        new_mode = (old_mode & 0x7F) | self.MODE1_SLEEP
+        self.bus.write_byte_data(self.address, self.PCA9685_MODE1, new_mode)
+        self.bus.write_byte_data(self.address, self.PCA9685_PRESCALE, prescale)
+        self.bus.write_byte_data(self.address, self.PCA9685_MODE1, old_mode)
+        time.sleep(0.005)
+        self.bus.write_byte_data(self.address, self.PCA9685_MODE1, old_mode | self.MODE1_RESTART)
+
+    def set_pwm(self, channel, off, on=0):
+        self.bus.write_byte_data(self.address, self.LED0_ON_L + 4 * channel, on & 0xFF)
+        self.bus.write_byte_data(self.address, self.LED0_ON_L + 4 * channel + 1, on >> 8)
+        self.bus.write_byte_data(self.address, self.LED0_OFF_L + 4 * channel, off & 0xFF)
+        self.bus.write_byte_data(self.address, self.LED0_OFF_L + 4 * channel + 1, off >> 8)
+        self.pwm_values[channel] = off
+
+    def set_all_pwm(self, on, off):
+        off = min(off, 4095)
+        self.bus.write_byte_data(self.address, self.ALL_LED_ON_L, on & 0xFF)
+        self.bus.write_byte_data(self.address, self.ALL_LED_ON_L + 1, on >> 8)
+        self.bus.write_byte_data(self.address, self.ALL_LED_OFF_L, off & 0xFF)
+        self.bus.write_byte_data(self.address, self.ALL_LED_OFF_L + 1, off >> 8)
 
 
 class PWMController:
     def __init__(self):
-        self.broker_address = "10.0.0.2"
-        self.topics = ["/dev/pwm/{}".format(i) for i in range(17)]  # 0-16
-        self.client = mqtt.Client()
-        self.client.on_connect = self.on_connect
-        self.client.on_message = self.on_message
+        self.pwm_1 = PCA9685(address=0x43, busnum=3)
+        self.pwm_2 = PCA9685(address=0x40, busnum=3)
+        self.pwm_1.set_pwm_freq(30)
+        self.pwm_2.set_pwm_freq(30)
 
-    def on_connect(self, client, userdata, flags, rc):
-        print(f"Connected with result code {rc}")
-        for topic in self.topics:
-            self.client.subscribe(topic)
-
-    def on_message(self, client, userdata, msg):
-        message = msg.payload.decode()
-        print(f"Message received on topic {msg.topic}: {message}")
-        if msg.topic in self.topics:
-            channel = int(msg.topic.split("/")[-1])
-            on_value, off_value = int(message.split(",")[0]), int(message.split(",")[1])
-            self.pwm.set_pwm(channel, on_value, off_value)
-
-    def run(self):
-        self.client.connect(self.broker_address, port=1883)
-        self.client.loop_start()
+    def set_pwm(self, channel, off_value):
+        if channel < 17:
+            self.pwm_1.set_pwm(channel - 1, off_value)
+        else:
+            self.pwm_2.set_pwm(channel - 17, off_value)
