@@ -1,14 +1,10 @@
 import atexit
-import json
-import struct
 import threading
 import time
 import traceback
-from datetime import timedelta
 
 import numpy as np
 import pandas as pd
-import paho.mqtt.client as mqtt
 from rplidar import RPLidar
 
 
@@ -19,7 +15,15 @@ class LidarController:
         self.lidar = RPLidar("/dev/ttyUSB0", baudrate=460800)
         self.lidar.start_motor()
         self.lidar.connect()
+        self.lidar_on = True
+        self.last_reading = pd.DataFrame({
+            "angle":    np.zeros(360),
+            "distance": np.zeros(360),
+            "quality":  np.zeros(360),
+            })
         atexit.register(self.shutdown)
+        thread = threading.Thread(target=self.publish_lidar_data, daemon=True, name="Lidar Thread")
+        thread.start()
 
     def shutdown_lidar(self):
         if self.lidar is not None:
@@ -31,11 +35,8 @@ class LidarController:
             self.lidar_on = False
 
     def shutdown(self):
+        self.lidar_on = False
         self.shutdown_lidar()
-        if self.publish_thread is not None:
-            self.publish_thread.join()
-
-        self.mqtt_client.disconnect()
 
     def publish_lidar_data(self):
         while self.lidar_on:
@@ -48,23 +49,28 @@ class LidarController:
                         "distance": scan_distances,
                         })
                     new_index = pd.Index(np.arange(0, 360, 1), name="angle")
-                    scan_df = (scan_df.assign(
+                    self.last_reading = (scan_df.assign(
                             angle=lambda df: df["angle"].astype(int),
                             distance=lambda df: df["distance"].div(25.4))
-                               .drop_duplicates(subset="angle", keep="last")
-                               .sort_values(by="angle", ascending=True)
-                               .set_index("angle")
-                               .reindex(new_index)
-                               .reset_index()
-                               .ffill())
+                                         .drop_duplicates(subset="angle", keep="last")
+                                         .sort_values(by="angle", ascending=True)
+                                         .set_index("angle")
+                                         .reindex(new_index)
+                                         .reset_index()
+                                         .ffill()
+                                         .ewm(alpha=0.4)
+                                         .mean())
                     if self.callback is not None:
-                        self.callback(scan_df)
+                        self.callback(self.last_reading)
             except Exception as e:
                 print(f"Error publishing lidar data: {e}")
-                traceback.print_exc()
+                # traceback.print_exc()
                 print(self.lidar.get_health())
-                self.lidar.stop()
-                time.sleep(1)
                 self.lidar.reset()
-                time.sleep(10)
         self.shutdown_lidar()
+
+    def get_scan_data(self):
+        return self.last_reading["distance"].tolist()
+
+    def get_angles(self):
+        return self.last_reading["angle"].tolist()

@@ -1,45 +1,97 @@
 # user_interface/app.py
 
-
 import streamlit as st
+import plotly.graph_objects as go
+from time import sleep
+import pandas as pd
+from devices.compass import HMC5883L
+from devices.drive import DriveController
+from devices.gps import GPSController
+from devices.lidar import LidarController
+from devices.pwm_controller import PWMController
 from servicess.navigation_service import NavigationService
 
-# Initialize the NavigationService instance
-navigation_service = NavigationService(mqtt_broker_address="192.168.4.59")
+st.set_page_config(layout="wide")
 
-# Create a layout with buttons for each directional method
-col1, col2, col3, col4 = st.columns(4)
 
-# Add a video component to the left of the direction buttons
-with col1:
-    pass
-    # st.video("http://192.168.4.59:8080/stream?advanced_headers=1", format="video/mjpg", autoplay=True)
+@st.cache_resource
+def get_nav_service():
+    pwm_controller = PWMController()
+    lidar = LidarController()
+    compass = HMC5883L()
+    drive = DriveController(pwm_controller)
+    gps = GPSController()
+    return NavigationService(compass, drive, lidar, gps)
 
-with col2:
-    if st.button("Left"):
-        navigation_service.move_left()
 
-with col3:
-    if st.button("Up"):
-        navigation_service.set_speed(50)
+def get_gps_data(gps_controller):
+    lat = gps_controller.get_latitude()
+    lon = gps_controller.get_longitude()
+    return pd.DataFrame({"latitude": [lat], "longitude": [lon]}).dropna(how="any")
 
-with col4:
-    if st.button("Right"):
-        navigation_service.move_right()
 
-with st.container():
-    col5, col6 = st.columns(2)
+def display_lidar_data(lidar):
+    # Create a polar graph using Plotly
+    fig = go.Figure(go.Scatterpolar(
+            r=lidar.get_scan_data(),
+            theta=lidar.get_angles(),
+            mode='lines+markers',
+            ))
+    fig.update_layout(
+            title='Lidar Scan Data',
+            polar=dict(
+                    radialaxis=dict(visible=True, range=[0, 100]),
+                    angularaxis=dict(
+                            tickfont_size=8,
+                            rotation=90,
+                            direction="clockwise"
+                            ),
+                    ),
+            width=1000,
+            height=1000,
+            template="plotly_dark"
+            )
+    return fig
 
-    with col5:
-        speed = st.slider("Speed", min_value=0, max_value=4095, value=0)
-        if st.button("Set Speed"):
-            navigation_service.set_speed(speed)
 
-    with col6:
-        if st.button("Stop"):
-            navigation_service.stop()
+navigation_service = get_nav_service()
 
-# Run the app
-if __name__ == "__main__":
-    st.sidebar.title("Navigation")
-    st.sidebar.subheader("Drive")
+
+@st.experimental_fragment(run_every=5)
+def lidar_widget():
+    st.subheader("Lidar Scan Data")
+    lidar_fig = display_lidar_data(navigation_service.lidar_controller)
+    st.plotly_chart(lidar_fig)
+
+
+@st.experimental_fragment(run_every=60)
+def gps_widget():
+    st.subheader("GPS Data")
+    st.map(get_gps_data(navigation_service.gps_controller), size=2, zoom=17)
+    st.subheader("Compass Data")
+    st.write(f"Heading: {navigation_service.compass_controller.get_heading()}")
+
+
+nav_col, compass_col, lidar_col = st.columns(3, gap="medium")
+
+# Create buttons for drive methods
+with nav_col:
+    st.subheader("Drive Controls")
+    if st.button("Drive Forward", key="fwd"):
+        navigation_service.drive_forward(4096)  # Example speed value
+    if st.button("Drive Backward", key="bwd"):
+        navigation_service.drive_backward(4096)  # Example speed value
+    if st.button("Drive Left", key="left"):
+        navigation_service.drive_left(4000)  # Example speed value
+    if st.button("Drive Right", key="right"):
+        navigation_service.drive_right(4000)  # Example speed value
+    if st.button("Stop Driving", key="stop"):
+        navigation_service.stop_driving()
+
+    # Display GPS and compass data in a collapsable container
+
+with compass_col:
+    gps_widget()
+
+with lidar_col:
+    lidar_widget()
