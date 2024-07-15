@@ -2,6 +2,7 @@ import atexit
 import threading
 import time
 import traceback
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -11,21 +12,23 @@ from rplidar import RPLidar
 class LidarController:
 
     def __init__(self, on_update_callback=None):
+        self.last_scan = None
         self.callback = on_update_callback
         self.lidar = RPLidar("/dev/ttyUSB0", baudrate=460800)
-        self.lidar.start_motor()
-        self.lidar.connect()
         self.lidar_on = True
+        self.measurements = []
         self.last_reading = pd.DataFrame({
             "angle":    np.zeros(360),
             "distance": np.zeros(360),
             "quality":  np.zeros(360),
             })
+        self.semephore = threading.Semaphore(0)
         atexit.register(self.shutdown)
         thread = threading.Thread(target=self.publish_lidar_data, daemon=True, name="Lidar Thread")
         thread.start()
 
     def shutdown_lidar(self):
+        print("Shutting down Lidar...")
         if self.lidar is not None:
             self.lidar.stop()
             self.lidar.stop_motor()
@@ -39,9 +42,12 @@ class LidarController:
         self.shutdown_lidar()
 
     def publish_lidar_data(self):
+        print("Collecting Lidar Data...")
         while self.lidar_on:
+            # noinspection TryExceptContinue
             try:
-                for scan in self.lidar.iter_scans():
+                self.lidar.clear_input()
+                for scan in self.lidar.iter_scans(max_buf_meas=2000, min_len=100):
                     scan_qualities, scan_angles, scan_distances = zip(*scan)
                     scan_df = pd.DataFrame({
                         "quality":  scan_qualities,
@@ -59,14 +65,10 @@ class LidarController:
                                          .reset_index()
                                          .ffill()
                                          .ewm(alpha=0.4)
-                                         .mean())
-                    if self.callback is not None:
-                        self.callback(self.last_reading)
-            except Exception as e:
-                print(f"Error publishing lidar data: {e}")
-                # traceback.print_exc()
-                print(self.lidar.get_health())
-                self.lidar.reset()
+                                         .mean()
+                                         .assign(timestamp=pd.to_datetime(datetime.utcnow(), utc=True)))
+            except:
+                continue
         self.shutdown_lidar()
 
     def get_scan_data(self):
@@ -74,3 +76,6 @@ class LidarController:
 
     def get_angles(self):
         return self.last_reading["angle"].tolist()
+
+    def get_last_reading(self):
+        return self.last_reading.copy()

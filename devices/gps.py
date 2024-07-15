@@ -1,4 +1,6 @@
+import json
 import threading
+
 import serial
 import pynmea2
 
@@ -14,12 +16,16 @@ class GPSController:
         self.process_thread = threading.Thread(target=self.process_gps_data)
         self.process_thread.start()
 
+    def read_line(self):
+        line = self.gps.readline().decode("utf-8", errors="ignore").strip()
+        return line
+
     def process_gps_data(self):
         while True:
             line = self.gps.readline().decode("utf-8", errors="ignore").strip()
             if line:
                 try:
-                    if "GGA" in line:  # RMC (Recommended Minimum Navigation Information)
+                    if "GGA" :  # RMC (Recommended Minimum Navigation Information)
                         msg = pynmea2.parse(line)
                         self.latitude = msg.latitude
                         self.longitude = msg.longitude

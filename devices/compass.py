@@ -1,4 +1,4 @@
-import smbus
+import smbus3 as smbus
 import math
 
 class HMC5883L:
