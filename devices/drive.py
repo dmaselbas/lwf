@@ -4,18 +4,18 @@ from devices.pwm_controller import PWMController
 class DriveController:
     def __init__(self,  pwm_controller:PWMController):
         self.pwm_controller = pwm_controller
-        self.l1_forward = 9 + 16
-        self.l1_reverse = 10 + 16
-        self.l2_pwm = 9
-        self.l2_forward = 10
-        self.l3_pwm = 1
-        self.l3_forward = 12
+        self.l1_forward = 10 + 16
+        self.l1_reverse = 9 + 16
+        self.l2_pwm = 1
+        self.l2_forward = 2
+        self.l3_pwm = 3
+        self.l3_forward = 4
         self.r1_forward = 11 + 16
         self.r1_reverse = 12 + 16
-        self.r2_pwm = 13
-        self.r2_forward = 13
-        self.r3_pwm = 13
-        self.r3_forward = 13
+        self.r2_pwm = 5
+        self.r2_forward = 6
+        self.r3_pwm = 7
+        self.r3_forward = 8
         self.speed = 0
         self.stop()
         self.direction = "forward"

@@ -30,7 +30,7 @@ class PCA9685:
         mode1 = mode1 & ~self.MODE1_SLEEP
         self.bus.write_byte_data(self.address, self.PCA9685_MODE1, mode1)
         time.sleep(0.005)
-        self.set_pwm_freq(30)
+        self.set_pwm_freq(60)
 
     def set_pwm_freq(self, freq_hz):
         prescale_val = 25000000.0
@@ -48,14 +48,12 @@ class PCA9685:
         self.bus.write_byte_data(self.address, self.PCA9685_MODE1, old_mode | self.MODE1_RESTART)
 
     def set_pwm(self, channel, off, on=0):
-        print(self.address)
         off = max(min(off, 4095), 0)
         self.bus.write_byte_data(self.address, self.LED0_ON_L + 4 * channel, on & 0xFF)
         self.bus.write_byte_data(self.address, self.LED0_ON_L + 4 * channel + 1, on >> 8)
         self.bus.write_byte_data(self.address, self.LED0_OFF_L + 4 * channel, off & 0xFF)
         self.bus.write_byte_data(self.address, self.LED0_OFF_L + 4 * channel + 1, off >> 8)
         self.pwm_values[channel] = off
-        time.sleep(0.05)
     def set_all_pwm(self, on, off):
         self.bus.write_byte_data(self.address, self.ALL_LED_ON_L, on & 0xFF)
         self.bus.write_byte_data(self.address, self.ALL_LED_ON_L + 1, on >> 8)
@@ -71,8 +69,10 @@ class PWMController:
     def set_pwm(self, channel, value):
         try:
             if channel < 17:
+                channel -= 1  # Adjust for zero-based indexing in the PCA9685
                 self.pwm1.set_pwm(channel,  value)
             else:
-                self.pwm2.set_pwm(channel - 16, value)
+                channel -= 17  # Adjust for zero-based indexing in the PCA9685
+                self.pwm2.set_pwm(channel, value)
         except Exception as e:
             print(f"Error setting PWM value: {e}")
