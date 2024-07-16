@@ -1,4 +1,3 @@
-import paho.mqtt.client as mqtt
 import time
 from smbus3 import SMBus
 
@@ -48,7 +47,7 @@ class PCA9685:
         self.bus.write_byte_data(self.address, self.PCA9685_MODE1, old_mode | self.MODE1_RESTART)
 
     def set_pwm(self, channel, off, on=0):
-        off = max(min(off, 4095), 0)
+        off = max(min(off, 4096), 0)
         self.bus.write_byte_data(self.address, self.LED0_ON_L + 4 * channel, on & 0xFF)
         self.bus.write_byte_data(self.address, self.LED0_ON_L + 4 * channel + 1, on >> 8)
         self.bus.write_byte_data(self.address, self.LED0_OFF_L + 4 * channel, off & 0xFF)
@@ -74,5 +73,27 @@ class PWMController:
             else:
                 channel -= 17  # Adjust for zero-based indexing in the PCA9685
                 self.pwm2.set_pwm(channel, value)
+        except Exception as e:
+            print(f"Error setting PWM value: {e}")
+
+    def set_pin_on(self, channel):
+        try:
+            if channel < 17:
+                channel -= 1  # Adjust for zero-based indexing in the PCA9685
+                self.pwm1.set_pwm(channel, 0, 4096)
+            else:
+                channel -= 17  # Adjust for zero-based indexing in the PCA9685
+                self.pwm2.set_pwm(channel, 0, 4096)
+        except Exception as e:
+            print(f"Error setting PWM value: {e}")
+
+    def set_pin_off(self, channel):
+        try:
+            if channel < 17:
+                channel -= 1  # Adjust for zero-based indexing in the PCA9685
+                self.pwm1.set_pwm(channel, 4096, 0)
+            else:
+                channel -= 17  # Adjust for zero-based indexing in the PCA9685
+                self.pwm2.set_pwm(channel, 4096, 0)
         except Exception as e:
             print(f"Error setting PWM value: {e}")
