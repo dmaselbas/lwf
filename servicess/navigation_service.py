@@ -16,29 +16,25 @@ class NavigationService:
                 lidar=lidar,
                 gps=gps
                 )
-        self.lidar_controller: LidarController= lidar
+        self.lidar_controller: LidarController = lidar
         self.compass_controller: HMC5883L = compass
-        self.gps_controller: GPSController= gps
+        self.gps_controller: GPSController = gps
         self.drive_controller: DriveController = drive
 
     def handle_collision_avoidance_update(self, data):
         # Implement collision avoidance update handling logic here
         pass
 
-    def drive_forward(self, speed):
-        self.drive_controller.set_speed(speed)
+    def drive_forward(self):
         self.drive_controller.forward()
 
-    def drive_backward(self, speed):
-        self.drive_controller.set_speed(speed)
+    def drive_backward(self):
         self.drive_controller.reverse()
 
-    def drive_left(self, speed):
-        self.drive_controller.set_speed(speed)
+    def drive_left(self):
         self.drive_controller.left()
 
-    def drive_right(self, speed):
-        self.drive_controller.set_speed(speed)
+    def drive_right(self):
         self.drive_controller.right()
 
     def stop_driving(self):

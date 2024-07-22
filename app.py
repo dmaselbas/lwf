@@ -1,5 +1,5 @@
 # user_interface/app.py
-
+import requests
 import streamlit as st
 import streamlit.components.v1 as components
 import plotly.graph_objects as go
@@ -15,7 +15,7 @@ from servicess.navigation_service import NavigationService
 
 st.set_page_config(layout="wide")
 st.session_state.gps_data = pd.DataFrame(columns=["lat", "lon"])
-nav_cam_html = f'<iframe src="http://192.168.5.240:8080/?action=stream" width="100%" height="600" frameborder="0"></iframe>'
+nav_cam_html = f'<iframe src="http://192.168.5.240:8080/?action=stream" width="100%" frameborder="0"></iframe>'
 
 
 @st.cache_resource
@@ -90,23 +90,35 @@ nav_col, compass_col, lidar_col = st.columns(3, gap="medium")
 # Create buttons for drive methods
 with nav_col:
     st.subheader("Drive Controls")
-    components.iframe("http://192.168.5.240:8080/?action=stream", width=800, height=600)
+    # components.iframe("http://192.168.5.243/web/index.html", width=888, height=500)
+    components.iframe("http://192.168.5.240:8080/?action=stream", width=888, height=500)
     speed = st.slider("Speed", min_value=0, max_value=4095, key="speed")
     navigation_service.drive_controller.set_speed(speed)
-    pan = st.slider("Camera Pan", min_value=512, max_value=0, key="nav_cam_pan")
+    pan = st.slider("Camera Pan", min_value=512, max_value=90, key="nav_cam_pan")
     (NavigationCameraController(navigation_service.drive_controller.pwm_controller).set_pan_position(pan))
-    if st.button("Forward", key="fwd"):
-        navigation_service.drive_forward(4095)  # Example speed value
-    if st.button("Backward", key="bwd"):
-        navigation_service.drive_backward(4095)  # Example speed value
-    if st.button("Left", key="left"):
-        navigation_service.drive_left(4000)  # Example speed value
-    if st.button("Right", key="right"):
-        navigation_service.drive_right(4000)  # Example speed value
-    if st.button("Stop", key="stop"):
-        navigation_service.stop_driving()
+    with st.container():
+        left_buttons, center_buttons, right_buttons = st.columns(3)
+        with left_buttons:
+            if st.button("Left", key="left"):
+                navigation_service.drive_left(4000)  # Example speed value
+        with center_buttons:
+            if st.button("Forward", key="fwd"):
+                navigation_service.drive_forward(4095)  # Example speed value
+            if st.button("Stop", key="stop"):
+                navigation_service.stop_driving()
+            if st.button("Backward", key="bwd"):
+                navigation_service.drive_backward(4095)  # Example speed value
+        with right_buttons:
+            if st.button("Right", key="right"):
+                navigation_service.drive_right(4000)  # Example speed value
 with compass_col:
-    gps_widget()
-
+    st.subheader("Laser")
+    left_laser_button, right_laser_button = st.columns(2)
+    with left_laser_button:
+        if st.button("Laser On", key="laser_on"):
+            requests.post("http://192.168.5.242:5000/laser/on")
+    with right_laser_button:
+        if st.button("Laser Off", key="laser_off"):
+            requests.post("http://192.168.5.242:5000/laser/off")
 with lidar_col:
     lidar_widget()
