@@ -21,10 +21,9 @@ nav_cam_html = f'<iframe src="http://192.168.5.240:8080/?action=stream" width="1
 @st.cache_resource
 def get_nav_service():
     lidar = LidarController()
-    compass = HMC5883L()
     drive = DriveController(PWMController())
     gps = GPSController()
-    return NavigationService(compass, drive, lidar, gps)
+    return NavigationService(drive, lidar, gps)
 
 
 def on_nav_cam_pan_position_changed():
@@ -34,8 +33,32 @@ def on_nav_cam_pan_position_changed():
 
 
 def get_gps_data(gps_controller: GPSController):
-    return gps_controller.get_longitude(), gps_controller.get_latitude()
+    return gps_controller.get_gps_reading()
 
+def display_compass_heading():
+    compass_heading = navigation_service.gps_controller.get_heading()
+    fig = go.Figure(go.Scatterpolar(
+        r=[1, 1],
+        theta=[0, compass_heading],
+        mode='lines',
+        line=dict(color='red', width=4)
+    ))
+    fig.update_layout(
+        title='Compass Heading',
+        polar=dict(
+            radialaxis=dict(visible=False),
+            angularaxis=dict(
+                tickmode='array',
+                tickvals=[0, 90, 180, 270],
+                ticktext=['N', 'E', 'S', 'W']
+            )
+        ),
+        showlegend=False,
+        width=500,
+        height=500,
+        template="plotly_dark"
+    )
+    return fig
 
 def display_lidar_data():
     # Create a polar graph using Plotly
@@ -59,8 +82,8 @@ def display_lidar_data():
                             direction="clockwise"
                             ),
                     ),
-            width=1000,
-            height=1000,
+            width=500,
+            height=500,
             template="plotly_dark"
             )
     return fig
@@ -78,10 +101,10 @@ def lidar_widget():
 @st.experimental_fragment(run_every=10)
 def gps_widget():
     st.subheader("GPS Data")
-    # st.map(lat=navigation_service.gps_controller.latitude,
-    #        lon=navigation_service.gps_controller.longitude, size=2, zoom=17)
-    # st.subheader("Compass Data")
-    # st.write(f"Heading: {navigation_service.compass_controller.get_heading()}")
+    gps_data = get_gps_data(navigation_service.gps_controller)
+    st.write(gps_data["datetime"])
+    st.map(gps_data, size=2, zoom=17)
+    st.write(gps_data["heading"])
     st.empty()
 
 
@@ -91,7 +114,7 @@ nav_col, compass_col, lidar_col = st.columns(3, gap="medium")
 with nav_col:
     st.subheader("Drive Controls")
     # components.iframe("http://192.168.5.243/web/index.html", width=888, height=500)
-    components.iframe("http://192.168.5.240:8080/?action=stream", width=888, height=500)
+    components.iframe("	http://192.168.5.243/cgi-bin/hi3510/snap.cgi?&-getstream&-chn=2", height=500)
     speed = st.slider("Speed", min_value=0, max_value=4095, key="speed")
     navigation_service.drive_controller.set_speed(speed)
     pan = st.slider("Camera Pan", min_value=512, max_value=90, key="nav_cam_pan")
@@ -100,25 +123,35 @@ with nav_col:
         left_buttons, center_buttons, right_buttons = st.columns(3)
         with left_buttons:
             if st.button("Left", key="left"):
-                navigation_service.drive_left(4000)  # Example speed value
+                navigation_service.drive_left()  # Example speed value
         with center_buttons:
             if st.button("Forward", key="fwd"):
-                navigation_service.drive_forward(4095)  # Example speed value
+                navigation_service.drive_forward()  # Example speed value
             if st.button("Stop", key="stop"):
                 navigation_service.stop_driving()
             if st.button("Backward", key="bwd"):
-                navigation_service.drive_backward(4095)  # Example speed value
+                navigation_service.drive_backward()  # Example speed value
         with right_buttons:
             if st.button("Right", key="right"):
-                navigation_service.drive_right(4000)  # Example speed value
+                navigation_service.drive_right()  # Example speed value
 with compass_col:
-    st.subheader("Laser")
-    left_laser_button, right_laser_button = st.columns(2)
-    with left_laser_button:
-        if st.button("Laser On", key="laser_on"):
-            requests.post("http://192.168.5.242:5000/laser/on")
-    with right_laser_button:
-        if st.button("Laser Off", key="laser_off"):
-            requests.post("http://192.168.5.242:5000/laser/off")
+    with st.container():
+        cas_btn_1, cas_btn_2, right_laser_button, left_laser_button = st.columns(4)
+        with cas_btn_1:
+            if st.button("CAS On", key="cas_on"):
+                navigation_service.collision_avoidance_system.turn_on()
+        with cas_btn_2:
+            if st.button("CAS Off", key="cas_off"):
+                navigation_service.collision_avoidance_system.turn_off()
+        with left_laser_button:
+            if st.button("Laser On", key="laser_on"):
+                requests.post("http://192.168.5.242:5000/laser/on")
+        with right_laser_button:
+            if st.button("Laser Off", key="laser_off"):
+                requests.post("http://192.168.5.242:5000/laser/off")
+    with st.container():
+        gps_widget()
 with lidar_col:
     lidar_widget()
+    st.write(f"Collision Probability: {navigation_service.collision_avoidance_system.calculate_collision_probability() * 100}%")
+    display_compass_heading()

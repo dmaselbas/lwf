@@ -44,7 +44,8 @@ class GPSController:
                                         altitude_units=msg.altitude_units,
                                         num_sats=msg.num_sats,
                                         heading=h)
-                        self.gps_data = self.gps_data.append(gps_data, ignore_index=True)
+                        gps_data = pd.DataFrame(gps_data, index=[0])
+                        self.gps_data = pd.concat([self.gps_data, gps_data], ignore_index=True)
                 except serial.SerialException as e:
                     print('Device error: {}'.format(e))
                     continue
@@ -54,3 +55,6 @@ class GPSController:
 
     def get_gps_reading(self):
         return self.gps_data.tail(1)
+
+    def get_heading(self):
+        return self.compass.get_bearing()

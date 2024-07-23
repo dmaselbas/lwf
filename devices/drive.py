@@ -1,3 +1,4 @@
+import atexit
 from devices.pwm_controller import PWMController
 
 
@@ -15,9 +16,14 @@ class DriveController:
         self.speed = 0
         self.stop()
         self.direction = "stop"
+        atexit.register(self.shutdown)
+
+    def shutdown(self):
+        self.stop()
 
     def _set_speed(self, value):
         value = min(max(value, 0), 4095)
+        self.speed = value
         if self.direction == "forward":
             self.pwm_controller.set_pwm(self.lf_forward, 0)
             self.pwm_controller.set_pwm(self.lf_reverse, value)
@@ -79,3 +85,12 @@ class DriveController:
     def stop(self):
         self.direction = "stop"
         self.set_speed(0)
+
+    def get_speed(self):
+        return self.speed
+
+    def get_direction(self):
+        return self.direction
+
+    def set_direction(self, last_direction):
+        self.direction = last_direction

@@ -69,7 +69,6 @@ class LidarController:
                                          .assign(timestamp=pd.to_datetime(datetime.utcnow(), utc=True)))
             except:
                 continue
-        self.shutdown_lidar()
 
     def get_scan_data(self):
         return self.last_reading["distance"].tolist()
