@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import pandas as pd
 import serial
 import pynmea2
+import paho.mqtt.client as mqtt
 
 from devices.compass import HMC5883L
 
@@ -25,6 +26,11 @@ class GPSController:
         self.process_thread = threading.Thread(target=self.process_gps_data)
         self.process_thread.start()
 
+        # Initialize MQTT client
+        self.mqtt_client = mqtt.Client()
+        self.mqtt_client.connect("mqtt.weedfucker.local", 1883, 60)
+        self.mqtt_client.loop_start()
+
     def read_line(self):
         line = self.gps.readline().decode("utf-8", errors="ignore").strip()
         return line
@@ -37,15 +43,23 @@ class GPSController:
                 try:
                     if "GGA" in line:  # RMC (Recommended Minimum Navigation Information)
                         msg = pynmea2.parse(line)
-                        gps_data = dict(datetime=datetime.now(timezone.utc).timestamp(),
+                        gps_data = dict(timestamp=datetime.now(timezone.utc).timestamp(),
                                         latitude=msg.latitude,
                                         longitude=msg.longitude,
                                         altitude=msg.altitude,
                                         altitude_units=msg.altitude_units,
                                         num_sats=msg.num_sats,
                                         heading=h)
-                        gps_data = pd.DataFrame(gps_data, index=[0])
-                        self.gps_data = pd.concat([self.gps_data, gps_data], ignore_index=True)
+                        # Publish the GPS data to the MQTT topic
+                        self.mqtt_client.publish("/dev/gps/update", json.dumps(gps_data))
+
+                        gps_data_df = pd.DataFrame(gps_data, index=[0])
+                        self.gps_data = pd.concat([self.gps_data, gps_data_df], ignore_index=True)
+                        
+
+                        # Call the update callback if provided
+                        if self.on_update_callback:
+                            self.on_update_callback(gps_data)
                 except serial.SerialException as e:
                     print('Device error: {}'.format(e))
                     continue

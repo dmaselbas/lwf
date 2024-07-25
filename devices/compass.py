@@ -1,8 +1,12 @@
+import atexit
 import time
 from time import sleep
 import smbus3 as smbus
 import math
 from logging import getLogger
+import paho.mqtt.client as mqtt
+import threading
+
 class HMC5883L:
     DFLT_BUS = 4
     DFLT_ADDRESS = 0x0d
@@ -52,6 +56,7 @@ class HMC5883L:
                  output_range=RNG_2G,
                  oversampling_rate=OSR_512):
 
+        self.running = True
         self.logging = getLogger(__name__)
         self.address = address
         self.bus = smbus.SMBus(i2c_bus)
@@ -69,9 +74,30 @@ class HMC5883L:
         self.mode_stby = (self.MODE_STBY | self.ODR_10HZ | self.RNG_2G | self.OSR_64)
         self.mode_continuous()
 
+        self.thread = threading.Thread(target=self.run)
+        self.thread.daemon = True
+        self.thread.start()
+
+        # Initialize MQTT client
+        self.mqtt_client = mqtt.Client()
+        self.mqtt_client.connect("mqtt.weedfucker.local", 1883, 60)
+        self.mqtt_client.loop_start()
+
+        atexit.register(self._shutdown)
+
+
+    def _shutdown(self):
+        if self.running:
+            print("Stopping Compas...")
+            self.running = False
+            self.mode_standby()
+            self.bus.close()
+            self.mqtt_client.loop_stop()
+            self.mqtt_client.disconnect()
+
     def __del__(self):
         """Once finished using the sensor, switch to standby mode."""
-        self.mode_standby()
+        self._shutdown()
 
     def mode_continuous(self):
         """Set the device in continuous read mode."""
@@ -186,7 +212,13 @@ class HMC5883L:
     def get_temp(self):
         """Raw (uncalibrated) data from temperature sensor."""
         [x, y, z, t] = self.get_data()
-        return t
+        if t is not None:
+            # Convert the raw temperature to Celsius (assuming the raw value is in Celsius)
+            temp_celsius = t / 100.0  # Adjust this conversion factor as needed
+            # Convert Celsius to Fahrenheit
+            temp_fahrenheit = (temp_celsius * 9.0 / 5.0) + 32.0
+            return temp_fahrenheit
+        return None
 
     def set_declination(self, value):
         """Set the magnetic declination, in degrees."""
@@ -225,3 +257,13 @@ class HMC5883L:
     calibration = property(fget=get_calibration,
                            fset=set_calibration,
                            doc=u'Transformation matrix to adjust (x, y) magnetic vector.')
+
+    def run(self):
+        while self.running:
+            bearing = self.get_bearing()
+            temp = self.get_temp()
+            if bearing is not None:
+                self.mqtt_client.publish("/dev/compass/bearing", bearing)
+            if temp is not None:
+                self.mqtt_client.publish("/dev/compass/temp", temp)
+            time.sleep(1)

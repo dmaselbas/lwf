@@ -65,6 +65,13 @@ class PWMController:
         self.pwm1 = PCA9685(address=0x40)
         self.pwm2 = PCA9685(address=0x43)
 
+    def shutdown(self):
+        print("Shutting down PWM controller...")
+        self.pwm1.set_all_pwm(0, 0)
+        self.pwm2.set_all_pwm(0, 0)
+        self.pwm1.bus.close()
+        self.pwm2.bus.close()
+
     def set_pwm(self, channel, value):
         try:
             if channel < 17:

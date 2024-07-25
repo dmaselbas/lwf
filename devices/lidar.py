@@ -1,4 +1,5 @@
 import atexit
+import json
 import threading
 import time
 import traceback
@@ -7,6 +8,7 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 from rplidar import RPLidar
+import paho.mqtt.client as mqtt
 
 
 class LidarController:
@@ -22,10 +24,15 @@ class LidarController:
             "distance": np.zeros(360),
             "quality":  np.zeros(360),
             })
-        self.semephore = threading.Semaphore(0)
+        self.semaphore = threading.Semaphore(0)
         atexit.register(self.shutdown)
         thread = threading.Thread(target=self.publish_lidar_data, daemon=True, name="Lidar Thread")
         thread.start()
+
+        # Initialize MQTT client
+        self.mqtt_client = mqtt.Client()
+        self.mqtt_client.connect("mqtt.weedfucker.local", 1883, 60)
+        self.mqtt_client.loop_start()
 
     def shutdown_lidar(self):
         print("Shutting down Lidar...")
@@ -40,14 +47,16 @@ class LidarController:
     def shutdown(self):
         self.lidar_on = False
         self.shutdown_lidar()
+        self.mqtt_client.loop_stop()
+        self.mqtt_client.disconnect()
 
     def publish_lidar_data(self):
         print("Collecting Lidar Data...")
+        self.lidar.start_motor()
         while self.lidar_on:
-            # noinspection TryExceptContinue
             try:
                 self.lidar.clear_input()
-                for scan in self.lidar.iter_scans(max_buf_meas=2000, min_len=100):
+                for scan in self.lidar.iter_scans(max_buf_meas=2500, min_len=1000):
                     scan_qualities, scan_angles, scan_distances = zip(*scan)
                     scan_df = pd.DataFrame({
                         "quality":  scan_qualities,
@@ -67,6 +76,14 @@ class LidarController:
                                          .ewm(alpha=0.4)
                                          .mean()
                                          .assign(timestamp=pd.to_datetime(datetime.utcnow(), utc=True)))
+                    
+                    # Publish the Lidar data to the MQTT topic
+                    lidar_data = self.last_reading.to_dict(orient='list')
+                    self.mqtt_client.publish("/dev/lidar/update", json.dumps(lidar_data))
+                    
+                    # Call the update callback if provided
+                    if self.callback:
+                        self.callback(lidar_data)
             except:
                 continue
 

@@ -4,11 +4,11 @@ import threading
 import time
 from typing import Callable
 
-from devices.compass import HMC5883L
 from devices.drive import DriveController
 from devices.gps import GPSController
+from devices.imu import MPU6050
 from devices.lidar import LidarController
-from devices.pwm_controller import PWMController
+import paho.mqtt.client as mqtt
 
 
 class CollisionAvoidanceSystem:
@@ -16,34 +16,47 @@ class CollisionAvoidanceSystem:
     def __init__(self, on_update_callback: Callable,
                  drive: DriveController,
                  lidar: LidarController,
-                 gps: GPSController):
+                 gps: GPSController,
+                 imu: MPU6050):
+        self.running = True
         self.collision_probability = 1
         self.on_update_callback = on_update_callback
 
         self.lidar = lidar
         self.gps = gps
         self.drive = drive
+        self.imu = imu
+
         self.lidar_data = None
         self.gps_data = None
-        self.running = True
         self.last_speed = 0
         self.last_direction = None
         self.last_heading = 0
         self.taking_avoidance_action = False
         self.system_enabled = True
+
         atexit.register(self.shutdown)
 
         self.thread = threading.Thread(target=self.run, daemon=True, name="CollisionAvoidanceSystem")
         self.thread.start()
 
+        self.mqtt_client = mqtt.Client()
+        self.mqtt_client.connect("mqtt.weedfucker.local", 1883, 60)
+        self.mqtt_client.loop_start()
+
     def shutdown(self):
+        print("Shutting down CollisionAvoidanceSystem...")
         self.running = False
+        self.mqtt_client.loop_stop()
+        self.mqtt_client.disconnect()
 
     def turn_on(self):
         self.system_enabled = True
+        self.mqtt_client.publish("/svc/cos/status", "enabled")
 
     def turn_off(self):
         self.system_enabled = False
+        self.mqtt_client.publish("/svc/cos/status", "disabled")
 
     def handle_lidar_update(self, lidar_data):
         self.lidar_data = lidar_data
@@ -58,12 +71,13 @@ class CollisionAvoidanceSystem:
             time.sleep(5)
             return
         if not self.taking_avoidance_action:
+            self.mqtt_client.publish("/svc/cos/active", 1)
             self.taking_avoidance_action = True
             self.last_speed = self.drive.get_speed()
             self.last_direction = self.drive.get_direction()
             self.last_heading = self.gps.get_heading()
             self.drive.set_speed(0)
-            while self.calculate_collision_probability() > .90:
+            while self.calculate_collision_probability() > .95:
                 if not self.system_enabled:
                     return
                 dir_probs = self.calculate_directional_collision_probabilities()
@@ -73,19 +87,19 @@ class CollisionAvoidanceSystem:
                     self.drive.stop()
                 elif min_prob_direction == "rear":
                     self.drive.reverse()
-                    self.drive.set_speed(513)
+                    self.drive.set_speed(2048)
                 elif min_prob_direction == "left":
                     self.drive.left()
-                    self.drive.set_speed(513)
+                    self.drive.set_speed(2048)
                 elif min_prob_direction == "right":
                     self.drive.right()
-                    self.drive.set_speed(513)
+                    self.drive.set_speed(2048)
                 elif min_prob_direction == "front":
                     self.drive.forward()
-                    self.drive.set_speed(513)
+                    self.drive.set_speed(2048)
                 elif min_prob_direction == "rear":
                     self.drive.reverse()
-                    self.drive.set_speed(513)
+                    self.drive.set_speed(2048)
                 else:
                     self.drive.stop()
             self.resume()
@@ -100,12 +114,13 @@ class CollisionAvoidanceSystem:
                 last_heading_difference = heading_difference
             if mode == "left":
                 self.drive.left()
-                self.drive.set_speed(513)
+                self.drive.set_speed(2048)
             else:
                 self.drive.right()
-                self.drive.set_speed(513)
+                self.drive.set_speed(2048)
 
     def resume(self):
+        self.mqtt_client.publish("/svc/cos/active", 0)
         # self.correct_heading()
         self.taking_avoidance_action = False
         self.drive.set_direction(self.last_direction)
@@ -149,7 +164,6 @@ class CollisionAvoidanceSystem:
                 collision_probability = 1
 
             collision_probabilities[direction] = collision_probability
-        print(collision_probabilities)
         return collision_probabilities
 
     def calculate_collision_probability(self):
@@ -166,13 +180,15 @@ class CollisionAvoidanceSystem:
         while self.running:
             try:
                 self.lidar_data = self.lidar.get_last_reading()
-                self.lidar_data = self.lidar_data.drop(self.lidar_data.nsmallest(40, 'distance').index)
                 if self.lidar_data is not None:
                     self.calculate_collision_probability()
                     self.on_update_callback({
                         "lidar":                 self.lidar_data,
                         "collision_probability": self.collision_probability
                         })
+                mqtt_msg = self.calculate_directional_collision_probabilities()
+                mqtt_msg["collision_probability"] = self.collision_probability
+                self.mqtt_client.publish("/svc/cos/update", json.dumps(mqtt_msg))
                 if self.collision_probability > 0.95:
                     self.avoid_collision()
             except Exception as e:
