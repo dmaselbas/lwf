@@ -59,7 +59,7 @@ class HMC5883L:
         self.running = True
         self.logging = getLogger(__name__)
         self.address = address
-        self.bus = smbus.SMBus(i2c_bus)
+        self.bus = smbus.SMBus(int(i2c_bus))
         self.output_range = output_range
         self._declination = 0.0
         self._calibration = [[1.0, 0.0, 0.0],
@@ -91,7 +91,6 @@ class HMC5883L:
             print("Stopping Compas...")
             self.running = False
             self.mode_standby()
-            self.bus.close()
             self.mqtt_client.loop_stop()
             self.mqtt_client.disconnect()
 
@@ -118,7 +117,7 @@ class HMC5883L:
         sleep(0.01)
 
     def _read_byte(self, registry):
-        return self.bus.read_byte_data(self.address, registry)
+        return self.bus.read_byte_data(int(self.address), registry)
 
     def _read_word(self, registry):
         """Read a two bytes value stored as LSB and MSB."""

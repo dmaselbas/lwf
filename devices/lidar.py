@@ -56,7 +56,7 @@ class LidarController:
         while self.lidar_on:
             try:
                 self.lidar.clear_input()
-                for scan in self.lidar.iter_scans(max_buf_meas=2500, min_len=1000):
+                for scan in self.lidar.iter_scans(max_buf_meas=2000, min_len=360):
                     scan_qualities, scan_angles, scan_distances = zip(*scan)
                     scan_df = pd.DataFrame({
                         "quality":  scan_qualities,

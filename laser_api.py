@@ -24,6 +24,15 @@ def laser_move_right():
     laser_controller.move_right()
     return jsonify({"status": "Laser moving right"}), 200
 
+@app.route('/laser/cycle/enable', methods=['POST'])
+def laser_cycle_enable():
+    laser_controller.enable_cycle_motion()
+    return jsonify({"status": "Laser cycle enabled"}), 200
+
+@app.route('/laser/cycle/disable', methods=['POST'])
+def laser_cycle_disable():
+    laser_controller.disable_cycle_motion()
+    return jsonify({"status": "Laser cycle disabled"}), 200
 @app.route('/laser/move_to_position', methods=['POST'])
 def laser_move_to_position():
     data = request.get_json()

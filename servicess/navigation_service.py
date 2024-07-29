@@ -3,12 +3,13 @@ from servicess.collision_avoidance_service import CollisionAvoidanceSystem
 from devices.drive import DriveController
 from devices.lidar import LidarController
 from devices.gps import GPSController
-
+from devices.compass import HMC5883L
 
 class NavigationService:
 
     def __init__(self, drive: DriveController,
-                 lidar: LidarController, gps: GPSController, imu: MPU6050):
+                 lidar: LidarController, gps: GPSController,
+                 imu: MPU6050, compass: HMC5883L):
         self.collision_avoidance_system = CollisionAvoidanceSystem(
                 on_update_callback=self.handle_collision_avoidance_update,
                 drive=drive, lidar=lidar, gps=gps, imu=imu)
@@ -16,6 +17,7 @@ class NavigationService:
         self.gps_controller: GPSController = gps
         self.drive_controller: DriveController = drive
         self.imu = imu
+        self.compass = compass
 
     def handle_collision_avoidance_update(self, data):
         pass

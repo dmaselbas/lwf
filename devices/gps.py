@@ -54,9 +54,12 @@ class GPSController:
                         self.mqtt_client.publish("/dev/gps/update", json.dumps(gps_data))
 
                         gps_data_df = pd.DataFrame(gps_data, index=[0])
-                        self.gps_data = pd.concat([self.gps_data, gps_data_df], ignore_index=True)
-                        
-
+                        if len(self.gps_data):
+                            self.gps_data = pd.concat([self.gps_data, gps_data_df], ignore_index=True)
+                        else:
+                            self.gps_data = gps_data_df
+                        if len(self.gps_data) > 1000:
+                            self.gps_data = self.gps_data.tail(1000)
                         # Call the update callback if provided
                         if self.on_update_callback:
                             self.on_update_callback(gps_data)

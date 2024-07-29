@@ -1,10 +1,10 @@
 [Unit]
-Description=PWM Service
+Description=LWF System Control Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/pi/lwf/devices/pwm_controller.py
-WorkingDirectory=/home/pi/lwf
+ExecStart=/usr/bin/python3 /root/system_service.py
+WorkingDirectory=/root
 StandardOutput=inherit
 StandardError=inherit
 Restart=always

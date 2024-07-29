@@ -30,32 +30,23 @@ class CameraPTZ:
 
 
 class CameraController:
-
-    def __init__(self, pwm_controller: PWMController, pan_ch, tilt_ch) -> None:
+    def __init__(self, pwm_controller: PWMController, pan_ch, tilt_ch, move_callback, cam_name) -> None:
         self.pwm_controller = pwm_controller
-        self.camera_ptz = CameraPTZ(pwm_controller, pan_chan=pan_ch, tilt_chan=tilt_ch)
-        self.pan_position = 0
-        self.tilt_position = 0
-
-        Thread(target=self.home).start()
-
-    def home(self) -> None:
-        positions = np.linspace(0, 4095, 200, dtype=np.int16)
-        for position in positions:
-            self.camera_ptz.set_pan_position(position)
-            self.camera_ptz.set_tilt_position(position)
-        for position in reversed(positions):
-            self.camera_ptz.set_pan_position(position)
-            self.camera_ptz.set_tilt_position(position)
-        self.pan_position = positions[50]
-        self.tilt_position = positions[50]
-        self.camera_ptz.set_pan_position(self.pan_position)
-        self.camera_ptz.set_tilt_position(self.tilt_position)
+        self.pan_ch = pan_ch
+        self.tilt_ch = tilt_ch
+        self.move_callback = move_callback
+        self.cam_name = cam_name
+        self.pan_position: int = 0
+        self.tilt_position: int = 0
+        self.set_pan_position(256)
+        self.set_tilt_position(256)
 
     def set_pan_position(self, position: int) -> None:
         self.pan_position = position
-        self.camera_ptz.set_pan_position(self.pan_position)
+        self.pwm_controller.set_pwm(self.pan_ch, position)
+        self.move_callback(self.cam_name, "pan", position)
 
     def set_tilt_position(self, position: int) -> None:
         self.tilt_position = position
-        self.camera_ptz.set_tilt_position(self.tilt_position)
+        self.pwm_controller.set_pwm(self.tilt_ch, position)
+        self.move_callback(self.cam_name, "tilt", position)
