@@ -5,7 +5,7 @@ description = ""
 authors = ["Dustin Maselbas <dmaselbas@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.12"
+python = ">=3.9,<3.12"
 docopt = "^0.6.2"
 opencv-python-headless = "^4.10.0.82"
 mypy = "^1.10.0"
@@ -18,9 +18,14 @@ opencv-python = "^4.10.0.84"
 pyserial = "^3.5"
 pynmea2 = "^1.19.0"
 plotly = "^5.22.0"
-streamlit = "^1.36.0"
 python-daemon = "^3.0.1"
 smbus3 = "^0.5.5"
+pybullet = "^3.2.6"
+stable-baselines3 = "^2.3.2"
+gymnasium = "^0.29.1"
+tensorflow-macos = "^2.16.2"
+tensorflow-metal = "^1.1.0"
+numpy = "1.26.4"
 
 
 [build-system]

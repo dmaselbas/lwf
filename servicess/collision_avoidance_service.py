@@ -138,10 +138,10 @@ class CollisionAvoidanceSystem:
 
         # Define the angle ranges for each direction
         directions = {
-            "front": (315, 45),
-            "right": (45, 135),
+            "front": (340, 25),
+            "right": (80, 100),
             "rear":  (135, 225),
-            "left":  (225, 315)
+            "left":  (215, 235)
             }
 
         collision_probabilities = {}
