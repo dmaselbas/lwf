@@ -1,0 +1,203 @@
+<?xml version="1.0" ?>
+<robot name="zigzag_maze">
+  <!-- Wall Segment 1 -->
+  <link name="wall1">
+    <inertial>
+      <mass value="1000"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0.25 6 0.5"/> <!-- Width 0.25m, Length 10m, Height 0.5m -->
+      </geometry>
+      <material name="grey">
+        <color rgba="1.0 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.25 6 0.5"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Wall Segment 2 -->
+  <link name="wall2">
+    <inertial>
+      <mass value="1000"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0.25 4 0.5"/> <!-- Width 0.25m, Length 2m, Height 0.5m -->
+      </geometry>
+      <material name="grey">
+        <color rgba="0.5 1.0 0.5 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.25 4 0.5"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="joint2" type="fixed">
+    <parent link="wall1"/>
+    <child link="wall2"/>
+    <origin xyz="-2 1 0" rpy="0 0 1.5708"/> <!-- 90 degrees rotation -->
+  </joint>
+
+  <!-- Wall Segment 3 -->
+  <link name="wall3">
+    <inertial>
+      <mass value="1000"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0.25 8 0.5"/> <!-- Width 0.25m, Length 10m, Height 0.5m -->
+      </geometry>
+      <material name="grey">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.25 8 0.5"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="joint3" type="fixed">
+    <parent link="wall2"/>
+    <child link="wall3"/>
+    <origin xyz="0 1 0" rpy="0 0 -1.5708"/> <!-- Changed position to (0, 6, 0) -->
+  </joint>
+
+  <!-- Wall Segment 4 -->
+  <link name="wall4">
+    <inertial>
+      <mass value="1000"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0.25 2 0.5"/> <!-- Width 0.25m, Length 2m, Height 0.5m -->
+      </geometry>
+      <material name="grey">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.25 2 0.5"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="joint4" type="fixed">
+    <parent link="wall3"/>
+    <child link="wall4"/>
+    <origin xyz="1 -2 0" rpy="0 0 1.5708"/> <!-- 90 degrees rotation -->
+  </joint>
+
+  <!-- Wall Segment 5 -->
+  <link name="wall5">
+    <inertial>
+      <mass value="1000"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0.25 3 0.5"/> <!-- Width 0.25m, Length 10m, Height 0.5m -->
+      </geometry>
+      <material name="grey">
+        <color rgba="0.1 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.25 3 0.5"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="joint5" type="fixed">
+    <parent link="wall4"/>
+    <child link="wall5"/>
+    <origin xyz="0 -2 0" rpy="0 0 -1.5708"/> <!-- -90 degrees rotation -->
+  </joint>
+
+  <!-- Wall Segment 6 -->
+  <link name="wall6">
+    <inertial>
+      <mass value="1000"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0.25 2 0.5"/> <!-- Width 0.25m, Length 2m, Height 0.5m -->
+      </geometry>
+      <material name="grey">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.25 2 0.5"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="joint6" type="fixed">
+    <parent link="wall5"/>
+    <child link="wall6"/>
+    <origin xyz="-1 -2 0" rpy="0 0 1.5708"/> <!-- 90 degrees rotation -->
+  </joint>
+
+  <!-- Wall Segment 7 -->
+  <link name="wall7">
+    <inertial>
+      <mass value="1000"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0.25 2.5 0.5"/> <!-- Width 0.25m, Length 10m, Height 0.5m -->
+      </geometry>
+      <material name="grey">
+        <color rgba="0.5 0.5 0.8 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.25 2.5 0.5"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="joint7" type="fixed">
+    <parent link="wall6"/>
+    <child link="wall7"/>
+    <origin xyz="-0.5 0 0" rpy="0 0 1.5708"/> <!-- -90 degrees rotation -->
+  </joint>
+  <link name="wall8">
+    <inertial>
+      <mass value="1000"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0.25 5 0.5"/> <!-- Width 0.25m, Length 10m, Height 0.5m -->
+      </geometry>
+      <material name="grey">
+        <color rgba="0.5 0.5 0.8 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.25 5 0.5"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="joint8" type="fixed">
+    <parent link="wall7"/>
+    <child link="wall8"/>
+    <origin xyz="0 0.5 0" rpy="0 0 1.5708"/> <!-- -90 degrees rotation -->
+  </joint>
+</robot>

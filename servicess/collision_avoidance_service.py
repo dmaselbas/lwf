@@ -71,12 +71,12 @@ class CollisionAvoidanceSystem:
             time.sleep(5)
             return
         if not self.taking_avoidance_action:
-            self.mqtt_client.publish("/svc/cos/active", 1)
+            self.mqtt_client.publish("/service/cas/active", 1)
             self.taking_avoidance_action = True
             self.last_speed = self.drive.get_speed()
             self.last_direction = self.drive.get_direction()
             self.last_heading = self.gps.get_heading()
-            self.drive.set_speed(0)
+            self.send_drive_command("stop")
             while self.calculate_collision_probability() > .95:
                 if not self.system_enabled:
                     return
@@ -84,24 +84,17 @@ class CollisionAvoidanceSystem:
                 min_prob_direction = min(dir_probs, key=dir_probs.get)
                 max_prob_direction = max(dir_probs, key=dir_probs.get)
                 if min_prob_direction == max_prob_direction:
-                    self.drive.stop()
+                    self.send_drive_command("stop")
                 elif min_prob_direction == "rear":
-                    self.drive.reverse()
-                    self.drive.set_speed(2048)
+                    self.send_drive_command("reverse", 2048)
                 elif min_prob_direction == "left":
-                    self.drive.left()
-                    self.drive.set_speed(2048)
+                    self.send_drive_command("left", 2048)
                 elif min_prob_direction == "right":
-                    self.drive.right()
-                    self.drive.set_speed(2048)
+                    self.send_drive_command("right", 2048)
                 elif min_prob_direction == "front":
-                    self.drive.forward()
-                    self.drive.set_speed(2048)
-                elif min_prob_direction == "rear":
-                    self.drive.reverse()
-                    self.drive.set_speed(2048)
+                    self.send_drive_command("forward", 2048)
                 else:
-                    self.drive.stop()
+                    self.send_drive_command("stop")
             self.resume()
 
     def correct_heading(self):
@@ -113,18 +106,16 @@ class CollisionAvoidanceSystem:
                 mode = "left"
                 last_heading_difference = heading_difference
             if mode == "left":
-                self.drive.left()
-                self.drive.set_speed(2048)
+                self.send_drive_command("left", 2048)
             else:
-                self.drive.right()
-                self.drive.set_speed(2048)
+                self.send_drive_command("right", 2048)
 
     def resume(self):
-        self.mqtt_client.publish("/svc/cos/active", 0)
+        self.mqtt_client.publish("/service/cas/active", 0)
         # self.correct_heading()
         self.taking_avoidance_action = False
-        self.drive.set_direction(self.last_direction)
-        self.drive.set_speed(self.last_speed)
+        self.send_drive_command("set_direction", self.last_direction)
+        self.send_drive_command("set_speed", self.last_speed)
 
     def calculate_directional_collision_probabilities(self):
         self.lidar_data = self.lidar.get_last_reading()
@@ -183,12 +174,11 @@ class CollisionAvoidanceSystem:
                 if self.lidar_data is not None:
                     self.calculate_collision_probability()
                     self.on_update_callback({
-                        "lidar":                 self.lidar_data,
                         "collision_probability": self.collision_probability
                         })
                 mqtt_msg = self.calculate_directional_collision_probabilities()
                 mqtt_msg["collision_probability"] = self.collision_probability
-                self.mqtt_client.publish("/svc/cos/update", json.dumps(mqtt_msg))
+                self.mqtt_client.publish("/service/cas/update", json.dumps(mqtt_msg))
                 if self.collision_probability > 0.95:
                     self.avoid_collision()
             except Exception as e:
@@ -196,3 +186,9 @@ class CollisionAvoidanceSystem:
                 continue
             finally:
                 time.sleep(.25)
+
+    def send_drive_command(self, command, value=None):
+        payload = {"command": command}
+        if value is not None:
+            payload["value"] = value
+        self.mqtt_client.publish("/service/cas/command", json.dumps(payload))
