@@ -191,9 +191,9 @@ with compass_col:
         cas_btn, laser_move, laser_button = st.columns(3)
         with cas_btn:
             if st.button("CAS On", key="cas_on"):
-                navigation_service.collision_avoidance_system.turn_on()
+                navigation_service.cas.turn_on()
             if st.button("CAS Off", key="cas_off"):
-                navigation_service.collision_avoidance_system.turn_off()
+                navigation_service.cas.turn_off()
         with laser_move:
             if st.button("Enable Laser Cycle", key="laser_cycle_on"):
                 requests.post("http://192.168.5.242:5000/laser/cycle/enable")
@@ -211,5 +211,5 @@ with compass_col:
         get_imu_widget()
 with lidar_col:
     lidar_widget()
-    st.write(f"Collision Probability: {navigation_service.collision_avoidance_system.calculate_collision_probability() * 100}%")
+    st.write(f"Collision Probability: {navigation_service.cas.calculate_collision_probability() * 100}%")
     display_compass_heading()

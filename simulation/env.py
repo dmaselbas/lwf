@@ -91,10 +91,10 @@ class RobotEnv(gym.Env):
         if action == 0:  # Stop
             left_wheel_velocity = 0
             right_wheel_velocity = 0
-        elif action == 1:  # Forward
+        elif action == 1:  #Reverse
             left_wheel_velocity = 10.0
             right_wheel_velocity = 10.0
-        elif action == 2:  # Backward
+        elif action == 2:  # Forward
             left_wheel_velocity = -10.0
             right_wheel_velocity = -10.0
         elif action == 3:  # Turn left
@@ -207,7 +207,7 @@ class RobotEnv(gym.Env):
 
         if distance_to_target < self.tolerance:
             self.reward += 10000.0  # Reward for reaching the target
-            self.waypoint_index = min(len(self.waypoints) - 1, self.waypoint_index + 1)
+            self.waypoint_index += 1
             self.target_position = self.waypoints[self.waypoint_index]
             print(f"Next waypoint: {self.waypoints[self.waypoint_index]}")
 
@@ -225,7 +225,7 @@ class RobotEnv(gym.Env):
             if self.new_action == 1 and min_distance <= 0.4064:
                 self.dumb_fuck_points += 1
                 self.reward -= 100.0 * self.dumb_fuck_points
-            elif self.new_action in [3, 4, 2]:
+            elif self.new_action in [4, 3, 2]:
                 self.dumb_fuck_points = 0
                 self.reward += 400.0
 
@@ -235,6 +235,11 @@ class RobotEnv(gym.Env):
                 self.reward -= 500.0
             else:
                 self.reward += 500
+        if min_distance_position in range((180 - (45 // 2)), (180 + (45 // 2))):
+            if self.new_action == 2:
+                self.reward -= 300
+            if self.last_action == 2:
+                self.reward -= 400.0
         if max_distance_position in range((90 - (45 // 2)), (90 + (45 // 2))):
             if self.new_action == 4:
                 self.reward += 300.0
@@ -250,7 +255,7 @@ class RobotEnv(gym.Env):
             else:
                 self.reward -= 300
         if max_distance_position in range((270 - (45 // 2)), (270 + (45 // 2))):
-            if self.new_action == 2:
+            if self.new_action == 3:
                 self.reward += 300.0
             else:
                 self.reward -= 300

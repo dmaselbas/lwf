@@ -118,7 +118,7 @@
     <joint name="base_to_lidar" type="fixed">
         <parent link="base_link"/>
         <child link="lidar"/>
-        <origin xyz="0 0 0.3" rpy="0 0 3.14159"/>
+        <origin xyz="0 0 0.3" rpy="0 0 0"/>
     </joint>
     <joint name="front_left_wheel_joint" type="continuous">
         <parent link="base_link"/>

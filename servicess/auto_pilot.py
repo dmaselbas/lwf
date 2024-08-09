@@ -1,10 +1,15 @@
+from time import sleep
+
+import sys
 import numpy as np
+import pandas as pd
 import paho.mqtt.client as mqtt
 import json
 import math
 import atexit  # Import the atexit module
-from stable_baselines3 import DQN  # Import the desired model from stable_baselines3
-from stable_baselines3.common.env_util import make_vec_env  # Utility to create vectorized environments
+from stable_baselines3 import PPO
+
+from real_env import RealRobotEnv
 
 
 class AutoPilotService:
@@ -13,11 +18,6 @@ class AutoPilotService:
         super().__init__()
         self.mqtt_broker = "mqtt.weedfucker.local"
         self.mqtt_port = 1883
-        self.client = mqtt.Client()
-        self.client.on_connect = self.on_connect
-        self.client.on_message = self.on_message
-        self.client.connect(self.mqtt_broker, self.mqtt_port, 60)
-        self.client.loop_start()
         self.last_gps: np.array = None
         self.last_compass: np.array = None
         self.last_lidar: np.array = None
@@ -26,13 +26,17 @@ class AutoPilotService:
         self.angle_longest_reading = None
         self.angle_shortest_reading = None
         self.online_status_sent = False  # Flag to track if the "online" message has been sent
+        self.last_observation = None
 
-        # Load the pre-trained stable_baselines3 model
-        self.env = make_vec_env('dqn_robot', n_envs=1)  # Replace 'CartPole-v1' with your custom environment
-        self.model = DQN.load("path_to_pretrained_model", env=self.env)  # Load the pre-trained model
+        custom_objs = {"clip_range": 0.2, "lr_schedule": lambda _: 0.0003}
+        self.env = RealRobotEnv(self)  # Create the environment
+        self.model = PPO.load("ppo_robot.zip", env=self.env, custom_objects=custom_objs, device="auto")  # Load the pre-trained model
 
-        # Register the shutdown method to be called on exit
-        atexit.register(self.shutdown)
+        self.client = mqtt.Client()
+        self.client.on_connect = self.on_connect
+        self.client.on_message = self.on_message
+        self.client.connect(self.mqtt_broker, self.mqtt_port, 60)
+        self.client.loop_start()
 
     def on_connect(self, client, userdata, flags, rc):
         print("Connected to MQTT broker with result code " + str(rc))
@@ -54,48 +58,30 @@ class AutoPilotService:
 
     def process_lidar_update(self, data):
         # Convert the LiDAR data from inches to meters
-        lidar_data = np.array(data).astype(np.float32) * 0.0254
+        lidar_data = pd.json_normalize(data)
+        lidar_data = lidar_data.fillna(20).astype(np.float32).mul(0.0254).to_numpy()[-1]
+        if len(lidar_data) != 360:
+            return
+
+        self.angle_longest_reading = lidar_data.argmax()
+        self.angle_shortest_reading = lidar_data.argmin()
         self.last_lidar = lidar_data
 
-        # Calculate the angles with the longest and shortest readings
-        angle_longest_reading = np.argmax(lidar_data)
-        angle_shortest_reading = np.argmin(lidar_data)
-
-        self.angle_longest_reading = angle_longest_reading
-        self.angle_shortest_reading = angle_shortest_reading
-
-        print("Lidar data received (meters):", lidar_data)
-        print(f"Angle with longest reading: {angle_longest_reading} degrees")
-        print(f"Angle with shortest reading: {angle_shortest_reading} degrees")
-
-        # Check if all necessary data is available and send the "online" message if applicable
+        print(f"Angle with longest reading: {self.angle_longest_reading} degrees")
+        print(f"Angle with shortest reading: {self.angle_shortest_reading} degrees")
         self.check_and_send_online_status()
-
-        # Try to get the next action if all necessary data is available
         self.try_get_next_action()
 
     def process_compass_update(self, bearing):
-        # Convert the compass bearing from degrees to radians
         bearing_in_radians = math.radians(float(bearing))
-        print("Compass bearing received (radians):", bearing_in_radians)
         self.last_compass = bearing_in_radians
-
-        # Check if all necessary data is available and send the "online" message if applicable
         self.check_and_send_online_status()
-
-        # Try to get the next action if all necessary data is available
         self.try_get_next_action()
 
     def process_gps_update(self, data):
-        # Extract longitude and latitude from the GPS data
         self.longitude = data.get('longitude')
         self.latitude = data.get('latitude')
-        print(f"GPS data received: longitude={self.longitude}, latitude={self.latitude}")
-
-        # Check if all necessary data is available and send the "online" message if applicable
         self.check_and_send_online_status()
-
-        # Try to get the next action if all necessary data is available
         self.try_get_next_action()
 
     def check_and_send_online_status(self):
@@ -108,29 +94,26 @@ class AutoPilotService:
     def prepare_observation(self):
         # Combine the most recent LiDAR, GPS, and compass data into a single observation
         if self.last_lidar is not None and self.longitude is not None and self.latitude is not None and self.last_compass is not None:
-            observation = np.concatenate((self.last_lidar, [self.longitude, self.latitude, self.last_compass]))
+            observation = np.concatenate((self.last_lidar,
+                                          [self.longitude, self.latitude,
+                                           self.last_compass, self.angle_longest_reading,
+                                           self.angle_shortest_reading]))
             return observation
-        return None
+        return np.zeros(365,)
 
     def get_next_action(self):
         # Prepare the observation data
         observation = self.prepare_observation()
+        self.last_observation = observation
         if observation is not None:
             # Use the model to predict the next action
-            action, _states = self.model.predict(observation, deterministic=True)
-            print(f"Predicted action: {action}")
-            self.send_autopilot_command(action)
+            action, _states = self.model.predict(observation, deterministic=False)
+            self.env.step(action)  # Execute the chosen action in the environment
+            self.client.publish("/service/autopilot/command", str(action).strip())
 
     def try_get_next_action(self):
-        # Check if all necessary data is available and get the next action
         if self.last_lidar is not None and self.longitude is not None and self.latitude is not None and self.last_compass is not None:
             self.get_next_action()
-
-    def send_autopilot_command(self, action):
-        # Send the autopilot command to the robot
-        print("Sending autopilot command:", action)
-        if self.last_gps is not None and self.last_compass is not None and self.last_lidar is not None:
-            self.client.publish("/service/autopilot/command", json.dumps({"command": action}))
 
     def shutdown(self):
         # Shutdown the MQTT client and perform any necessary cleanup
@@ -138,3 +121,18 @@ class AutoPilotService:
         self.client.publish("/service/autopilot/status", json.dumps({"status": "offline"}))
         self.client.loop_stop()
         self.client.disconnect()
+
+    def get_last_observation(self):
+        return self.last_observation
+
+
+if __name__ == "__main__":
+    sys.path.append("/var/training/code")
+    service = AutoPilotService()
+    print("AutoPilotService started")
+    atexit.register(service.shutdown)  # Register the shutdown method to be called on exit
+    try:
+        while True:
+            sleep(.25)
+    except Exception as ex:
+        quit()

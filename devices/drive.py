@@ -30,7 +30,10 @@ class DriveController:
 
     def _set_speed(self, value):
         value = min(max(value, 0), 4095)
-        self.speed = value
+        if self.direction != "stop":
+            self.speed = value
+        else:
+            value = 0
         if self.direction == "forward":
             self.pwm_controller.set_pwm(self.lf_forward, 0)
             self.pwm_controller.set_pwm(self.lf_reverse, value)
@@ -67,6 +70,15 @@ class DriveController:
             self.pwm_controller.set_pwm(self.rf_reverse, value)
             self.pwm_controller.set_pwm(self.rr_forward, 0)
             self.pwm_controller.set_pwm(self.rr_reverse, value)
+        if self.direction == "stop":
+            self.pwm_controller.set_pwm(self.lf_forward, 0)
+            self.pwm_controller.set_pwm(self.lf_reverse, 0)
+            self.pwm_controller.set_pwm(self.lr_forward, 0)
+            self.pwm_controller.set_pwm(self.lr_reverse, 0)
+            self.pwm_controller.set_pwm(self.rf_forward, 0)
+            self.pwm_controller.set_pwm(self.rf_reverse, 0)
+            self.pwm_controller.set_pwm(self.rr_forward, 0)
+            self.pwm_controller.set_pwm(self.rr_reverse, 0)
 
     def set_speed(self, speed):
         self.speed = speed

@@ -1,6 +1,7 @@
 import json
 
 import numpy as np
+import paho.mqtt.client as mqtt
 
 from devices.imu import MPU6050
 from servicess.collision_avoidance_service import CollisionAvoidanceSystem
@@ -9,14 +10,12 @@ from devices.lidar import LidarController
 from devices.gps import GPSController
 from devices.compass import HMC5883L
 
+
 class NavigationService:
 
     def __init__(self, drive: DriveController,
                  lidar: LidarController, gps: GPSController,
                  imu: MPU6050, compass: HMC5883L):
-        self.collision_avoidance_system = CollisionAvoidanceSystem(
-                on_update_callback=self.handle_collision_avoidance_update,
-                drive=drive, lidar=lidar, gps=gps, imu=imu)
         self.lidar_controller: LidarController = lidar
         self.gps_controller: GPSController = gps
         self.drive_controller: DriveController = drive
@@ -24,46 +23,59 @@ class NavigationService:
         self.compass = compass
         self.autopilot_online = False
         self.state = "CAS"
+        self.pre_stopping_speed = 0.0
+
+        self.cas = CollisionAvoidanceSystem(
+                on_update_callback=self.handle_collision_avoidance_update,
+                drive=self.drive_controller, lidar=self.lidar_controller,
+                gps=self.gps_controller, imu=imu)
+
+        # Initialize MQTT client
+        self.client = mqtt.Client()
+        self.client.on_connect = self.on_connect
+        self.client.on_message = self.on_message
+
+        # Connect to the MQTT broker
+        self.client.connect("mqtt.weedfucker.local", 1883, 60)
+        self.client.loop_start()
 
     def handle_collision_avoidance_update(self, data):
-        pass
-
-    def get_lidar_data(self):
-        lidar_data = self.lidar_controller.get_last_reading()
-        if np.min(lidar_data) < 16:
+        if self.cas.taking_avoidance_action:
             self.update_state("CAS")
         else:
-            if self.autopilot_online:
-                self.update_state("AUTO_PILOT")
-            else:
-                self.update_state("CAS")
+            self.update_state("AUTO_PILOT")
 
     def update_state(self, state):
         self.state = state
-        print(f"State updated: {self.state}")
+        self.client.publish("/service/navigation/update/state", self.state)
 
     def drive_forward(self):
-        if not self.collision_avoidance_system.taking_avoidance_action:
+        if not self.cas.taking_avoidance_action:
             self.drive_controller.forward()
 
     def drive_backward(self):
-        if not self.collision_avoidance_system.taking_avoidance_action:
+        if not self.cas.taking_avoidance_action:
             self.drive_controller.reverse()
 
     def drive_left(self):
-        if not self.collision_avoidance_system.taking_avoidance_action:
+        if not self.cas.taking_avoidance_action:
             self.drive_controller.left()
 
     def drive_right(self):
-        if not self.collision_avoidance_system.taking_avoidance_action:
+        if not self.cas.taking_avoidance_action:
             self.drive_controller.right()
 
     def stop_driving(self):
         self.drive_controller.stop()
 
     def set_drive_speed(self, speed):
-        if not self.collision_avoidance_system.taking_avoidance_action:
-            self.drive_controller.set_speed(speed)
+        if speed == 0:
+            self.drive_controller.stop()
+            return
+        if self.cas.taking_avoidance_action:
+            self.cas.last_speed = speed
+            return
+        self.drive_controller.set_speed(speed)
 
     def on_connect(self, client, userdata, flags, rc):
         print("Connected to MQTT broker with result code " + str(rc))
@@ -74,22 +86,19 @@ class NavigationService:
         payload = msg.payload.decode('utf-8')
 
         if topic == "/service/autopilot/command":
-            self.handle_autopilot_command(json.loads(payload))
+            self.handle_autopilot_command(payload)
+            self.autopilot_online = True
         if topic == "/service/autopilot/status":
-            if json.loads(payload).get("status") == "offline":
+            if "offline" in payload:
                 self.state = "CAS"
+                self.stop_driving()
                 self.autopilot_online = False
-            if json.loads(payload).get("status") == "online":
-                self.state = "AUTO_PILOT"
-                self.autopilot_online = True
 
     def handle_autopilot_command(self, command):
         # Process the autopilot command received from the topic
-        print(f"Received autopilot command: {command}")
         if self.state != "AUTO_PILOT":
-            print("Autopilot mode not active. Ignoring command.")
             return
-        action = command.get("command")
+        action = int(command)
         if action == 1:
             self.drive_forward()
         elif action == 2:

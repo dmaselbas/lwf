@@ -7,7 +7,7 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
-from rplidar import RPLidar
+from rplidar import RPLidar, RPLidarException
 import paho.mqtt.client as mqtt
 
 
@@ -64,7 +64,7 @@ class LidarController:
                         "distance": scan_distances,
                         })
                     new_index = pd.Index(np.arange(0, 360, 1), name="angle")
-                    self.last_reading = (scan_df.assign(
+                    scan_df = (scan_df.assign(
                             angle=lambda df: df["angle"].astype(int),
                             distance=lambda df: df["distance"].div(25.4))
                                          .drop_duplicates(subset="angle", keep="last")
@@ -78,13 +78,24 @@ class LidarController:
                                          .assign(timestamp=pd.to_datetime(datetime.utcnow(), utc=True)))
                     
                     # Publish the Lidar data to the MQTT topic
-                    lidar_data = self.last_reading.to_dict(orient='list')
-                    self.mqtt_client.publish("/dev/lidar/update", json.dumps(lidar_data))
+                    if scan_df is None:
+                        continue
+                    if self.last_reading is None or "distance" not in self.last_reading.columns:
+                        self.last_reading = scan_df.copy()
+                    scan_df["distance"] = np.where(pd.notnull(scan_df["distance"]),
+                                                   scan_df["distance"],
+                                                   self.last_reading["distance"])
+                    self.last_reading = scan_df.copy()
+                    lidar_data = self.last_reading[["distance"]].to_json()
+                    self.mqtt_client.publish("/dev/lidar/update", lidar_data)
                     
                     # Call the update callback if provided
                     if self.callback:
                         self.callback(lidar_data)
-            except:
+            except RPLidarException as e:
+                continue
+            except Exception as e:
+                print(f"Error in lidar controller: {traceback.format_exc()}")
                 continue
 
     def get_scan_data(self):

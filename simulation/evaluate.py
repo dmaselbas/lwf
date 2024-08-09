@@ -1,9 +1,9 @@
-from stable_baselines3 import DQN
+from stable_baselines3 import PPO
 from simulation.env import RobotEnv
 import numpy as np
 
 env = RobotEnv()
-model = DQN.load("dqn_robot", env=env, device="auto")
+model = PPO.load("ppo_robot", env=env, device="auto")
 
 obs, inf = env.reset()
 while True:# Adjusted loop count
