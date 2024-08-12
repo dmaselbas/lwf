@@ -3,32 +3,28 @@ import json
 import numpy as np
 import paho.mqtt.client as mqtt
 
-from devices.imu import MPU6050
+from devices.imu import IMUClient, MPU6050
 from servicess.collision_avoidance_service import CollisionAvoidanceSystem
 from devices.drive import DriveController
 from devices.lidar import LidarController
-from devices.gps import GPSController
-from devices.compass import HMC5883L
+from devices.gps import GPSClient, GPSController
+from devices.compass import CompassClient, HMC5883L
 
 
 class NavigationService:
 
-    def __init__(self, drive: DriveController,
-                 lidar: LidarController, gps: GPSController,
-                 imu: MPU6050, compass: HMC5883L):
+    def __init__(self, lidar: LidarController, gps: GPSController):
+        self.cas = CollisionAvoidanceSystem(
+                on_update_callback=self.handle_collision_avoidance_update, lidar=lidar)
         self.lidar_controller: LidarController = lidar
-        self.gps_controller: GPSController = gps
-        self.drive_controller: DriveController = drive
-        self.imu = imu
-        self.compass = compass
+        self.gps_controller: GPSClient = GPSClient()
+        self.drive_controller: DriveController = DriveController()
+        self.imu = IMUClient()
+        self.compass = CompassClient()
         self.autopilot_online = False
         self.state = "CAS"
         self.pre_stopping_speed = 0.0
 
-        self.cas = CollisionAvoidanceSystem(
-                on_update_callback=self.handle_collision_avoidance_update,
-                drive=self.drive_controller, lidar=self.lidar_controller,
-                gps=self.gps_controller, imu=imu)
 
         # Initialize MQTT client
         self.client = mqtt.Client()
@@ -40,9 +36,9 @@ class NavigationService:
         self.client.loop_start()
 
     def handle_collision_avoidance_update(self, data):
-        if self.cas.taking_avoidance_action:
-            self.update_state("CAS")
-        else:
+        # if self.cas.taking_avoidance_action:
+        #     self.update_state("CAS")
+        # else:
             self.update_state("AUTO_PILOT")
 
     def update_state(self, state):
@@ -50,31 +46,25 @@ class NavigationService:
         self.client.publish("/service/navigation/update/state", self.state)
 
     def drive_forward(self):
-        if not self.cas.taking_avoidance_action:
-            self.drive_controller.forward()
+        # if not self.cas.taking_avoidance_action:
+        self.drive_controller.forward()
 
     def drive_backward(self):
-        if not self.cas.taking_avoidance_action:
-            self.drive_controller.reverse()
+        # if not self.cas.taking_avoidance_action:
+        self.drive_controller.reverse()
 
     def drive_left(self):
-        if not self.cas.taking_avoidance_action:
-            self.drive_controller.left()
+        # if not self.cas.taking_avoidance_action:
+        self.drive_controller.left()
 
     def drive_right(self):
-        if not self.cas.taking_avoidance_action:
-            self.drive_controller.right()
+        # if not self.cas.taking_avoidance_action:
+        self.drive_controller.right()
 
     def stop_driving(self):
         self.drive_controller.stop()
 
     def set_drive_speed(self, speed):
-        if speed == 0:
-            self.drive_controller.stop()
-            return
-        if self.cas.taking_avoidance_action:
-            self.cas.last_speed = speed
-            return
         self.drive_controller.set_speed(speed)
 
     def on_connect(self, client, userdata, flags, rc):

@@ -1,3 +1,4 @@
+import atexit
 import time
 from smbus3 import SMBus
 import paho.mqtt.client as mqtt
@@ -31,7 +32,7 @@ class PCA9685:
         mode1 = mode1 & ~self.MODE1_SLEEP
         self.bus.write_byte_data(self.address, self.PCA9685_MODE1, mode1)
         time.sleep(0.005)
-        self.set_pwm_freq(60)
+        self.set_pwm_freq(50)
 
     def set_pwm_freq(self, freq_hz):
         prescale_val = 25000000.0
@@ -63,13 +64,26 @@ class PCA9685:
         self.bus.write_byte_data(self.address, self.ALL_LED_OFF_L + 1, off >> 8)
 
 
+class PWMClient:
+
+    def __init__(self):
+        self.mqtt_client = mqtt.Client(protocol=mqtt.MQTTv5)
+        self.mqtt_client.connect("mqtt.weedfucker.local", 1883, 60)
+        self.mqtt_client.loop_start()
+
+    def set_pwm(self, channel, value):
+        self.mqtt_client.publish("/dev/pwm/set/{}".format(channel), value)
+
+
 class PWMController:
     def __init__(self):
         self.pwm1 = PCA9685(address=0x40)
         self.pwm2 = PCA9685(address=0x43)
-        self.mqtt_client = mqtt.Client()
+        self.mqtt_client = mqtt.Client(protocol=mqtt.MQTTv5)
+        self.mqtt_client.on_connect = self.on_connect
+        self.mqtt_client.on_message = self.on_message
         self.mqtt_client.connect("mqtt.weedfucker.local", 1883, 60)
-        self.mqtt_client.loop_start()
+        self.mqtt_client.loop_forever()
 
     def shutdown(self):
         print("Shutting down PWM controller...")
@@ -78,6 +92,16 @@ class PWMController:
         self.pwm1.bus.close()
         self.pwm2.bus.close()
         self.mqtt_client.disconnect()
+
+    def on_message(self, client, userdata, msg):
+        try:
+            channel, value = int(msg.topic.split("/")[-1]), int(msg.payload.decode())
+            self.set_pwm(channel, value)
+        except ValueError:
+            print(f"Invalid message format: {msg.topic}/{msg.payload.decode()}")
+
+    def on_connect(self, client, userdata, flags, rc):
+        client.subscribe("/dev/pwm/set/#")
 
     def set_pwm(self, channel, value):
         try:
@@ -114,3 +138,7 @@ class PWMController:
             self.mqtt_client.publish(f"/dev/pwm/{channel + 1}", 0)
         except Exception as e:
             print(f"Error setting PWM value: {e}")
+
+
+if __name__ == "__main__":
+    pwm_controller = PWMController()

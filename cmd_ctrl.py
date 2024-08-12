@@ -3,13 +3,9 @@ import streamlit.components.v1 as components
 import requests
 import plotly.graph_objects as go
 import pandas as pd
-from devices.compass import HMC5883L
-from devices.drive import DriveController
-from devices.gps import GPSController
-from devices.laser import LaserController
+from devices.gps import GPSClient
 from devices.lidar import LidarController
-from devices.pwm_controller import PWMController
-from devices.imu import MPU6050
+from devices.pwm_controller import PWMClient
 from servicess.camera_service import CameraService
 from servicess.navigation_service import NavigationService
 
@@ -23,26 +19,27 @@ nav_cam_html = f'<iframe src="http://192.168.5.243/cgi-bin/hi3510/snap.cgi?&-get
 
 @st.cache_resource
 def get_pwm_controller():
-    return PWMController()
+    return PWMClient()
 
 
 @st.cache_resource
 def get_nav_service():
-    lidar = LidarController()
-    drive = DriveController(pwm_controller)
-    gps = GPSController()
-    imu = MPU6050()
-    compass = HMC5883L()
-    return NavigationService(drive, lidar, gps, imu, compass)
+    lidar = LidarController(pwm_controller)
+    return NavigationService(lidar)
 
 
 @st.cache_resource
 def get_cams():
-    return CameraService(pwm_controller)
+    return CameraService()
 
 
-def get_gps_data(gps_controller: GPSController):
-    return gps_controller.get_gps_reading()
+@st.cache_resource
+def get_gps():
+    return GPSClient()
+
+
+def get_gps_data(gps: GPSClient) -> pd.DataFrame:
+    return gps.get_gps_reading()
 
 
 def display_compass_heading():
@@ -98,9 +95,11 @@ def display_lidar_data():
             )
     return fig
 
+
 pwm_controller = get_pwm_controller()
 navigation_service = get_nav_service()
 cams = get_cams()
+gps_controller = get_gps()
 
 
 @st.experimental_fragment(run_every=5)
@@ -112,7 +111,7 @@ def lidar_widget():
 @st.experimental_fragment(run_every=10)
 def gps_widget():
     st.subheader("GPS Data")
-    gps_data = get_gps_data(navigation_service.gps_controller)
+    gps_data = get_gps_data(gps_controller)
     if len(gps_data) > 0:
         st.map(gps_data, size=2, zoom=17)
         st.write(navigation_service.compass.get_bearing())
@@ -144,9 +143,11 @@ def on_tilt_change():
     cams.classification_cam.set_tilt_position(tilt_x)
     cams.nav_cam.set_tilt_position(tilt_y)
 
+
 def on_laser_position_change():
     laser_position = st.session_state.laser_position
     requests.post(f"http://192.168.5.242:5000/laser/move_to_position", json={"position": laser_position})
+
 
 nav_col, compass_col, lidar_col = st.columns(3, gap="small")
 
@@ -199,7 +200,11 @@ with compass_col:
                 requests.post("http://192.168.5.242:5000/laser/cycle/enable")
             if st.button("Disable Laser Cycle", key="laser_cycle_off"):
                 requests.post("http://192.168.5.242:5000/laser/cycle/disable")
-            st.slider("Laser Movement", min_value=0, max_value=1000, key="laser_position", on_change=on_laser_position_change)
+            st.slider("Laser Movement",
+                      min_value=0,
+                      max_value=1000,
+                      key="laser_position",
+                      on_change=on_laser_position_change)
         with laser_button:
             if st.button("Laser On", key="laser_on"):
                 requests.post("http://192.168.5.242:5000/laser/on")

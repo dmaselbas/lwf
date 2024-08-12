@@ -1,10 +1,10 @@
 import atexit
 import paho.mqtt.client as mqtt
-from devices.pwm_controller import PWMController
+from devices.pwm_controller import PWMClient
 
 class DriveController:
-    def __init__(self, pwm_controller: PWMController):
-        self.pwm_controller = pwm_controller
+    def __init__(self):
+        self.pwm_controller = PWMClient()
         self.lf_forward = 1 + 16
         self.lf_reverse = 2 + 16
         self.lr_forward = 3 + 16
@@ -79,6 +79,8 @@ class DriveController:
             self.pwm_controller.set_pwm(self.rf_reverse, 0)
             self.pwm_controller.set_pwm(self.rr_forward, 0)
             self.pwm_controller.set_pwm(self.rr_reverse, 0)
+        self.mqtt_client.publish("/dev/drive/speed", self.speed)
+        self.mqtt_client.publish("/dev/drive/direction", self.direction)
 
     def set_speed(self, speed):
         self.speed = speed

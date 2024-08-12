@@ -5,7 +5,7 @@ import time
 from typing import Callable
 
 from devices.drive import DriveController
-from devices.gps import GPSController
+from devices.gps import GPSClient, GPSController
 from devices.imu import MPU6050
 from devices.lidar import LidarController
 import paho.mqtt.client as mqtt
@@ -14,18 +14,14 @@ import paho.mqtt.client as mqtt
 class CollisionAvoidanceSystem:
 
     def __init__(self, on_update_callback: Callable,
-                 drive: DriveController,
-                 lidar: LidarController,
-                 gps: GPSController,
-                 imu: MPU6050):
+                 lidar: LidarController):
         self.running = True
         self.collision_probability = 1
         self.on_update_callback = on_update_callback
 
         self.lidar = lidar
-        self.gps = gps
-        self.drive = drive
-        self.imu = imu
+        self.gps = GPSClient()
+        self.drive = DriveController()
 
         self.lidar_data = None
         self.gps_data = None
@@ -40,7 +36,7 @@ class CollisionAvoidanceSystem:
         self.thread = threading.Thread(target=self.run, daemon=True, name="CollisionAvoidanceSystem")
         self.thread.start()
 
-        self.mqtt_client = mqtt.Client()
+        self.mqtt_client = mqtt.Client(protocol=mqtt.MQTTv5)
         self.mqtt_client.connect("mqtt.weedfucker.local", 1883, 60)
         self.mqtt_client.loop_start()
 

@@ -7,6 +7,39 @@ from logging import getLogger
 import paho.mqtt.client as mqtt
 import threading
 
+
+class CompassClient:
+
+    def __init__(self):
+        self.bearing = 0.0
+        self.temperature = 0.0
+
+        self.mqtt_client = mqtt.Client(protocol=mqtt.MQTTv5)
+        self.mqtt_client.on_connect = self._on_connect
+        self.mqtt_client.on_message = self._on_message
+        self.mqtt_client.connect("mqtt.weedfucker.local", 1883, 60)
+        self.mqtt_client.loop_start()
+
+    def _on_connect(self, client, userdata, flags, rc):
+        client.subscribe("/dev/compass/#")
+
+    def _on_message(self, client, userdata, msg):
+        topic = msg.topic
+        payload = msg.payload.decode('utf-8')
+        print(f"Received message on topic {topic}: {payload}")
+
+        if topic == "/dev/compass/bearing":
+            self.bearing = float(payload)
+        elif topic == "/dev/compass/temperature":
+            self.temperature = float(payload)
+
+    def get_bearing(self):
+        return self.bearing
+
+    def get_temp(self):
+        return self.temperature
+
+
 class HMC5883L:
     DFLT_BUS = 4
     DFLT_ADDRESS = 0x0d
@@ -79,12 +112,11 @@ class HMC5883L:
         self.thread.start()
 
         # Initialize MQTT client
-        self.mqtt_client = mqtt.Client()
+        self.mqtt_client = mqtt.Client(protocol=mqtt.MQTTv5)
         self.mqtt_client.connect("mqtt.weedfucker.local", 1883, 60)
-        self.mqtt_client.loop_start()
+        self.mqtt_client.loop_forever()
 
         atexit.register(self._shutdown)
-
 
     def _shutdown(self):
         if self.running:
@@ -266,3 +298,7 @@ class HMC5883L:
             if temp is not None:
                 self.mqtt_client.publish("/dev/compass/temp", temp)
             time.sleep(1)
+
+
+if __name__ == "__main__":
+    compass = HMC5883L()

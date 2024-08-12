@@ -1,7 +1,7 @@
 import asyncio
 from threading import Thread
 
-from devices.pwm_controller import PWMController
+from devices.pwm_controller import PWMClient, PWMController
 import numpy as np
 from time import sleep
 
@@ -10,9 +10,9 @@ from devices.pwm_controller import PWMController
 
 class CameraPTZ:
 
-    def __init__(self, pwm_controller: PWMController, pan_chan: int, tilt_chan: int,
+    def __init__(self, pan_chan: int, tilt_chan: int,
                  pan_min: int = 0, pan_max: int = 4095, tilt_min: int = 0, tilt_max: int = 4095) -> None:
-        self.pwm_controller = pwm_controller
+        self.pwm_controller = PWMClient()
         self.pan_chan = pan_chan
         self.tilt_chan = tilt_chan
         self.pan_min = pan_min
@@ -30,8 +30,8 @@ class CameraPTZ:
 
 
 class CameraController:
-    def __init__(self, pwm_controller: PWMController, pan_ch, tilt_ch, move_callback, cam_name) -> None:
-        self.pwm_controller = pwm_controller
+    def __init__(self, pan_ch, tilt_ch, move_callback, cam_name) -> None:
+        self.pwm_controller = PWMClient()
         self.pan_ch = pan_ch
         self.tilt_ch = tilt_ch
         self.move_callback = move_callback
