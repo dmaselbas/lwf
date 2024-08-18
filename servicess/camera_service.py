@@ -8,8 +8,8 @@ class CameraService:
         self.mqtt_client.connect("mqtt.weedfucker.local", 1883, 60)
         self.mqtt_client.loop_start()
 
-        self.nav_cam = CameraController(26, 27, self.on_camera_move, "navigation")
-        self.classification_cam = CameraController(28, 29, self.on_camera_move, "targeting")
+        self.nav_cam = CameraController(2, 3, self.on_camera_move, "navigation")
+        self.classification_cam = CameraController(5, 6, self.on_camera_move, "targeting")
 
     def on_camera_move(self, cam_name, direction, value):
         topic = f"/svc/cam/{cam_name}/{direction}"

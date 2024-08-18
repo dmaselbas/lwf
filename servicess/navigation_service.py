@@ -13,7 +13,7 @@ from devices.compass import CompassClient, HMC5883L
 
 class NavigationService:
 
-    def __init__(self, lidar: LidarController, gps: GPSController):
+    def __init__(self, lidar: LidarController):
         self.cas = CollisionAvoidanceSystem(
                 on_update_callback=self.handle_collision_avoidance_update, lidar=lidar)
         self.lidar_controller: LidarController = lidar
@@ -25,9 +25,7 @@ class NavigationService:
         self.state = "CAS"
         self.pre_stopping_speed = 0.0
 
-
-        # Initialize MQTT client
-        self.client = mqtt.Client()
+        self.client = mqtt.Client(protocol=mqtt.MQTTv5)
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
 
@@ -67,8 +65,8 @@ class NavigationService:
     def set_drive_speed(self, speed):
         self.drive_controller.set_speed(speed)
 
-    def on_connect(self, client, userdata, flags, rc):
-        print("Connected to MQTT broker with result code " + str(rc))
+    def on_connect(self, client, userdata, flags, rc, properties):
+        print("Connected to MQTT broker with result code ")
         client.subscribe("/service/autopilot/command")
 
     def on_message(self, client, userdata, msg):

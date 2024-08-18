@@ -18,7 +18,7 @@ class DriveController:
         self.direction = "stop"
 
         # Initialize MQTT client
-        self.mqtt_client = mqtt.Client()
+        self.mqtt_client = mqtt.Client(protocol=mqtt.MQTTv5)
         self.mqtt_client.connect("mqtt.weedfucker.local", 1883, 60)
         self.mqtt_client.loop_start()
         atexit.register(self.shutdown)
@@ -79,8 +79,8 @@ class DriveController:
             self.pwm_controller.set_pwm(self.rf_reverse, 0)
             self.pwm_controller.set_pwm(self.rr_forward, 0)
             self.pwm_controller.set_pwm(self.rr_reverse, 0)
-        self.mqtt_client.publish("/dev/drive/speed", self.speed)
-        self.mqtt_client.publish("/dev/drive/direction", self.direction)
+        #self.mqtt_client.publish("/dev/drive/speed", self.speed)
+        #self.mqtt_client.publish("/dev/drive/direction", self.direction)
 
     def set_speed(self, speed):
         self.speed = speed

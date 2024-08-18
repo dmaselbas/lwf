@@ -1664,6 +1664,59 @@ files = [
 ]
 
 [[package]]
+name = "imageio"
+version = "2.35.0"
+description = "Library for reading and writing a wide range of image, video, scientific, and volumetric data formats."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "imageio-2.35.0-py3-none-any.whl", hash = "sha256:ebfb39c0ad7acf93750d7ee151664238aaa9208f202288ea6f3ca7cb0ed719c3"},
+    {file = "imageio-2.35.0.tar.gz", hash = "sha256:e88f759803d2968e19a55fa8372e9fbe12967a8598fe042d8719ca46d03f4256"},
+]
+
+[package.dependencies]
+imageio-ffmpeg = {version = "*", optional = true, markers = "extra == \"ffmpeg\""}
+numpy = "<2.0.0"
+pillow = ">=8.3.2"
+psutil = {version = "*", optional = true, markers = "extra == \"ffmpeg\""}
+
+[package.extras]
+all-plugins = ["astropy", "av", "imageio-ffmpeg", "psutil", "tifffile"]
+all-plugins-pypy = ["av", "imageio-ffmpeg", "psutil", "tifffile"]
+build = ["wheel"]
+dev = ["black", "flake8", "fsspec[github]", "pytest", "pytest-cov"]
+docs = ["numpydoc", "pydata-sphinx-theme", "sphinx (<6)"]
+ffmpeg = ["imageio-ffmpeg", "psutil"]
+fits = ["astropy"]
+full = ["astropy", "av", "black", "flake8", "fsspec[github]", "gdal", "imageio-ffmpeg", "itk", "numpy (>2)", "numpydoc", "pillow-heif", "psutil", "pydata-sphinx-theme", "pytest", "pytest-cov", "rawpy", "sphinx (<6)", "tifffile", "wheel"]
+gdal = ["gdal"]
+itk = ["itk"]
+linting = ["black", "flake8"]
+pillow-heif = ["pillow-heif"]
+pyav = ["av"]
+rawpy = ["numpy (>2)", "rawpy"]
+test = ["fsspec[github]", "pytest", "pytest-cov"]
+tifffile = ["tifffile"]
+
+[[package]]
+name = "imageio-ffmpeg"
+version = "0.5.1"
+description = "FFMPEG wrapper for Python"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "imageio-ffmpeg-0.5.1.tar.gz", hash = "sha256:0ed7a9b31f560b0c9d929c5291cd430edeb9bed3ce9a497480e536dd4326484c"},
+    {file = "imageio_ffmpeg-0.5.1-py3-none-macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl", hash = "sha256:1460e84712b9d06910c1f7bb524096b0341d4b7844cea6c20e099d0a24e795b1"},
+    {file = "imageio_ffmpeg-0.5.1-py3-none-manylinux2010_x86_64.whl", hash = "sha256:5289f75c7f755b499653f3209fea4efd1430cba0e39831c381aad2d458f7a316"},
+    {file = "imageio_ffmpeg-0.5.1-py3-none-manylinux2014_aarch64.whl", hash = "sha256:7fa9132a291d5eb28c44553550deb40cbdab831f2a614e55360301a6582eb205"},
+    {file = "imageio_ffmpeg-0.5.1-py3-none-win32.whl", hash = "sha256:89efe2c79979d8174ba8476deb7f74d74c331caee3fb2b65ba2883bec0737625"},
+    {file = "imageio_ffmpeg-0.5.1-py3-none-win_amd64.whl", hash = "sha256:1521e79e253bedbdd36a547e0cbd94a025ba0b558e17f08fea687d805a0e4698"},
+]
+
+[package.dependencies]
+setuptools = "*"
+
+[[package]]
 name = "importlib-metadata"
 version = "8.2.0"
 description = "Read metadata from Python packages"
@@ -5439,4 +5492,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "f7e39de54cad43c9f6e2c18ae9c52d4a058532afec9d4e741e3aeefea68d6f32"
+content-hash = "5135540f9d016bd03aec192a0f5219d696ca36fee751375c4c20c100a362e1cc"

@@ -24,17 +24,20 @@ class MPU6050:
     GYRO_ZOUT_H = 0x47
 
     def __init__(self, bus=3, address=0x68, mqtt_broker="mqtt.weedfucker.local", mqtt_port=1883):
-        self.bus = smbus3.SMBus(bus)
+        self.bus = smbus3.SMBus(force=True)
+        self.bus.enable_pec()
+        self.bus.open(bus)
         self.address = address
         self.initialize_sensor()
         self.running = True
         atexit.register(self.shutdown)
         # Start the thread to publish data
-        self.publish_thread = threading.Thread(target=self.publish_data, daemon=True)
-        self.publish_thread.start()
         # Initialize MQTT client
         self.mqtt_client = mqtt.Client(protocol=mqtt.MQTTv5)
         self.mqtt_client.connect(mqtt_broker, mqtt_port, 60)
+
+        self.publish_thread = threading.Thread(target=self.publish_data, daemon=True)
+        self.publish_thread.start()
         self.mqtt_client.loop_forever()
 
 
@@ -73,25 +76,24 @@ class MPU6050:
         return value
 
     def publish_data(self):
-        while self.running:
-            gyro_x = self.read_raw_data(self.GYRO_XOUT_H) / 131.0
-            self.mqtt_client.publish("/dev/imu/gyro/x", gyro_x)
-            time.sleep(.5)
-            gyro_y = self.read_raw_data(self.GYRO_YOUT_H) / 131.0
-            self.mqtt_client.publish("/dev/imu/gyro/y", gyro_y)
-            time.sleep(.5)
-            gyro_z = self.read_raw_data(self.GYRO_ZOUT_H) / 131.0
-            self.mqtt_client.publish("/dev/imu/gyro/z", gyro_z)
-            time.sleep(.5)
-            accel_x = self.read_raw_data(self.ACCEL_XOUT_H) / 16384.0
-            self.mqtt_client.publish("/dev/imu/accel/x", accel_x)
-            time.sleep(.5)
-            accel_y = self.read_raw_data(self.ACCEL_YOUT_H) / 16384.0
-            self.mqtt_client.publish("/dev/imu/accel/y", accel_y)
-            time.sleep(.5)
-            accel_z = self.read_raw_data(self.ACCEL_ZOUT_H) / 16384.0
-            self.mqtt_client.publish("/dev/imu/accel/z", accel_z)
-            time.sleep(.5)
+        try:
+            while self.running:
+                gyro_x = self.read_raw_data(self.GYRO_XOUT_H) / 131.0
+                self.mqtt_client.publish("/dev/imu/gyro/x", gyro_x)
+                gyro_y = self.read_raw_data(self.GYRO_YOUT_H) / 131.0
+                self.mqtt_client.publish("/dev/imu/gyro/y", gyro_y)
+                gyro_z = self.read_raw_data(self.GYRO_ZOUT_H) / 131.0
+                self.mqtt_client.publish("/dev/imu/gyro/z", gyro_z)
+                accel_x = self.read_raw_data(self.ACCEL_XOUT_H) / 16384.0
+                self.mqtt_client.publish("/dev/imu/accel/x", accel_x)
+                accel_y = self.read_raw_data(self.ACCEL_YOUT_H) / 16384.0
+                self.mqtt_client.publish("/dev/imu/accel/y", accel_y)
+                accel_z = self.read_raw_data(self.ACCEL_ZOUT_H) / 16384.0
+                self.mqtt_client.publish("/dev/imu/accel/z", accel_z)
+        except Exception as e:
+            print(f"Error publishing data: {e}")
+            self.shutdown()
+            quit(1)
 
 
 class IMUClient:

@@ -4,6 +4,7 @@ import requests
 import plotly.graph_objects as go
 import pandas as pd
 from devices.gps import GPSClient
+from devices.laser import LaserClient
 from devices.lidar import LidarController
 from devices.pwm_controller import PWMClient
 from servicess.camera_service import CameraService
@@ -11,7 +12,7 @@ from servicess.navigation_service import NavigationService
 
 st.set_page_config(layout="wide")
 st.session_state.gps_data = pd.DataFrame(columns=["lat", "lon"])
-# nav_cam_html = f'<iframe src="http://192.168.5.240:8080/?action=stream" width="100%" frameborder="0"></iframe>'
+laser_cam_html = f'<iframe src="http://192.168.5.240:8080/?action=stream" width="100%" frameborder="0"></iframe>'
 nav_cam_html = f'<iframe src="http://192.168.5.243/cgi-bin/hi3510/snap.cgi?&-getstream&-chn=2" width="100%" frameborder="0"></iframe>'
 
 
@@ -24,7 +25,7 @@ def get_pwm_controller():
 
 @st.cache_resource
 def get_nav_service():
-    lidar = LidarController(pwm_controller)
+    lidar = LidarController()
     return NavigationService(lidar)
 
 
@@ -37,6 +38,9 @@ def get_cams():
 def get_gps():
     return GPSClient()
 
+@st.cache_resource
+def get_laser():
+    return LaserClient()
 
 def get_gps_data(gps: GPSClient) -> pd.DataFrame:
     return gps.get_gps_reading()
@@ -100,6 +104,7 @@ pwm_controller = get_pwm_controller()
 navigation_service = get_nav_service()
 cams = get_cams()
 gps_controller = get_gps()
+laser = get_laser()
 
 
 @st.experimental_fragment(run_every=5)
@@ -146,7 +151,7 @@ def on_tilt_change():
 
 def on_laser_position_change():
     laser_position = st.session_state.laser_position
-    requests.post(f"http://192.168.5.242:5000/laser/move_to_position", json={"position": laser_position})
+    laser.move_to_position(laser_position)
 
 
 nav_col, compass_col, lidar_col = st.columns(3, gap="small")
@@ -158,18 +163,18 @@ with nav_col:
     pan_col, tilt_col = st.columns(2)
     with pan_col:
         pan_x = st.slider("Targeting Camera Pan",
-                          min_value=100,
-                          max_value=500,
+                          min_value=0,
+                          max_value=180,
                           key="classification_cam_pan",
                           on_change=on_pan_change)
-        pan_y = st.slider("Nav Camera Pan", min_value=500, max_value=0, key="nav_cam_pan", on_change=on_pan_change)
+        pan_y = st.slider("Nav Camera Pan", min_value=0, max_value=180, key="nav_cam_pan", on_change=on_pan_change)
     with tilt_col:
         tilt_x = st.slider("Targeting Camera Tilt",
-                           min_value=100,
-                           max_value=500,
+                           min_value=0,
+                           max_value=180,
                            key="classification_cam_tilt",
                            on_change=on_tilt_change)
-        tilt_y = st.slider("Nav Camera Tilt", min_value=4095, max_value=0, key="nav_cam_tilt", on_change=on_tilt_change)
+        tilt_y = st.slider("Nav Camera Tilt", min_value=0, max_value=180, key="nav_cam_tilt", on_change=on_tilt_change)
     with st.container():
         left_buttons, center_buttons, right_buttons = st.columns(3)
         with left_buttons:
@@ -197,24 +202,26 @@ with compass_col:
                 navigation_service.cas.turn_off()
         with laser_move:
             if st.button("Enable Laser Cycle", key="laser_cycle_on"):
-                requests.post("http://192.168.5.242:5000/laser/cycle/enable")
+                laser.enable_cycle_motion()
             if st.button("Disable Laser Cycle", key="laser_cycle_off"):
-                requests.post("http://192.168.5.242:5000/laser/cycle/disable")
-            st.slider("Laser Movement",
-                      min_value=0,
-                      max_value=1000,
-                      key="laser_position",
-                      on_change=on_laser_position_change)
+                laser.disable_cycle_motion()
+            st.select_slider("Laser Movement", options=range(0, 1000), key="laser_position", on_change=on_laser_position_change)
         with laser_button:
             if st.button("Laser On", key="laser_on"):
-                requests.post("http://192.168.5.242:5000/laser/on")
+                laser.turn_on()
             if st.button("Laser Off", key="laser_off"):
-                requests.post("http://192.168.5.242:5000/laser/off")
+                laser.turn_off()
+            if st.button("Laser Pulse", key="laser_pulse"):
+                laser.pulse_laser()
+            if st.button("Motor On", key="laser_motor_on"):
+                laser.motor_start()
+            if st.button("Motor Off", key="laser_motor_off"):
+                laser.motor_stop()
     with st.container():
-        gps_widget()
+        lidar_widget()
     with st.container():
         get_imu_widget()
 with lidar_col:
-    lidar_widget()
+    gps_widget()
     st.write(f"Collision Probability: {navigation_service.cas.calculate_collision_probability() * 100}%")
     display_compass_heading()

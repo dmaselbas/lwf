@@ -14,6 +14,16 @@ def laser_off():
     laser_controller.off()
     return jsonify({"status": "Laser turned off"}), 200
 
+@app.route('/motor/on', methods=['POST'])
+def motor_on():
+    laser_controller.motor_start()
+    return jsonify({"status": "Gantry motor turned on"}), 200
+
+@app.route('/motor/off', methods=['POST'])
+def motor_off():
+    laser_controller.motor_stop()
+    return jsonify({"status": "Motor turned off"}), 200
+
 @app.route('/laser/move_left', methods=['POST'])
 def laser_move_left():
     laser_controller.move_left()

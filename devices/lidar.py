@@ -10,14 +10,18 @@ from rplidar import RPLidar, RPLidarException
 import paho.mqtt.client as mqtt
 
 from devices.pwm_controller import PWMClient, PWMController
+from devices.servo import ServoController
 
 
 class LidarController:
 
-    def __init__(self, on_update_callback=None):
+    def __init__(self, on_update_callback=None, tilt_pwm_channel: int = 3) -> None:
         self.last_scan = None
         self.callback = on_update_callback
-        self.lidar = RPLidar("/dev/ttyUSB0", baudrate=460800)
+        try:
+            self.lidar = RPLidar("/dev/ttyUSB0", baudrate=460800)
+        except:
+            self.lidar = None
         self.lidar_on = True
         self.measurements = []
         self.last_reading = pd.DataFrame({
@@ -26,33 +30,19 @@ class LidarController:
             "quality":  np.zeros(360),
             "tilt":     np.zeros(360),
             })
-        self.pwm_controller = PWMClient()
-        self.tilt_positions = np.linspace(400, 1500, 50)
-        self.tilt_positions_pointer = 0
-        self.tilt_incrementor = 1
-        self.semaphore = threading.Semaphore(0)
+        self.tilt_servo = ServoController(tilt_pwm_channel)
+        self.min_tilt = 90 - 25
+        self.max_tilt = 90 + 25
+        self.tilt_servo.set_angle(90)
         atexit.register(self.shutdown)
         thread = threading.Thread(target=self.publish_lidar_data, daemon=True, name="Lidar Thread")
-        thread.start()
-        tilting_thread = threading.Thread(target=self.next_tilt, daemon=True, name="Tilt Thread")
-        tilting_thread.start()
+        if self.lidar is not None:
+            thread.start()
 
         # Initialize MQTT client
         self.mqtt_client = mqtt.Client(protocol=mqtt.MQTTv5)
         self.mqtt_client.connect("mqtt.weedfucker.local", 1883, 60)
         self.mqtt_client.loop_start()
-
-    def next_tilt(self):
-        while True:
-            time.sleep(1)
-            if self.tilt_positions_pointer >= len(self.tilt_positions) - 1:
-                self.tilt_incrementor = -1
-                self.tilt_positions_pointer = len(self.tilt_positions) - 2
-            if self.tilt_positions_pointer <= 0:
-                self.tilt_positions_pointer = 0
-                self.tilt_incrementor = 1
-            self.tilt_positions_pointer += self.tilt_incrementor
-            self.pwm_controller.set_pwm(26, int(self.tilt_positions[self.tilt_positions_pointer]))
 
     def shutdown_lidar(self):
         print("Shutting down Lidar...")
@@ -112,6 +102,10 @@ class LidarController:
                     # Call the update callback if provided
                     if self.callback:
                         self.callback(lidar_data)
+                    if self.tilt_servo.get_angle() <= self.min_tilt:
+                        self.tilt_servo.set_angle(self.max_tilt)
+                    if self.tilt_servo.get_angle() >= self.max_tilt:
+                        self.tilt_servo.set_angle(self.min_tilt)
             except RPLidarException as e:
                 continue
             except Exception as e:

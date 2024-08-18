@@ -20,13 +20,12 @@ class CompassClient:
         self.mqtt_client.connect("mqtt.weedfucker.local", 1883, 60)
         self.mqtt_client.loop_start()
 
-    def _on_connect(self, client, userdata, flags, rc):
+    def _on_connect(self, client, userdata, flags, rc, properties):
         client.subscribe("/dev/compass/#")
 
     def _on_message(self, client, userdata, msg):
         topic = msg.topic
         payload = msg.payload.decode('utf-8')
-        print(f"Received message on topic {topic}: {payload}")
 
         if topic == "/dev/compass/bearing":
             self.bearing = float(payload)

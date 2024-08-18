@@ -32,7 +32,7 @@ class PCA9685:
         mode1 = mode1 & ~self.MODE1_SLEEP
         self.bus.write_byte_data(self.address, self.PCA9685_MODE1, mode1)
         time.sleep(0.005)
-        self.set_pwm_freq(50)
+        self.set_pwm_freq(60)
 
     def set_pwm_freq(self, freq_hz):
         prescale_val = 25000000.0
@@ -72,8 +72,13 @@ class PWMClient:
         self.mqtt_client.loop_start()
 
     def set_pwm(self, channel, value):
-        self.mqtt_client.publish("/dev/pwm/set/{}".format(channel), value)
+        self.mqtt_client.publish("/dev/pwm/set/{}".format(channel), value, qos=2)
 
+    def on(self, channel):
+        self.mqtt_client.publish("/dev/pwm/set/{}".format(channel), "on", qos=2)
+
+    def off(self, channel):
+        self.mqtt_client.publish("/dev/pwm/set/{}".format(channel), "off", qos=2)
 
 class PWMController:
     def __init__(self):
@@ -95,12 +100,18 @@ class PWMController:
 
     def on_message(self, client, userdata, msg):
         try:
-            channel, value = int(msg.topic.split("/")[-1]), int(msg.payload.decode())
-            self.set_pwm(channel, value)
+            channel = int(msg.topic.split("/")[-1])  # Adjust for zero
+            payload = msg.payload.decode()
+            if payload.isdigit():
+                self.set_pwm(channel, int(payload))
+            elif payload.lower() == "on":
+                self.set_pin_on(channel)
+            elif payload.lower() == "off":
+                self.set_pin_off(channel)
         except ValueError:
             print(f"Invalid message format: {msg.topic}/{msg.payload.decode()}")
 
-    def on_connect(self, client, userdata, flags, rc):
+    def on_connect(self, client, userdata, flags, rc, properties):
         client.subscribe("/dev/pwm/set/#")
 
     def set_pwm(self, channel, value):
@@ -123,7 +134,7 @@ class PWMController:
             else:
                 channel -= 17  # Adjust for zero-based indexing in the PCA9685
                 self.pwm2.set_pwm(channel, 0, 4096)
-            self.mqtt_client.publish(f"/dev/pwm/{channel + 1}", 4096)
+            self.mqtt_client.publish(f"/dev/pwm/{channel + 1}", "on")
         except Exception as e:
             print(f"Error setting PWM value: {e}")
 
@@ -135,7 +146,7 @@ class PWMController:
             else:
                 channel -= 17  # Adjust for zero-based indexing in the PCA9685
                 self.pwm2.set_pwm(channel, 4096, 0)
-            self.mqtt_client.publish(f"/dev/pwm/{channel + 1}", 0)
+            self.mqtt_client.publish(f"/dev/pwm/{channel + 1}", "off")
         except Exception as e:
             print(f"Error setting PWM value: {e}")
 

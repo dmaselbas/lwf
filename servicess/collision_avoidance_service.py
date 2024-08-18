@@ -36,23 +36,23 @@ class CollisionAvoidanceSystem:
         self.thread = threading.Thread(target=self.run, daemon=True, name="CollisionAvoidanceSystem")
         self.thread.start()
 
-        self.mqtt_client = mqtt.Client(protocol=mqtt.MQTTv5)
-        self.mqtt_client.connect("mqtt.weedfucker.local", 1883, 60)
-        self.mqtt_client.loop_start()
+        self.client = mqtt.Client(protocol=mqtt.MQTTv5)
+        self.client.connect("mqtt.weedfucker.local", 1883, 60)
+        self.client.loop_start()
 
     def shutdown(self):
         print("Shutting down CollisionAvoidanceSystem...")
         self.running = False
-        self.mqtt_client.loop_stop()
-        self.mqtt_client.disconnect()
+        self.client.loop_stop()
+        self.client.disconnect()
 
     def turn_on(self):
         self.system_enabled = True
-        self.mqtt_client.publish("/svc/cos/status", "enabled")
+        self.client.publish("/svc/cos/status", "enabled")
 
     def turn_off(self):
         self.system_enabled = False
-        self.mqtt_client.publish("/svc/cos/status", "disabled")
+        self.client.publish("/svc/cos/status", "disabled")
 
     def handle_lidar_update(self, lidar_data):
         self.lidar_data = lidar_data
@@ -67,7 +67,7 @@ class CollisionAvoidanceSystem:
             time.sleep(5)
             return
         if not self.taking_avoidance_action:
-            self.mqtt_client.publish("/service/cas/active", 1)
+            self.client.publish("/service/cas/active", 1)
             self.taking_avoidance_action = True
             self.last_speed = self.drive.get_speed()
             self.last_direction = self.drive.get_direction()
@@ -107,7 +107,7 @@ class CollisionAvoidanceSystem:
                 self.send_drive_command("right", 2048)
 
     def resume(self):
-        self.mqtt_client.publish("/service/cas/active", 0)
+        self.client.publish("/service/cas/active", 0)
         # self.correct_heading()
         self.taking_avoidance_action = False
         self.send_drive_command("set_direction", self.last_direction)
@@ -174,7 +174,7 @@ class CollisionAvoidanceSystem:
                         })
                 mqtt_msg = self.calculate_directional_collision_probabilities()
                 mqtt_msg["collision_probability"] = self.collision_probability
-                self.mqtt_client.publish("/service/cas/update", json.dumps(mqtt_msg))
+                self.client.publish("/service/cas/update", json.dumps(mqtt_msg))
                 if self.collision_probability > 0.95:
                     self.avoid_collision()
             except Exception as e:
@@ -187,4 +187,4 @@ class CollisionAvoidanceSystem:
         payload = {"command": command}
         if value is not None:
             payload["value"] = value
-        self.mqtt_client.publish("/service/cas/command", json.dumps(payload))
+        self.client.publish("/service/cas/command", json.dumps(payload))

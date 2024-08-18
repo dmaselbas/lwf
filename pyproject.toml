@@ -34,6 +34,7 @@ tf-keras = "2.16.0"
 onnxruntime = "^1.18.1"
 keras = "^3.4.1"
 jupyter = "^1.0.0"
+imageio = {extras = ["ffmpeg"], version = "^2.35.0"}
 
 
 [build-system]

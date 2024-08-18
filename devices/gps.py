@@ -85,7 +85,7 @@ class GPSClient:
         elif topic == "/dev/gps/connected_sats":
             self.gps_data["connected_sats"] = int(value)
 
-    def _on_connect(self, client, userdata, flags, rc):
+    def _on_connect(self, client, userdata, flags, rc, properties):
         client.subscribe("/dev/gps/#")
 
     def get_gps_reading(self):
