@@ -1,20 +1,20 @@
 import streamlit as st
 import streamlit.components.v1 as components
-import requests
 import plotly.graph_objects as go
 import pandas as pd
+
+from devices.drive import DriveClient
 from devices.gps import GPSClient
 from devices.laser import LaserClient
-from devices.lidar import LidarController
+from devices.lidar import Lidar, LidarController
 from devices.pwm_controller import PWMClient
 from servicess.camera_service import CameraService
 from servicess.navigation_service import NavigationService
 
 st.set_page_config(layout="wide")
 st.session_state.gps_data = pd.DataFrame(columns=["lat", "lon"])
-laser_cam_html = f'<iframe src="http://192.168.5.240:8080/?action=stream" width="100%" frameborder="0"></iframe>'
-nav_cam_html = f'<iframe src="http://192.168.5.243/cgi-bin/hi3510/snap.cgi?&-getstream&-chn=2" width="100%" frameborder="0"></iframe>'
-
+laser_cam_html = f'<iframe src="http://192.168.5.242:8080/?action=stream" width="100%" height=500 frameborder="0"></iframe>'
+nav_cam_html = f'<iframe src="http://192.168.5.243/cgi-bin/hi3510/snap.cgi?&-getstream&-chn=2" width="100%" height=500 frameborder="0"></iframe>'
 
 # nav_cam_html = f'<iframe src="http://192.168.5.243/web/index.html" width="100%" frameborder="0"></iframe>'
 
@@ -24,8 +24,11 @@ def get_pwm_controller():
 
 
 @st.cache_resource
+def get_lidar_controller():
+    return Lidar()
+
+@st.cache_resource
 def get_nav_service():
-    lidar = LidarController()
     return NavigationService(lidar)
 
 
@@ -41,6 +44,12 @@ def get_gps():
 @st.cache_resource
 def get_laser():
     return LaserClient()
+
+
+@st.cache_resource
+def get_drive():
+    return DriveClient()
+
 
 def get_gps_data(gps: GPSClient) -> pd.DataFrame:
     return gps.get_gps_reading()
@@ -73,7 +82,7 @@ def display_compass_heading():
 
 
 def display_lidar_data():
-    lidar_last_reading_df = navigation_service.lidar_controller.get_last_reading()
+    lidar_last_reading_df = lidar.get_latest_data()
     fig = go.Figure(go.Scatterpolar(
             r=lidar_last_reading_df["distance"],
             theta=lidar_last_reading_df["angle"],
@@ -101,10 +110,12 @@ def display_lidar_data():
 
 
 pwm_controller = get_pwm_controller()
-navigation_service = get_nav_service()
 cams = get_cams()
 gps_controller = get_gps()
 laser = get_laser()
+drive = get_drive()
+lidar = get_lidar_controller()
+navigation_service = get_nav_service()
 
 
 @st.experimental_fragment(run_every=5)
@@ -118,7 +129,7 @@ def gps_widget():
     st.subheader("GPS Data")
     gps_data = get_gps_data(gps_controller)
     if len(gps_data) > 0:
-        st.map(gps_data, size=2, zoom=17)
+        st.map(gps_data, size=2, zoom=18, use_container_width=True)
         st.write(navigation_service.compass.get_bearing())
         st.empty()
 
@@ -132,7 +143,7 @@ def get_imu_widget():
 
 def on_speed_change():
     speed = st.session_state.speed
-    navigation_service.drive_controller.set_speed(speed)
+    drive.set_speed(speed)
 
 
 def on_pan_change():
@@ -158,8 +169,8 @@ nav_col, compass_col, lidar_col = st.columns(3, gap="small")
 
 with nav_col:
     st.subheader("Drive Controls")
-    components.iframe("http://192.168.5.243/cgi-bin/hi3510/snap.cgi?&-getstream&-chn=2", height=500)
-    speed = st.slider("Speed", min_value=0, max_value=4095, key="speed", on_change=on_speed_change)
+    components.iframe("http://192.168.5.243/cgi-bin/hi3510/snap.cgi?&-getstream&-chn=2", width=600, height=400)
+    speed = st.slider("Speed", min_value=0, max_value=100, key="speed", on_change=on_speed_change)
     pan_col, tilt_col = st.columns(2)
     with pan_col:
         pan_x = st.slider("Targeting Camera Pan",
@@ -180,18 +191,18 @@ with nav_col:
         with left_buttons:
             st.button("", key="blank1")
             if st.button("Left", key="left"):
-                navigation_service.drive_left()
+                drive.left()
         with center_buttons:
             if st.button("Forward", key="fwd"):
-                navigation_service.drive_forward()
+                drive.forward()
             if st.button("Stop", key="stop"):
-                navigation_service.stop_driving()
+                drive.stop()
             if st.button("Backward", key="bwd"):
-                navigation_service.drive_backward()
+                drive.reverse()
         with right_buttons:
             st.button("", key="blank2")
             if st.button("Right", key="right"):
-                navigation_service.drive_right()
+                drive.right()
 with compass_col:
     with st.container():
         cas_btn, laser_move, laser_button = st.columns(3)
@@ -223,5 +234,6 @@ with compass_col:
         get_imu_widget()
 with lidar_col:
     gps_widget()
-    st.write(f"Collision Probability: {navigation_service.cas.calculate_collision_probability() * 100}%")
+    # st.write(f"Collision Probability: {navigation_service.cas.calculate_collision_probability() * 100}%")
     display_compass_heading()
+    # components.iframe("http://192.168.5.242:8080/?action=stream", width=1280, height=720)

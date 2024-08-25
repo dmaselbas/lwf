@@ -4,7 +4,7 @@ import threading
 import time
 from typing import Callable
 
-from devices.drive import DriveController
+from devices.drive import DriveClient, DriveController
 from devices.gps import GPSClient, GPSController
 from devices.imu import MPU6050
 from devices.lidar import LidarController
@@ -16,12 +16,12 @@ class CollisionAvoidanceSystem:
     def __init__(self, on_update_callback: Callable,
                  lidar: LidarController):
         self.running = True
-        self.collision_probability = 1
+        self.collision_probability = 0
         self.on_update_callback = on_update_callback
 
         self.lidar = lidar
         self.gps = GPSClient()
-        self.drive = DriveController()
+        self.drive = DriveClient()
 
         self.lidar_data = None
         self.gps_data = None
@@ -72,7 +72,7 @@ class CollisionAvoidanceSystem:
             self.last_speed = self.drive.get_speed()
             self.last_direction = self.drive.get_direction()
             self.last_heading = self.gps.get_heading()
-            self.send_drive_command("stop")
+            self.drive.stop()
             while self.calculate_collision_probability() > .95:
                 if not self.system_enabled:
                     return
@@ -80,16 +80,21 @@ class CollisionAvoidanceSystem:
                 min_prob_direction = min(dir_probs, key=dir_probs.get)
                 max_prob_direction = max(dir_probs, key=dir_probs.get)
                 if min_prob_direction == max_prob_direction:
-                    self.send_drive_command("stop")
+                    self.drive.stop()
                 elif min_prob_direction == "rear":
-                    self.send_drive_command("reverse", 2048)
+                    self.drive.set_speed(2048)
+                    self.drive.reverse()
                 elif min_prob_direction == "left":
-                    self.send_drive_command("left", 2048)
+                    self.drive.set_speed(2048)
+                    self.drive.left()
                 elif min_prob_direction == "right":
-                    self.send_drive_command("right", 2048)
+                    self.drive.set_speed(2048)
+                    self.drive.right()
                 elif min_prob_direction == "front":
-                    self.send_drive_command("forward", 2048)
+                    self.drive.set_speed(2048)
+                    self.drive.forward()
                 else:
+                    self.drive.stop()
                     self.send_drive_command("stop")
             self.resume()
 
@@ -102,16 +107,17 @@ class CollisionAvoidanceSystem:
                 mode = "left"
                 last_heading_difference = heading_difference
             if mode == "left":
-                self.send_drive_command("left", 2048)
+                self.drive.set_speed(2048)
+                self.drive.left()
             else:
-                self.send_drive_command("right", 2048)
+                self.drive.set_speed(2048)
+                self.drive.right()
 
     def resume(self):
         self.client.publish("/service/cas/active", 0)
         # self.correct_heading()
         self.taking_avoidance_action = False
-        self.send_drive_command("set_direction", self.last_direction)
-        self.send_drive_command("set_speed", self.last_speed)
+        self.send_drive_command(self.last_direction, self.last_speed)
 
     def calculate_directional_collision_probabilities(self):
         self.lidar_data = self.lidar.get_last_reading()
@@ -184,7 +190,17 @@ class CollisionAvoidanceSystem:
                 time.sleep(.25)
 
     def send_drive_command(self, command, value=None):
-        payload = {"command": command}
         if value is not None:
-            payload["value"] = value
-        self.client.publish("/service/cas/command", json.dumps(payload))
+            self.drive.set_speed(value)
+        if command == "stop":
+            self.drive.stop()
+        elif command == "forward":
+            self.drive.forward()
+        elif command == "reverse":
+            self.drive.reverse()
+        elif command == "left":
+            self.drive.left()
+        elif command == "right":
+            self.drive.right()
+        else:
+            self.drive.stop()

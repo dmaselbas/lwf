@@ -2,6 +2,8 @@ import atexit
 import json
 import threading
 from datetime import datetime, timezone
+from pathlib import Path
+from time import sleep
 
 import pandas as pd
 import serial
@@ -16,14 +18,16 @@ class GPSController:
     def __init__(self):
         self.running = True
         self.gps = serial.Serial("/dev/ttyS2", baudrate=9600, timeout=3)
-        self.process_thread = threading.Thread(target=self.process_gps_data)
+        self.logging_path = Path(f"/var/training/data/gps/{datetime.utcnow().strftime('%Y-%m-%d_%H-%M-%S')}_gps.txt")
+        if not self.logging_path.parent.exists():
+            self.logging_path.parent.mkdir(parents=True)
+        self.process_thread = threading.Thread(target=self.process_gps_data, daemon=True, name="GPS Data Processing Thread")
         self.process_thread.start()
 
         # Initialize MQTT client
         self.mqtt_client = mqtt.Client(protocol=mqtt.MQTTv5)
         self.mqtt_client.connect("mqtt.weedfucker.local", 1883, 60)
-        self.mqtt_client.loop_forever()
-        atexit.register(self._shutdown)
+        self.mqtt_client.loop_start()
 
     def _shutdown(self):
         self.running = False
@@ -39,6 +43,8 @@ class GPSController:
             line = self.gps.readline().decode("utf-8", errors="ignore").strip()
             if line:
                 try:
+                    with open(self.logging_path, "a") as f:
+                        f.write(line + "\n")
                     if "GGA" in line:  # RMC (Recommended Minimum Navigation Information)
                         msg = pynmea2.parse(line)
                         # Publish the GPS data to the MQTT topic
@@ -47,11 +53,15 @@ class GPSController:
                         self.mqtt_client.publish("/dev/gps/altitude", msg.altitude)
                         self.mqtt_client.publish("/dev/gps/altitude_units", msg.altitude_units)
                         self.mqtt_client.publish("/dev/gps/connected_sats", msg.num_sats)
+                    sleep(0.5)
                 except serial.SerialException as e:
                     print('Device error: {}'.format(e))
                     continue
                 except pynmea2.ParseError as e:
                     print('Parse error: {}'.format(e))
+                    continue
+                except Exception as ex:
+                    print(f'Unexpected error: {ex}')
                     continue
 
 
@@ -74,6 +84,8 @@ class GPSClient:
     def _on_message(self, client, userdata, message):
         topic = message.topic
         value = message.payload.decode("utf-8")
+        if value == '':
+            return
         if topic == "/dev/gps/latitude":
             self.gps_data["latitude"] = float(value)
         elif topic == "/dev/gps/longitude":
@@ -98,3 +110,5 @@ class GPSClient:
 
 if __name__ == "__main__":
     gps_controller = GPSController()
+    while gps_controller.running:
+        sleep(1)

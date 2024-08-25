@@ -1,0 +1,14 @@
+[Unit]
+Description=Compass Service
+After=network.target
+
+[Service]
+ExecStart= /usr/bin/python3 /var/training/code/devices/compass.py
+WorkingDirectory=/var/training/code
+Restart=always
+User=root
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONPATH="/var/training/code/:/home/orangepi/.local/lib/python3.11/site-packages/:${PYTHONPATH}"
+
+[Install]
+WantedBy=multi-user.target

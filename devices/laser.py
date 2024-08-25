@@ -52,6 +52,19 @@ class LaserController:
         self.running = False
         self.mqtt_client.loop_stop()
 
+
+    def check_limits(self):
+        while self.running:
+            if self.get_gpio_input(self.left_limit_pin):
+                self.position = 0
+                self.move_right()
+
+            if self.get_gpio_input(self.right_limit_pin):
+                self.position = self.max_position
+                self.move_left()
+            sleep(1)
+
+
     def enable_cycle_motion(self):
         self.cycle_motion = True
 
@@ -82,18 +95,40 @@ class LaserController:
 
     async def pulse_laser(self):
         for _ in range(1000):
-            self.on()
+            self.pwm.set_pwm(self.laser_on_channel, 2056)
             await asyncio.sleep(0.25)
             self.off()
-            await asyncio.sleep(0.25)
+            await asyncio.sleep(0.75)
 
     def wiggle_motor(self):
-        self.motor_start()
-        self.move_left()
-        sleep(1)
-        self.move_right()
-        sleep(1)
-        self.motor_stop()
+        self.left_mode = True
+        frequency = 5  # Frequency of the sine wave
+        sampling_rate = 1000  # Number of samples per second
+        duration = 2  # Duration in seconds
+        # Time array
+        t = np.linspace(0, duration, int(sampling_rate * duration), endpoint=False)
+
+        # Sine wave with diminishing amplitude
+        amplitude = np.exp(-t)  # Exponential decay
+        sine_wave = amplitude * np.sin(2 * np.pi * frequency * t)
+        while self.cycle_motion:
+            for value in sine_wave:
+                if self.cycle_motion is False:
+                    break
+                if self.get_gpio_input(self.left_limit_pin):
+                    self.move_right()
+                if self.get_gpio_input(self.right_limit_pin):
+                    self.move_left()
+                self.pulse_motor()
+                self.check_limits()
+                sleep(min((0.0001 * value), 0.5))
+                self.check_limits()
+                self.motor_stop()
+                left_mode = not self.left_mode
+                if left_mode:
+                    self.move_left()
+                else:
+                    self.move_right()
 
     def run(self):
         while self.running:
@@ -110,10 +145,12 @@ class LaserController:
             if self.get_gpio_input(self.right_limit_pin):
                 self.position = self.max_position
                 self.move_left()
+            if self.cycle_motion:
+                self.wiggle_motor()
 
 
     def pulse_motor(self, is_init=False):
-        self.pwm.set_pwm(self.pulse_channel, 16)
+        self.pwm.set_pwm(self.pulse_channel, 1024)
 
     def motor_stop(self):
         self.pwm.set_pwm(self.pulse_channel, 0)
@@ -131,15 +168,15 @@ class LaserController:
 
     def move_to_position(self, position):
         if position < 500:
-            self.pulse_motor()
             self.move_left()
-            sleep(float(np.linspace(5, 0.25, 500)[position - 1]))
-            self.pwm.set_pwm(self.pulse_channel, 0)
-        elif position >= 500:
             self.pulse_motor()
+            sleep(position / 1000)
+            self.motor_stop()
+        elif position >= 500:
             self.move_right()
-            sleep(float(np.linspace(0.25, 5, 500)[position - 1]))
-            self.pwm.set_pwm(self.pulse_channel, 0)
+            self.pulse_motor()
+            sleep(position - 500 / 1000)
+            self.motor_stop()
 
     def on_message(self, client, userdata, msg):
         topic = msg.topic
@@ -224,3 +261,5 @@ if __name__ == "__main__":
     laser_controller = LaserController()
     laser_controller.off()
     laser_controller.motor_stop()
+    while laser_controller.running:
+        time.sleep(1)

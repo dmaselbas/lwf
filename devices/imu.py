@@ -80,16 +80,22 @@ class MPU6050:
             while self.running:
                 gyro_x = self.read_raw_data(self.GYRO_XOUT_H) / 131.0
                 self.mqtt_client.publish("/dev/imu/gyro/x", gyro_x)
+                time.sleep(0.1)  # 100 Hz sampling rate
                 gyro_y = self.read_raw_data(self.GYRO_YOUT_H) / 131.0
                 self.mqtt_client.publish("/dev/imu/gyro/y", gyro_y)
+                time.sleep(0.1)  # 100 Hz sampling rate
                 gyro_z = self.read_raw_data(self.GYRO_ZOUT_H) / 131.0
                 self.mqtt_client.publish("/dev/imu/gyro/z", gyro_z)
+                time.sleep(0.1)  # 100 Hz sampling rate
                 accel_x = self.read_raw_data(self.ACCEL_XOUT_H) / 16384.0
                 self.mqtt_client.publish("/dev/imu/accel/x", accel_x)
+                time.sleep(0.1)  # 100 Hz sampling rate
                 accel_y = self.read_raw_data(self.ACCEL_YOUT_H) / 16384.0
                 self.mqtt_client.publish("/dev/imu/accel/y", accel_y)
+                time.sleep(0.1)  # 100 Hz sampling rate
                 accel_z = self.read_raw_data(self.ACCEL_ZOUT_H) / 16384.0
                 self.mqtt_client.publish("/dev/imu/accel/z", accel_z)
+                time.sleep(0.5)  # 100 Hz sampling rate
         except Exception as e:
             print(f"Error publishing data: {e}")
             self.shutdown()
@@ -156,3 +162,5 @@ class IMUClient:
 
 if __name__ == "__main__":
     imu = MPU6050()
+    while imu.running:
+        time.sleep(1)

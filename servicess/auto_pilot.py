@@ -1,3 +1,4 @@
+import threading
 from time import sleep
 
 import sys
@@ -9,13 +10,21 @@ import math
 import atexit  # Import the atexit module
 from stable_baselines3 import PPO
 
+from devices.compass import CompassClient
+from devices.drive import DriveClient
 from real_env import RealRobotEnv
+
+
+class AutoPilotMode:
+    DISABLED = 0
+    HEADING_LOCK = 1
 
 
 class AutoPilotService:
 
     def __init__(self):
         super().__init__()
+        self.running = True
         self.mqtt_broker = "mqtt.weedfucker.local"
         self.mqtt_port = 1883
         self.last_gps: np.array = None
@@ -27,16 +36,42 @@ class AutoPilotService:
         self.angle_shortest_reading = None
         self.online_status_sent = False  # Flag to track if the "online" message has been sent
         self.last_observation = None
+        self.mode = AutoPilotMode.DISABLED
 
         custom_objs = {"clip_range": 0.2, "lr_schedule": lambda _: 0.0003}
         self.env = RealRobotEnv(self)  # Create the environment
-        self.model = PPO.load("ppo_robot.zip", env=self.env, custom_objects=custom_objs, device="auto")  # Load the pre-trained model
-
+        self.model = PPO.load("ppo_robot.zip",
+                              env=self.env,
+                              custom_objects=custom_objs,
+                              device="auto")  # Load the pre-trained model
+        self.compas = CompassClient()  # Create the compass client
+        self.drive_client = DriveClient()  # Create the drive client
+        self.thread = threading.Thread(target=self.run, daemon=True, name="AutoPilotService")
         self.client = mqtt.Client()
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
         self.client.connect(self.mqtt_broker, self.mqtt_port, 60)
-        self.client.loop_start()
+        self.thread.start()
+        self.client.loop_forever()
+
+
+    def run(self):
+        while self.running:
+            if self.last_observation is None:
+                continue
+
+            action = self.model.predict(self.last_observation.reshape(1, -1))[0]
+            reward, done, info = self.env.step(action)
+            self.last_observation = self.env.get_obs()
+
+            if done:
+                print("Episode finished!")
+                self.env.reset()
+                self.last_observation = self.env.get_obs()
+
+            if self.mode == AutoPilotMode.HEADING_LOCK:
+                self.compas.lock_heading(self.angle_longest_reading)
+
 
     def on_connect(self, client, userdata, flags, rc):
         print("Connected to MQTT broker with result code " + str(rc))
@@ -99,7 +134,7 @@ class AutoPilotService:
                                            self.last_compass, self.angle_longest_reading,
                                            self.angle_shortest_reading]))
             return observation
-        return np.zeros(365,)
+        return np.zeros(365, )
 
     def get_next_action(self):
         # Prepare the observation data

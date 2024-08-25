@@ -82,12 +82,14 @@ class PWMClient:
 
 class PWMController:
     def __init__(self):
+        self.running = True
         self.pwm1 = PCA9685(address=0x40)
         self.pwm2 = PCA9685(address=0x43)
         self.mqtt_client = mqtt.Client(protocol=mqtt.MQTTv5)
         self.mqtt_client.on_connect = self.on_connect
         self.mqtt_client.on_message = self.on_message
         self.mqtt_client.connect("mqtt.weedfucker.local", 1883, 60)
+        atexit.register(self.shutdown)
         self.mqtt_client.loop_forever()
 
     def shutdown(self):
@@ -97,6 +99,7 @@ class PWMController:
         self.pwm1.bus.close()
         self.pwm2.bus.close()
         self.mqtt_client.disconnect()
+        self.running = False
 
     def on_message(self, client, userdata, msg):
         try:
@@ -153,3 +156,5 @@ class PWMController:
 
 if __name__ == "__main__":
     pwm_controller = PWMController()
+    while pwm_controller.running:
+        time.sleep(1)
