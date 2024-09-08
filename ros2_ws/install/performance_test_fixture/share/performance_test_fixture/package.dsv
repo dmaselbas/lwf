@@ -1,0 +1,11 @@
+source;share/performance_test_fixture/hook/cmake_prefix_path.ps1
+source;share/performance_test_fixture/hook/cmake_prefix_path.dsv
+source;share/performance_test_fixture/hook/cmake_prefix_path.sh
+source;share/performance_test_fixture/hook/dyld_library_path.ps1
+source;share/performance_test_fixture/hook/dyld_library_path.dsv
+source;share/performance_test_fixture/hook/dyld_library_path.sh
+source;share/performance_test_fixture/local_setup.bash
+source;share/performance_test_fixture/local_setup.dsv
+source;share/performance_test_fixture/local_setup.ps1
+source;share/performance_test_fixture/local_setup.sh
+source;share/performance_test_fixture/local_setup.zsh

@@ -1,0 +1,1 @@
+/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/build/rmw_implementation_cmake/ament_cmake_environment_hooks/local_setup.sh

@@ -1,0 +1,1 @@
+/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/build/rti_connext_dds_cmake_module/ament_cmake_environment_hooks/local_setup.zsh

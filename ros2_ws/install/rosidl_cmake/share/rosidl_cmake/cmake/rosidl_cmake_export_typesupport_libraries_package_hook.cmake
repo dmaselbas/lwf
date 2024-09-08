@@ -1,0 +1,1 @@
+/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/src/ros2/rosidl/rosidl_cmake/cmake/rosidl_cmake_export_typesupport_libraries_package_hook.cmake

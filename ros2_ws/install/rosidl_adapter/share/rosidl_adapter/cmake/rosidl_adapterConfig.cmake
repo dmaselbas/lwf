@@ -1,0 +1,1 @@
+/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/build/rosidl_adapter/ament_cmake_core/rosidl_adapterConfig.cmake

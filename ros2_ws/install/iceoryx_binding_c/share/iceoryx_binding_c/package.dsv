@@ -1,0 +1,9 @@
+source;share/iceoryx_binding_c/hook/cmake_prefix_path.ps1
+source;share/iceoryx_binding_c/hook/cmake_prefix_path.dsv
+source;share/iceoryx_binding_c/hook/cmake_prefix_path.sh
+source;share/iceoryx_binding_c/hook/dyld_library_path.ps1
+source;share/iceoryx_binding_c/hook/dyld_library_path.dsv
+source;share/iceoryx_binding_c/hook/dyld_library_path.sh
+source;share/iceoryx_binding_c/hook/pkg_config_path.ps1
+source;share/iceoryx_binding_c/hook/pkg_config_path.dsv
+source;share/iceoryx_binding_c/hook/pkg_config_path.sh

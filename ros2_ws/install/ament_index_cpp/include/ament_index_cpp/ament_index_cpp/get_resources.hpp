@@ -1,0 +1,1 @@
+/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/src/ament/ament_index/ament_index_cpp/include/ament_index_cpp/get_resources.hpp

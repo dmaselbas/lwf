@@ -6,16 +6,18 @@
   become: true
   become_method: sudo  # Use sudo for all nodes
   tasks:
+    - name: Run apt update
+      apt:
+        update_cache: yes
     # Install mate on vm
-    - name: Install MATE desktop on VM
+    - name: Install Gnome desktop on VM
       apt:
         name:
-          - ubuntu-mate-desktop
-          - mate-utils
-          - mate-terminal
-          - chromium-browser
+          - task-gnome-desktop
         state: present
 
+    - name: Reboot after Gnome desktop install
+      reboot:
     - name: Source ROS environment in .bashrc for ros2 user on VM
       lineinfile:
         path: /home/ros2/.bashrc
