@@ -1,0 +1,13 @@
+---
+  - import_playbook: setup_playbooks/networking.yaml
+  - import_playbook: setup_playbooks/env_init.yaml
+  - import_playbook: setup_playbooks/ros_env_config.yaml
+  - import_playbook: setup_playbooks/apt_repo_setup.yaml
+  - import_playbook: setup_playbooks/ros_common_package_install.yaml
+  - import_playbook: setup_playbooks/vm_package_install.yaml
+  - import_playbook: setup_playbooks/node_package_install.yaml
+  - hosts: all
+    become: true
+    tasks:
+      - name: Reboot all hosts
+        reboot:

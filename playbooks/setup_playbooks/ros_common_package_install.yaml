@@ -1,0 +1,14 @@
+---
+- hosts: all
+  vars_files:
+    - vault.yaml
+    - ros_vars.yaml
+  become: true
+  become_method: sudo  # Use sudo for all nodes
+  tasks:
+    - name: Install common ROS packages
+      apt:
+        name:
+          - ros-humble-ros-base
+          - python3-colcon-common-extensions
+        state: present

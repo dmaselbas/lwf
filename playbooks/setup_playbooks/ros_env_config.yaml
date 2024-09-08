@@ -1,0 +1,35 @@
+---
+- hosts: all
+  vars_files:
+    - vault.yaml
+    - ros_vars.yaml
+  become: true
+  become_method: sudo  # Use sudo for all nodes
+  tasks:
+
+    - name: Generate en_US.UTF-8 locale
+      command: sudo locale-gen en_US en_US.UTF-8
+
+    - name: Update locale settings
+      lineinfile:
+        path: /etc/default/locale
+        regexp: '^LANG='
+        line: 'LANG=en_US.UTF-8'
+      notify: Reboot VM
+
+    - name: Export LANG environment variable for vm
+      lineinfile:
+        path: /home/ros2/.bashrc
+        line: 'export LANG=en_US.UTF-8'
+        state: present
+      when: inventory_hostname == 'lwf-vm'
+
+    - name: Export LANG environment variable for nodes
+      lineinfile:
+        path: /home/orangepi/.bashrc
+        line: 'export LANG=en_US.UTF-8'
+        state: present
+      when: inventory_hostname != 'lwf-vm'
+
+    - name: Verify locale
+      command: locale

@@ -28,10 +28,10 @@ class LidarController:
         self.lidar_on = True
         self.measurements = []
         self.last_reading = pd.DataFrame({
-            "angle":    np.zeros(360),
-            "distance": np.zeros(360),
-            "quality":  np.zeros(360),
-            "tilt":     np.zeros(360),
+            "angle":      np.zeros(360),
+            "distance":   np.zeros(360),
+            "quality":    np.zeros(360),
+            "tilt_angle": np.zeros(360),
             })
         # self.tilt_servo = ServoController(tilt_pwm_channel)
         self.tilt_servo = ServoController(7)
@@ -80,7 +80,6 @@ class LidarController:
             except Exception as e:
                 last_scan_df.to_csv(lidar_data_path)
 
-
     def publish_lidar_data(self):
         print("Collecting Lidar Data...")
         self.lidar.start_motor()
@@ -118,7 +117,7 @@ class LidarController:
                                                    self.last_reading["distance"])
                     scan_df["tilt_angle"] = self.current_tilt
                     self.last_reading = scan_df.copy()
-                    lidar_data = self.last_reading[["distance"]].to_json()
+                    lidar_data = self.last_reading[["distance", "angle", "quality"]].fillna(0).to_json()
                     self.mqtt_client.publish("/dev/lidar/update", lidar_data)
                     self.store_lidar_data(self.last_reading)
                     # Call the update callback if provided
@@ -159,7 +158,12 @@ class Lidar:
         self.mqtt_broker = mqtt_broker
         self.mqtt_port = mqtt_port
         self.topic = topic
-        self.latest_data = pd.DataFrame()
+        self.latest_data = pd.DataFrame({
+            "angle":      np.zeros(360),
+            "distance":   np.zeros(360),
+            "quality":    np.zeros(360),
+            "tilt_angle": np.zeros(360),
+            })
 
         # Initialize MQTT client
         self.mqtt_client = mqtt.Client(protocol=mqtt.MQTTv5)
@@ -168,7 +172,7 @@ class Lidar:
         self.mqtt_client.connect(self.mqtt_broker, self.mqtt_port, 60)
         self.mqtt_client.loop_start()
 
-    def on_connect(self, client, userdata, flags, rc):
+    def on_connect(self, client, userdata, flags, rc, properties):
         print(f"Connected to MQTT broker with result code {rc}")
         client.subscribe(self.topic)
 
@@ -176,7 +180,7 @@ class Lidar:
         try:
             payload = msg.payload.decode('utf-8')
             data = json.loads(payload)
-            self.latest_data = pd.DataFrame.from_dict(data)
+            self.latest_data = pd.DataFrame.from_dict(data).set_index("angle", drop=True)
             print("Updated latest Lidar data")
         except Exception as e:
             print(f"Error processing message: {e}")
@@ -188,8 +192,16 @@ class Lidar:
         self.mqtt_client.loop_stop()
         self.mqtt_client.disconnect()
 
+
 # Example usage
 if __name__ == "__main__":
-    lidar = LidarController()
-    while lidar.running:
-        time.sleep(1)
+    lidar = None
+    try:
+        lidar = LidarController()
+        while lidar.lidar_on:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        lidar.shutdown()
+    except Exception as e:
+        print(f"Error in main loop: {traceback.format_exc()}")
+        lidar.shutdown()

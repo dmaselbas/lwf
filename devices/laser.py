@@ -2,6 +2,7 @@ import asyncio
 import atexit
 import threading
 import subprocess
+from random import randint
 from time import sleep
 
 import numpy as np
@@ -13,27 +14,29 @@ from devices.pwm_controller import PWMClient
 
 class LaserController:
     def __init__(self):
-        self.motor_on = None
+        self.motor_on = True
         self.wiggle_future = None
         self.cycle_motion_sleep = None
+        self.cycle_counter = 0
         self.direction_channel = 30
         self.pulse_channel = 31
         self.laser_on_channel = 32
-        self.left_limit_pin = 25
-        self.right_limit_pin = 23
+        self.left_limit_pin = 23
+        self.right_limit_pin = 25
         self.ok_to_move_left = True
         self.ok_to_move_right = True
         self.position = 0
+        self.moving_direction = 1
         self.max_position = 100
         self.target_position = 10
         self.running = True
         self.manual_mode = False
-        self.pulse_time = 1
+        self.pulse_time = 0.02
         self.pulse_laser_enabled = False
         self.pwm = PWMClient()
-        self.setup_gpio(self.direction_channel, "out")
         self.setup_gpio(self.left_limit_pin, "in")
         self.setup_gpio(self.right_limit_pin, "in")
+        self.setup_gpio(5, "out")
         self.incrementor = 1
         self.cycle_motion = False
         self.laser_on_status = False
@@ -52,7 +55,6 @@ class LaserController:
         self.running = False
         self.mqtt_client.loop_stop()
 
-
     def check_limits(self):
         while self.running:
             if self.get_gpio_input(self.left_limit_pin):
@@ -64,7 +66,6 @@ class LaserController:
                 self.move_left()
             sleep(1)
 
-
     def enable_cycle_motion(self):
         self.cycle_motion = True
 
@@ -72,14 +73,14 @@ class LaserController:
         self.cycle_motion = False
 
     def move_left(self):
-        self.manual_mode = True
-        self.pwm.set_pwm(self.direction_channel, "on")
-        self.mqtt_client.publish("/dev/laser/move", "left")
+        self.incrementor = -1
+        self.pwm.set_pwm(self.direction_channel, 4096)
+        self.set_gpio_output(5, 1)  # Enable left motor
 
     def move_right(self):
-        self.manual_mode = True
-        self.pwm.set_pwm(self.direction_channel, "off")
-        self.mqtt_client.publish("/dev/laser/move", "right")
+        self.incrementor = 1
+        self.pwm.set_pwm(self.direction_channel, 0)
+        self.set_gpio_output(5, 0)  # Enable left motor
 
     def set_gpio_output(self, channel_number, value):
         subprocess.run(["gpio", "write", str(channel_number), str(value)], check=True)
@@ -132,38 +133,32 @@ class LaserController:
 
     def run(self):
         while self.running:
-            if self.pulse_laser_enabled:
-                asyncio.run(self.pulse_laser())
-            self.position += self.incrementor
-            if self.position >= self.max_position:
-                self.incrementor = -1
-            elif self.position <= 0:
-                self.incrementor = 1
-            if self.get_gpio_input(self.left_limit_pin):
-                self.position = 0
-                self.move_right()
-            if self.get_gpio_input(self.right_limit_pin):
-                self.position = self.max_position
-                self.move_left()
-            if self.cycle_motion:
-                self.wiggle_motor()
-
+            if not self.motor_on:
+                sleep(0.1)
+                continue
+            self.move_right()
+            while self.position != 50:
+                self.pulse_motor()
+            self.move_left()
+            while self.position != 0:
+                self.pulse_motor()
 
     def pulse_motor(self, is_init=False):
-        self.pwm.set_pwm(self.pulse_channel, 1024)
+        self.pwm.set_pwm(self.pulse_channel, 64)
+        sleep(0.1)
+        self.pwm.set_pwm(self.pulse_channel, 0)
+        self.position += self.incrementor
 
     def motor_stop(self):
-        self.pwm.set_pwm(self.pulse_channel, 0)
+        self.motor_on = False
 
     def motor_start(self):
-        self.pulse_motor()
+        self.motor_on = True
 
     def on(self):
-        self.motor_on = True
         self.pwm.set_pwm(self.laser_on_channel, 4095)
 
     def off(self):
-        self.motor_on = False
         self.pwm.set_pwm(self.laser_on_channel, 0)
 
     def move_to_position(self, position):

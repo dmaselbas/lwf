@@ -2,11 +2,12 @@ import streamlit as st
 import streamlit.components.v1 as components
 import plotly.graph_objects as go
 import pandas as pd
+import pydeck as pdk
 
 from devices.drive import DriveClient
 from devices.gps import GPSClient
 from devices.laser import LaserClient
-from devices.lidar import Lidar, LidarController
+from devices.lidar import Lidar
 from devices.pwm_controller import PWMClient
 from servicess.camera_service import CameraService
 from servicess.navigation_service import NavigationService
@@ -17,7 +18,7 @@ laser_cam_html = f'<iframe src="http://192.168.5.242:8080/?action=stream" width=
 nav_cam_html = f'<iframe src="http://192.168.5.243/cgi-bin/hi3510/snap.cgi?&-getstream&-chn=2" width="100%" height=500 frameborder="0"></iframe>'
 
 # nav_cam_html = f'<iframe src="http://192.168.5.243/web/index.html" width="100%" frameborder="0"></iframe>'
-
+mapbox_api_token = "pk.eyJ1IjoiZG1hc2VsYmFzIiwiYSI6ImNtMGIxZHhtNTAzeXMybW4ydXkzenlkMWUifQ.WTIMFMPmOYLCfRg7c8qNXA"
 @st.cache_resource
 def get_pwm_controller():
     return PWMClient()
@@ -129,7 +130,7 @@ def gps_widget():
     st.subheader("GPS Data")
     gps_data = get_gps_data(gps_controller)
     if len(gps_data) > 0:
-        st.map(gps_data, size=2, zoom=18, use_container_width=True)
+        # display_map(gps_data.iloc[-1]["latitude"], gps_data.iloc[-1]["longitude"])
         st.write(navigation_service.compass.get_bearing())
         st.empty()
 
@@ -191,17 +192,22 @@ with nav_col:
         with left_buttons:
             st.button("", key="blank1")
             if st.button("Left", key="left"):
+                navigation_service.drive_left()
                 drive.left()
         with center_buttons:
             if st.button("Forward", key="fwd"):
+                navigation_service.drive_forward()
                 drive.forward()
             if st.button("Stop", key="stop"):
+                navigation_service.stop_driving()
                 drive.stop()
             if st.button("Backward", key="bwd"):
+                navigation_service.drive_backward()
                 drive.reverse()
         with right_buttons:
             st.button("", key="blank2")
             if st.button("Right", key="right"):
+                navigation_service.drive_right()
                 drive.right()
 with compass_col:
     with st.container():
@@ -229,7 +235,11 @@ with compass_col:
             if st.button("Motor Off", key="laser_motor_off"):
                 laser.motor_stop()
     with st.container():
-        lidar_widget()
+        st.empty()
+        # try:
+        #     lidar_widget()
+        # except:
+        #     st.write("Lidar Error")
     with st.container():
         get_imu_widget()
 with lidar_col:

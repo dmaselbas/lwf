@@ -1,0 +1,90 @@
+---
+- hosts: lwf-vm
+  vars_files:
+    - vault.yaml  # Reference the encrypted vault file
+    - ros_vars.yaml
+  become: true
+  become_method: sudo  # Use sudo for all nodes
+  tasks:
+    # Install mate on vm
+    - name: Install MATE desktop on VM
+      apt:
+        name:
+          - ubuntu-mate-desktop
+          - mate-utils
+          - mate-terminal
+          - chromium-browser
+        state: present
+
+    - name: Source ROS environment in .bashrc for ros2 user on VM
+      lineinfile:
+        path: /home/ros2/.bashrc
+        line: "source /opt/ros2/humble/setup.bash"
+        state: present
+
+    # Install ROS2 core packages on the VM
+    - name: Install ROS2 core packages on VM
+      apt:
+        name:
+          - ros-dev-tools
+          - ros-humble-ros-base
+          - ros-humble-microstrain-inertial-rqt
+          - ros-humble-rqt
+          - ros-humble-rqt-action
+          - ros-humble-rqt-bag
+          - ros-humble-rqt-bag-plugins
+          - ros-humble-rqt-common-plugins
+          - ros-humble-rqt-console
+          - ros-humble-rqt-controller-manager
+          - ros-humble-rqt-gauges
+          - ros-humble-rqt-graph
+          - ros-humble-rqt-gui
+          - ros-humble-rqt-gui-py
+          - ros-humble-rqt-image-overlay
+          - ros-humble-rqt-image-overlay-layer
+          - ros-humble-rqt-image-view
+          - ros-humble-rqt-joint-trajectory-controller
+          - ros-humble-rqt-mocap4r2-control
+          - ros-humble-rqt-moveit
+          - ros-humble-rqt-msg
+          - ros-humble-rqt-plot
+          - ros-humble-rqt-publisher
+          - ros-humble-rqt-py-common
+          - ros-humble-rqt-py-console
+          - ros-humble-rqt-reconfigure
+          - ros-humble-rqt-robot-dashboard
+          - ros-humble-rqt-robot-monitor
+          - ros-humble-rqt-robot-steering
+          - ros-humble-rqt-runtime-monitor
+          - ros-humble-rqt-service-caller
+          - ros-humble-rqt-shell
+          - ros-humble-rqt-srv
+          - ros-humble-rqt-tf-tree
+          - ros-humble-rqt-topic
+          - ros-humble-rqt-common-plugins
+          - ros-humble-rqt-robot-steering
+          - ros-humble-desktop-full
+          - ros-humble-as2-rviz-plugins
+          - ros-humble-cartographer-rviz
+          - ros-humble-etsi-its-rviz-plugins
+          - ros-humble-fluent-rviz
+          - ros-humble-grid-map-rviz-plugin
+          - ros-humble-nav2-rviz-plugins
+          - ros-humble-octomap-rviz-plugins
+          - ros-humble-polygon-rviz-plugins
+          - ros-humble-rmf-visualization-rviz2-plugins
+          - ros-humble-rtabmap-rviz-plugins
+          - ros-humble-rviz-2d-overlay-msgs
+          - ros-humble-rviz-2d-overlay-plugins
+          - ros-humble-rviz-assimp-vendor
+          - ros-humble-rviz-common
+          - ros-humble-rviz-default-plugins
+          - ros-humble-rviz-imu-plugin
+          - ros-humble-rviz-rendering
+          - ros-humble-rviz-satellite
+          - ros-humble-rviz-visual-testing-framework
+          - ros-humble-rviz-visual-tools
+          - ros-humble-rviz2
+          - ros-humble-vision-msgs-rviz-plugins
+          - gz-harmonic
+        state: present

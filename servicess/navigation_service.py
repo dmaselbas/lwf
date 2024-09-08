@@ -6,17 +6,17 @@ from time import sleep
 import numpy as np
 import paho.mqtt.client as mqtt
 
-from devices.imu import IMUClient, MPU6050
+from devices.imu import IMUClient
 from servicess.collision_avoidance_service import CollisionAvoidanceSystem
 from devices.drive import DriveClient
-from devices.lidar import LidarController
+from devices.lidar import Lidar, LidarController
 from devices.gps import GPSClient
 from devices.compass import CompassClient
 
 
 class NavigationService:
 
-    def __init__(self, lidar: LidarController):
+    def __init__(self, lidar: Lidar):
         # self.cas = CollisionAvoidanceSystem(
         #         on_update_callback=self.handle_collision_avoidance_update, lidar=lidar)
         self.lidar_controller: LidarController = lidar
@@ -28,8 +28,7 @@ class NavigationService:
         self.state = "CAS"
         self.pre_stopping_speed = 0.0
 
-
-        self.locked_heading = -1
+        self.locked_heading = None
         self.running = True
         thread = threading.Thread(target=self.update_stuff, daemon=True)
         thread.start()
@@ -42,34 +41,44 @@ class NavigationService:
         self.client.connect("mqtt.weedfucker.local", 1883, 60)
         self.client.loop_start()
 
-
     def shutdown(self):
         self.running = False
         self.client.loop_stop()
         self.client.disconnect()
 
-
     def update_stuff(self):
         while self.running:
             current_heading = self.compass.get_bearing()
-            self.locked_heading = 173
-            if self.locked_heading == -1 and current_heading > 0:
-                self.locked_heading = abs(current_heading)
-            if self.locked_heading > 0 and abs(current_heading - self.locked_heading):
-                if current_heading > self.locked_heading:
-                    self.drive_controller.left()
-                    sleep(0.5)
-                    self.drive_controller.forward()
-                elif current_heading < self.locked_heading:
-                    self.drive_controller.right()
-                    sleep(0.5)
-                    self.drive_controller.forward()
+            if self.locked_heading is None:
+                sleep(0.5)
+            else:
+                # Calculate the difference between the current heading and the locked heading
+                heading_difference = current_heading - self.locked_heading
+
+                # Normalize the heading difference to the range [-180, 180]
+                if heading_difference > 180:
+                    heading_difference -= 360
+                elif heading_difference < -180:
+                    heading_difference += 360
+
+                # Check if we need to correct the heading
+                if abs(heading_difference) > 1:  # Consider a small threshold to avoid constant corrections
+                    speed = self.drive_controller.get_speed()
+                    # Determine the direction and apply the scaled correction
+                    if heading_difference > 0:  # Need to turn right
+                        self.drive_controller.set_right_speed(speed - (abs(heading_difference) * 2))
+                    elif heading_difference < 0:  # Need to turn left
+                        self.drive_controller.set_left_speed(speed - (abs(heading_difference) * 2))
+                else:
+                    speed = self.drive_controller.get_speed()
+                    self.drive_controller.set_left_speed(speed)
+                    self.drive_controller.set_right_speed(speed)
 
     def handle_collision_avoidance_update(self, data):
         # if self.cas.taking_avoidance_action:
         #     self.update_state("CAS")
         # else:
-            self.update_state("AUTO_PILOT")
+        self.update_state("AUTO_PILOT")
 
     def update_state(self, state):
         self.state = state
@@ -77,22 +86,27 @@ class NavigationService:
 
     def drive_forward(self):
         # if not self.cas.taking_avoidance_action:
-        self.drive_controller.forward()
+        self.locked_heading = self.compass.get_bearing()
+        # self.drive_controller.forward()
 
     def drive_backward(self):
         # if not self.cas.taking_avoidance_action:
-        self.drive_controller.reverse()
+        self.locked_heading = None
+        # self.drive_controller.reverse()
 
     def drive_left(self):
         # if not self.cas.taking_avoidance_action:
-        self.drive_controller.left()
+        self.locked_heading = None
+        # self.drive_controller.left()
 
     def drive_right(self):
         # if not self.cas.taking_avoidance_action:
-        self.drive_controller.right()
+        self.locked_heading = None
+        # self.drive_controller.right()
 
     def stop_driving(self):
-        self.drive_controller.stop()
+        self.locked_heading = None
+        # self.drive_controller.stop()
 
     def set_drive_speed(self, speed):
         self.drive_controller.set_speed(speed)

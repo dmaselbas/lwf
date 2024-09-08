@@ -1,0 +1,1 @@
+/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/install/ament_cmake_core/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh

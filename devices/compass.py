@@ -1,6 +1,10 @@
 import atexit
 import time
+import pandas as pd
+from datetime import datetime
 from time import sleep
+
+import requests
 import smbus3 as smbus
 import math
 from logging import getLogger
@@ -105,7 +109,7 @@ class HMC5883L:
                           | oversampling_rate)
         self.mode_stby = (self.MODE_STBY | self.ODR_10HZ | self.RNG_2G | self.OSR_64)
         self.mode_continuous()
-
+        self.readings: pd.DataFrame = None
         self.thread = threading.Thread(target=self.run)
         self.thread.daemon = True
         self.thread.start()
@@ -116,6 +120,34 @@ class HMC5883L:
         self.mqtt_client.loop_forever()
 
         atexit.register(self._shutdown)
+
+    import requests
+
+    def get_declination(self):
+        # NOAA API endpoint for magnetic declination
+        url = "https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination"
+        latitude = 39.7392
+        longitude = -104.9903
+        now = datetime.now().strftime("%Y-%m-%d")
+        # Parameters
+        params = {
+            "latitude":  latitude,
+            "longitude": longitude,
+            "date":      now,
+            "format":    "json"
+            }
+
+        # Make the request
+        response = requests.get(url, params=params)
+
+        # Parse the JSON response
+        if response.status_code == 200:
+            data = response.json()
+            declination = data['result'][0]['declination']
+            return declination
+        else:
+            print(f"Error: {response.status_code}")
+            return None
 
     def _shutdown(self):
         if self.running:
@@ -225,6 +257,10 @@ class HMC5883L:
 
     def get_bearing(self):
         """Horizontal bearing, adjusted by calibration and declination."""
+        if self._declination is None:
+            declination = self.get_declination()
+            if declination:
+                self.set_declination(declination)
         [x, y] = self.get_magnet()
         if x is None or y is None:
             return None
@@ -292,10 +328,14 @@ class HMC5883L:
         while self.running:
             bearing = self.get_bearing()
             temp = self.get_temp()
+            ts = datetime.utcnow()
+            df = pd.DataFrame.from_records([{"timestamp": ts, "bearing": bearing, "temp": temp}])
+            self.readings = df if self.readings is None else pd.concat([self.readings, df]).reset_index(drop=True).sort_values(by="timestamp")
+            self.readings = self.readings.tail(25)  # Keep only the last 10
             if bearing is not None:
-                self.mqtt_client.publish("/dev/compass/bearing", bearing)
+                self.mqtt_client.publish("/dev/compass/bearing", self.readings["bearing"].ewm(alpha=0.1).mean().values[-1], retain=True)
             if temp is not None:
-                self.mqtt_client.publish("/dev/compass/temp", temp)
+                self.mqtt_client.publish("/dev/compass/temp", self.readings["temp"].ewm(alpha=0.1).mean().values[-1], retain=True)
             time.sleep(1)
 
 

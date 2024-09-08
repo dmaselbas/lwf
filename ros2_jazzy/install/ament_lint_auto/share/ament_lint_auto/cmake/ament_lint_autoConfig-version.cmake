@@ -1,0 +1,1 @@
+/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/build/ament_lint_auto/ament_cmake_core/ament_lint_autoConfig-version.cmake

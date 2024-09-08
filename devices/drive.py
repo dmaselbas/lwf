@@ -10,6 +10,10 @@ from devices.pwm_controller import PWMClient
 
 class DriveController:
     def __init__(self):
+        self.left_drive_forward_mode = True
+        self.right_drive_forward_mode = True
+        self.right_drive_speed = 0
+        self.left_drive_speed = 0
         self.pwm_controller = PWMClient()
         self.lf_forward = 1 + 16
         self.lf_reverse = 2 + 16
@@ -45,19 +49,25 @@ class DriveController:
     def on_connect(self, client, userdata, flags, rc, properties):
         self.mqtt_client.subscribe("/dev/drive/#")
 
-
     def on_message(self, client, userdata, msg):
         topic = msg.topic
         payload = msg.payload.decode('utf-8')
         if "update" in topic:
             return
 
-        if topic == "/dev/drive/speed":
+        if "/dev/drive/speed" in topic:
             value = int(payload)
             value = min(max(value, 0), 100)
-            self.speed = np.linspace(0, 4095, 101, dtype=int)
-            self.speed = min(max(int(self.speed[value]), 0), 4095)
-            self.set_speed()
+            normalized_speed = value / 100.0
+            speed = int(4095 * (normalized_speed ** 2))
+            if "left" in topic:
+                self.set_left_drive_speed(speed)
+            elif "right" in topic:
+                self.set_right_drive_speed(speed)
+            else:
+                self.speed = speed
+                self.set_speed()
+
         elif topic == "/dev/drive/direction":
             if payload == "left":
                 self.left()
@@ -70,58 +80,70 @@ class DriveController:
             elif payload == "stop":
                 self.stop()
 
+    def set_left_drive_forward_mode(self, mode):
+        self.left_drive_forward_mode = mode
+
+    def set_right_drive_forward_mode(self, mode):
+        self.right_drive_forward_mode = mode
+
+    def set_left_drive_speed(self, speed):
+        self.left_drive_speed = speed
+        self.pwm_controller.set_pwm(self.lf_forward, 0)
+        self.pwm_controller.set_pwm(self.lf_reverse, 0)
+        self.pwm_controller.set_pwm(self.lr_forward, 0)
+        self.pwm_controller.set_pwm(self.lr_reverse, 0)
+        # forward and backward are wired wrong
+        if not self.left_drive_forward_mode:
+            self.pwm_controller.set_pwm(self.lf_forward, speed)
+            self.pwm_controller.set_pwm(self.lf_forward, speed)
+        else:
+            self.pwm_controller.set_pwm(self.lf_reverse, speed)
+            self.pwm_controller.set_pwm(self.lf_reverse, speed)
+        self.mqtt_client.publish("/dev/drive/update/speed/left", self.left_drive_speed)
+
+    def set_right_drive_speed(self, speed):
+        self.right_drive_speed = speed
+        self.pwm_controller.set_pwm(self.rf_forward, 0)
+        self.pwm_controller.set_pwm(self.rf_reverse, 0)
+        self.pwm_controller.set_pwm(self.rr_forward, 0)
+        self.pwm_controller.set_pwm(self.rr_reverse, 0)
+        # forward and backward are wired wrong
+        if not self.right_drive_forward_mode:
+            self.pwm_controller.set_pwm(self.rf_forward, speed)
+            self.pwm_controller.set_pwm(self.rr_forward, speed)
+        else:
+            self.pwm_controller.set_pwm(self.rf_reverse, speed)
+            self.pwm_controller.set_pwm(self.rr_reverse, speed)
+        self.mqtt_client.publish("/dev/drive/update/speed/right", self.right_drive_speed)
+
     def set_speed(self):
         value = self.speed
         print(f"Setting speed to {value}")
         print(f"Direction: {self.direction}")
-        inside_value = int(value - (value * .1))
-        inside_value = min(max(value, 0), 4095)
+        inside_value = value
         if self.direction == "forward":
-            self.pwm_controller.set_pwm(self.lf_forward, 0)
-            self.pwm_controller.set_pwm(self.lf_reverse, value)
-            self.pwm_controller.set_pwm(self.lr_forward, 0)
-            self.pwm_controller.set_pwm(self.lr_reverse, value)
-            self.pwm_controller.set_pwm(self.rf_forward, 0)
-            self.pwm_controller.set_pwm(self.rf_reverse, value)
-            self.pwm_controller.set_pwm(self.rr_forward, 0)
-            self.pwm_controller.set_pwm(self.rr_reverse, value)
+            self.set_left_drive_forward_mode(True)
+            self.set_right_drive_forward_mode(True)
+            self.set_left_drive_speed(value)
+            self.set_right_drive_speed(value)
         if self.direction == "reverse":
-            self.pwm_controller.set_pwm(self.lf_forward, value)
-            self.pwm_controller.set_pwm(self.lf_reverse, 0)
-            self.pwm_controller.set_pwm(self.lr_forward, value)
-            self.pwm_controller.set_pwm(self.lr_reverse, 0)
-            self.pwm_controller.set_pwm(self.rf_forward, value)
-            self.pwm_controller.set_pwm(self.rf_reverse, 0)
-            self.pwm_controller.set_pwm(self.rr_forward, value)
-            self.pwm_controller.set_pwm(self.rr_reverse, 0)
+            self.set_left_drive_forward_mode(False)
+            self.set_right_drive_forward_mode(False)
+            self.set_left_drive_speed(value)
+            self.set_right_drive_speed(value)
         if self.direction == "right":
-            self.pwm_controller.set_pwm(self.lf_forward, 0)
-            self.pwm_controller.set_pwm(self.lf_reverse, inside_value)
-            self.pwm_controller.set_pwm(self.lr_forward, 0)
-            self.pwm_controller.set_pwm(self.lr_reverse, inside_value)
-            self.pwm_controller.set_pwm(self.rf_forward, value)
-            self.pwm_controller.set_pwm(self.rf_reverse, 0)
-            self.pwm_controller.set_pwm(self.rr_forward, value)
-            self.pwm_controller.set_pwm(self.rr_reverse, 0)
+            self.set_left_drive_forward_mode(True)
+            self.set_right_drive_forward_mode(False)
+            self.set_left_drive_speed(value)
+            self.set_right_drive_speed(inside_value)
         if self.direction == "left":
-            self.pwm_controller.set_pwm(self.lf_forward, value)
-            self.pwm_controller.set_pwm(self.lf_reverse, 0)
-            self.pwm_controller.set_pwm(self.lr_forward, value)
-            self.pwm_controller.set_pwm(self.lr_reverse, 0)
-            self.pwm_controller.set_pwm(self.rf_forward, 0)
-            self.pwm_controller.set_pwm(self.rf_reverse, inside_value)
-            self.pwm_controller.set_pwm(self.rr_forward, 0)
-            self.pwm_controller.set_pwm(self.rr_reverse, inside_value)
+            self.set_left_drive_forward_mode(False)
+            self.set_right_drive_forward_mode(True)
+            self.set_left_drive_speed(inside_value)
+            self.set_right_drive_speed(value)
         if self.direction == "stop":
-            self.pwm_controller.set_pwm(self.lf_forward, 0)
-            self.pwm_controller.set_pwm(self.lf_reverse, 0)
-            self.pwm_controller.set_pwm(self.lr_forward, 0)
-            self.pwm_controller.set_pwm(self.lr_reverse, 0)
-            self.pwm_controller.set_pwm(self.rf_forward, 0)
-            self.pwm_controller.set_pwm(self.rf_reverse, 0)
-            self.pwm_controller.set_pwm(self.rr_forward, 0)
-            self.pwm_controller.set_pwm(self.rr_reverse, 0)
-        self.mqtt_client.publish("/dev/drive/update/speed", self.speed)
+            self.set_left_drive_speed(0)
+            self.set_right_drive_speed(0)
         self.mqtt_client.publish("/dev/drive/update/direction", self.direction)
         # log_path = Path(f"/var/training/data/drive/{datetime.utcnow().strftime('%Y-%m-%d')}.txt")
         # if not log_path.parent.exists():
@@ -159,9 +181,10 @@ class DriveController:
         self.direction = last_direction
         # self.mqtt_client.publish("/dev/drive/direction", self.direction)
 
-
 class DriveClient:
     def __init__(self, broker_address="mqtt.weedfucker.local", port=1883, topic_prefix="/dev/drive"):
+        self.left_speed = 0
+        self.right_speed = 0
         self.client = mqtt.Client(protocol=mqtt.MQTTv5)
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
@@ -197,6 +220,16 @@ class DriveClient:
         payload = msg.payload.decode('utf-8')
         if topic in self.message_handlers:
             self.message_handlers[topic](payload)
+        if f"{self.topic_prefix}/update/speed" in topic:
+            if "left" in topic:
+                self.left_speed = int(payload)
+            elif "right" in topic:
+                self.speed = int(payload)
+                self.right_speed = int(payload)
+            else:
+                self.left_speed = int(payload)
+                self.right_speed = int(payload)
+            self.speed = max(self.left_speed, self.right_speed)
 
     def register_handler(self, topic, handler):
         full_topic = f"{self.topic_prefix}/update/{topic}"
@@ -227,6 +260,12 @@ class DriveClient:
 
     def set_speed(self, speed):
         self.publish("speed", int(speed))
+
+    def set_left_speed(self, speed):
+        self.publish("speed/left", int(speed))
+
+    def set_right_speed(self, speed):
+        self.publish("speed/right", int(speed))
 
 
 if __name__ == "__main__":

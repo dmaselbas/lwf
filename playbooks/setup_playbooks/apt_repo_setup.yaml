@@ -1,0 +1,36 @@
+---
+- hosts: all
+  vars_files:
+    - vault.yaml
+    - ros_vars
+  become: true
+  become_method: sudo  # Use sudo for all nodes
+  tasks:
+
+    - name: Add universe repository
+      command: add-apt-repository universe --yes
+
+    - name: Download ROS 2 GPG Key
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/ros/rosdistro/master/ros.key
+        dest: /usr/share/keyrings/ros-archive-keyring.gpg
+        mode: '0666'
+
+    - name: Add ROS 2 repository for Ubuntu Jammy
+      shell: |
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu jammy main" | tee /etc/apt/sources.list.d/ros2.list
+
+    - name: Download Gazebo GPG key
+      apt_key:
+        url: https://packages.osrfoundation.org/gazebo.key
+        state: present
+
+    - name: Add Gazebo repository
+      apt_repository:
+        repo: "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable {{ ansible_distribution_release }} main"
+        state: present
+
+    - name: Run apt update and upgrade
+      apt:
+        update_cache: yes
+        upgrade: dist

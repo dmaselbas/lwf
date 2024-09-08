@@ -1,0 +1,15 @@
+source;share/ament_pyflakes/hook/path.ps1
+source;share/ament_pyflakes/hook/path.dsv
+source;share/ament_pyflakes/hook/path.sh
+source;share/ament_pyflakes/hook/pythonpath.ps1
+source;share/ament_pyflakes/hook/pythonpath.dsv
+source;share/ament_pyflakes/hook/pythonpath.sh
+source;share/ament_pyflakes/hook/pythonscriptspath.ps1
+source;share/ament_pyflakes/hook/pythonscriptspath.dsv
+source;share/ament_pyflakes/hook/pythonscriptspath.sh
+source;share/ament_pyflakes/hook/ament_prefix_path.ps1
+source;share/ament_pyflakes/hook/ament_prefix_path.dsv
+source;share/ament_pyflakes/hook/ament_prefix_path.sh
+source;../../build/ament_pyflakes/share/ament_pyflakes/hook/pythonpath_develop.ps1
+source;../../build/ament_pyflakes/share/ament_pyflakes/hook/pythonpath_develop.dsv
+source;../../build/ament_pyflakes/share/ament_pyflakes/hook/pythonpath_develop.sh

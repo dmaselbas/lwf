@@ -1,0 +1,1 @@
+/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/src/ament/ament_cmake/ament_cmake_core/cmake/environment/ament_cmake_environment_package_hook.cmake

@@ -1,0 +1,8 @@
+---
+ros_version: humble
+node_one_ip: 192.168.5.240/22
+node_two_ip: 192.168.5.241/22
+node_three_ip: 192.168.5.242/22
+gateway_ip: 192.168.4.1
+vm_ip: 192.168.5.244/22
+dns_ip: 192.168.5.242  # Pi-hole DNS IP
