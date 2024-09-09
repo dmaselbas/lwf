@@ -1,33 +1,22 @@
 ---
 - name: Build ROS 2 Workspace on lwf-vm
   hosts: lwf-vm
-  become: yes
+  become: no
   tasks:
 
-    - name: Change to the project directory
-      command: cd /home/ros2/lwf
-      args:
-        chdir: /home/ros2/lwf
+    - name: Ensure /home/ros2/lwf exists
+      file:
+        path: /home/ros2/lwf
+        state: directory
 
     - name: Stash any uncommitted changes
-      command: git stash
+      shell: |
+        git checkout main
+        git reset HEAD --hard
+        git pull
       args:
         chdir: /home/ros2/lwf
-
-    - name: Checkout the main branch
-      command: git checkout main
-      args:
-        chdir: /home/ros2/lwf
-
-    - name: Pull the latest changes from main
-      command: git pull
-      args:
-        chdir: /home/ros2/lwf
-
-    - name: Change to the ros2_ws directory
-      command: cd ros2_ws
-      args:
-        chdir: /home/ros2/lwf
+      ignore_errors: yes  # If there are no changes, this prevents failure
 
     - name: Install ROS dependencies using rosdep
       command: rosdep install --from-paths src --ignore-src -r -y
@@ -46,19 +35,24 @@
         msg: "Build failed."
       when: build_output.rc != 0
 
+    - name: Git add ros2_ws directory before commit
+      command: git add ros2_ws/*
+      args:
+        chdir: /home/ros2/lwf
+      when: build_output.rc == 0
+
     - name: Commit changes if build is successful
-      command: git commit -am "Build successful"
+      shell: |
+        git commit -am "Build ROS 2 Workspace"
       args:
         chdir: /home/ros2/lwf
       when: build_output.rc == 0
+      ignore_errors: yes  # In case there's nothing to commit
 
-    - name: Push the branch back to origin
-      command: git push origin main
+    - name: Push the changes back to origin/main
+      shell: |
+        git push
       args:
         chdir: /home/ros2/lwf
       when: build_output.rc == 0
-
-    - name: Apply stashed changes after the build
-      command: git stash pop
-      args:
-        chdir: /home/ros2/lwf
+      ignore_errors: yes  # Ignore errors if there's nothing to push
