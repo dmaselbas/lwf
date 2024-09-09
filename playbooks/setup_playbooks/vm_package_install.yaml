@@ -24,6 +24,12 @@
         line: "source /opt/ros2/humble/setup.bash"
         state: present
 
+    # Install python libs
+    - name: Install Python libs on VM
+      apt:
+        name:
+          - python3-poetry
+        state: present
     # Install ROS2 core packages on the VM
     - name: Install ROS2 core packages on VM
       apt:
