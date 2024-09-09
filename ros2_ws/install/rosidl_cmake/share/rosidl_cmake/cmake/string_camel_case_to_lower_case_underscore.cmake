@@ -1,1 +1,0 @@
-/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/src/ros2/rosidl/rosidl_cmake/cmake/string_camel_case_to_lower_case_underscore.cmake

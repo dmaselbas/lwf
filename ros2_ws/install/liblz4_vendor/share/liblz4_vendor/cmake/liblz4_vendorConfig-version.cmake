@@ -1,1 +1,0 @@
-/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/build/liblz4_vendor/ament_cmake_core/liblz4_vendorConfig-version.cmake

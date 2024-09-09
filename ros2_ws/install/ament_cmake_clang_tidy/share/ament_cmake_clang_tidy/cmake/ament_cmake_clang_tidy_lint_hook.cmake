@@ -1,1 +1,0 @@
-/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/src/ament/ament_lint/ament_cmake_clang_tidy/cmake/ament_cmake_clang_tidy_lint_hook.cmake

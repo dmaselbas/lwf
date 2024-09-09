@@ -1,7 +1,0 @@
-prefix=/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/install/pybind11_vendor/opt/pybind11_vendor
-includedir=${prefix}/include
-
-Name: pybind11
-Description: Seamless operability between C++11 and Python
-Version: 2.11.1
-Cflags: -I${includedir}

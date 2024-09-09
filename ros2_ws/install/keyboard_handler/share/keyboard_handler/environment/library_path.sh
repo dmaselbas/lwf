@@ -1,1 +1,0 @@
-/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/build/ament_package/ament_package/template/environment_hook/library_path.sh

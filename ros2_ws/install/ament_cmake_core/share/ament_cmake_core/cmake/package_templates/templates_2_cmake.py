@@ -1,1 +1,0 @@
-/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/src/ament/ament_cmake/ament_cmake_core/cmake/package_templates/templates_2_cmake.py

@@ -1,1 +1,0 @@
-/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/src/ament/ament_lint/ament_cmake_pep257/cmake/ament_pep257.cmake

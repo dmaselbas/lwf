@@ -1,1 +1,0 @@
-/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/build/ros_environment/ament_cmake_environment_hooks/0.ros_distro_check.sh

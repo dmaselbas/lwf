@@ -1,1 +1,0 @@
-/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/build/rosidl_typesupport_interface/ament_cmake_core/rosidl_typesupport_interfaceConfig-version.cmake

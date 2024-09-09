@@ -1,1 +1,0 @@
-/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/src/ament/ament_cmake/ament_cmake_gen_version_h/cmake/ament_cmake_gen_version_h.cmake

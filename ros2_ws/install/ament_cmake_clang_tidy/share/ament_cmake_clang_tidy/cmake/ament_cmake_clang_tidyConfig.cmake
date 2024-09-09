@@ -1,1 +1,0 @@
-/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/build/ament_cmake_clang_tidy/ament_cmake_core/ament_cmake_clang_tidyConfig.cmake

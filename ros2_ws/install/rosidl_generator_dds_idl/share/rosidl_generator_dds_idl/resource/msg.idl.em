@@ -1,1 +1,0 @@
-/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/src/ros2/rosidl_dds/rosidl_generator_dds_idl/resource/msg.idl.em

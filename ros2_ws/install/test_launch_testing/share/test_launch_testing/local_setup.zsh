@@ -1,1 +1,0 @@
-/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/build/test_launch_testing/ament_cmake_environment_hooks/local_setup.zsh

@@ -1,0 +1,3 @@
+---
+  - import_playbook: service_deployment/sync_project.yaml
+  - import_playbook: service_deployment/lidar.yaml

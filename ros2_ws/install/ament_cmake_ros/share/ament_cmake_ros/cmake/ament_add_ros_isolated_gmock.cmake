@@ -1,1 +1,0 @@
-/Users/dustinmaselbas/programming/weed_fucker_5000/ros2_jazzy/src/ros2/ament_cmake_ros/ament_cmake_ros/cmake/ament_add_ros_isolated_gmock.cmake
