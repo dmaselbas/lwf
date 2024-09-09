@@ -1,0 +1,11 @@
+source;share/pwm_driver_interface/hook/cmake_prefix_path.ps1
+source;share/pwm_driver_interface/hook/cmake_prefix_path.dsv
+source;share/pwm_driver_interface/hook/cmake_prefix_path.sh
+source;share/pwm_driver_interface/hook/ld_library_path_lib.ps1
+source;share/pwm_driver_interface/hook/ld_library_path_lib.dsv
+source;share/pwm_driver_interface/hook/ld_library_path_lib.sh
+source;share/pwm_driver_interface/local_setup.bash
+source;share/pwm_driver_interface/local_setup.dsv
+source;share/pwm_driver_interface/local_setup.ps1
+source;share/pwm_driver_interface/local_setup.sh
+source;share/pwm_driver_interface/local_setup.zsh
