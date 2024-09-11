@@ -1,0 +1,11 @@
+source;share/lttngpy/hook/cmake_prefix_path.ps1
+source;share/lttngpy/hook/cmake_prefix_path.dsv
+source;share/lttngpy/hook/cmake_prefix_path.sh
+source;share/lttngpy/hook/pythonpath.ps1
+source;share/lttngpy/hook/pythonpath.dsv
+source;share/lttngpy/hook/pythonpath.sh
+source;share/lttngpy/local_setup.bash
+source;share/lttngpy/local_setup.dsv
+source;share/lttngpy/local_setup.ps1
+source;share/lttngpy/local_setup.sh
+source;share/lttngpy/local_setup.zsh

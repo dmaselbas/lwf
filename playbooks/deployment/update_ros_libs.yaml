@@ -1,0 +1,13 @@
+---
+- hosts: orange_pi_nodes
+  vars_files:
+    - vault.yaml  # Reference the encrypted vault file
+    - ros_vars.yaml
+  become: true
+  become_method: sudo  # Use sudo for all nodes
+  tasks:
+    - name: Update ROS libs
+      shell: |
+        source install/setup.bash
+        rosdep update
+      chdir: /home/orangepi/lwf/ros2_ws

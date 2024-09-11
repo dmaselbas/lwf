@@ -6,6 +6,7 @@
   - import_playbook: setup_playbooks/ros_common_package_install.yaml
   - import_playbook: setup_playbooks/vm_package_install.yaml
   - import_playbook: setup_playbooks/node_package_install.yaml
+  - import_playbook: setup_playbooks/mount_node_nfs.yaml
   - hosts: all
     become: true
     tasks:

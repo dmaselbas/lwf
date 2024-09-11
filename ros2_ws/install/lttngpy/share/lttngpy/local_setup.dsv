@@ -1,0 +1,3 @@
+source;share/lttngpy/environment/ament_prefix_path.sh
+source;share/lttngpy/environment/path.sh
+source;share/lttngpy/environment/pythonpath.sh

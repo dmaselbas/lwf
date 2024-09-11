@@ -1,0 +1,22 @@
+- hosts: orange_pi_nodes
+  vars_files:
+    - vault.yaml  # Reference the encrypted vault file
+    - ros_vars.yaml
+  become: true
+  become_method: sudo  # Use sudo for all nodes
+  tasks:
+    - name: Source ROS environment in .bashrc for orangepi user
+      lineinfile:
+        path: /home/orangepi/.bashrc
+        line: "source /opt/ros/humble/setup.bash"
+        state: present
+    - name: Add required packages for worker nodes
+      apt:
+        name:
+          - python3-pip
+          - ros-humble-rosbridge-server
+          - ros-humble-rosbridge-msgs
+          - ros-humble-rclpy
+          - ros-humble-rclcpp
+          - ros-humble-rplidar-ros
+        state: present
