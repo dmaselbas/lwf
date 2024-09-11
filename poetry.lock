@@ -2806,6 +2806,14 @@ python-versions = ">=3.7"
 cffi = {version = "*", markers = "implementation_name == \"pypy\""}
 
 [[package]]
+name = "rclpy-intellisense"
+version = "1.0.0"
+description = "Get intellisense for rclpy"
+category = "main"
+optional = false
+python-versions = ">=3.10"
+
+[[package]]
 name = "referencing"
 version = "0.35.1"
 description = "JSON Referencing + Python"
@@ -3508,7 +3516,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10,<3.12"
-content-hash = "789d30226c093744d7412ef2fe542e131e33de354d0dca9626b4d6bb1d742f2a"
+content-hash = "8b5e19e69fdab7c0fc5680043e750c5596ec9ccf04d9ed99455df80d2ec96b63"
 
 [metadata.files]
 absl-py = []
@@ -3720,6 +3728,7 @@ pywin32 = []
 pywinpty = []
 pyyaml = []
 pyzmq = []
+rclpy-intellisense = []
 referencing = []
 regex = []
 requests = []

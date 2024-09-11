@@ -1,3 +1,0 @@
-prepend-non-duplicate-if-exists;PATH;opt/pybind11_vendor/bin
-prepend-non-duplicate-if-exists;DYLD_LIBRARY_PATH;opt/pybind11_vendor/lib
-prepend-non-duplicate-if-exists;DYLD_LIBRARY_PATH;opt/pybind11_vendor/lib64
