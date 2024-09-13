@@ -16,33 +16,19 @@ aiortc2 = "^1.8.0.post0"
 aiohttp = "^3.9.5"
 opencv-python = "^4.10.0.84"
 pyserial = "^3.5"
-pynmea2 = "^1.19.0"
-plotly = "^5.22.0"
 python-daemon = "^3.0.1"
 smbus3 = "^0.5.5"
-pybullet = "^3.2.6"
-stable-baselines3 = {extras = ["extra"], version = "^2.3.2"}
-gymnasium = "^0.29.1"
-tensorflow-metal = "^1.1.0"
+#stable-baselines3 = {extras = ["extra"], version = "^2.3.2"}
+#gymnasium = "^0.29.1"
+#tensorflow-metal = "^1.1.0"
 numpy = "1.26.4"
-torch = "^2.4.0"
-onnx = "^1.16.2"
-onnx-tf = "^1.10.0"
-tensorflow-probability = "^0.24.0"
-tensorflow = "2.16.2"
-tf-keras = "2.16.0"
-onnxruntime = "^1.18.1"
-keras = "^3.4.1"
-jupyter = "^1.0.0"
 imageio = {extras = ["ffmpeg"], version = "^2.35.0"}
-pygame = "^2.6.0"
-pydeck = "^0.9.1"
 filters = "^1.3.2"
 ansible = "^10.3.0"
 ansible-vault = "^2.1.0"
 colcon-common-extensions = "^0.3.0"
 jc = "^1.25.3"
-
+rclpy-intellisense = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core"]

@@ -1,0 +1,5 @@
+source;share/python_orocos_kdl_vendor/local_setup.bash
+source;share/python_orocos_kdl_vendor/local_setup.dsv
+source;share/python_orocos_kdl_vendor/local_setup.ps1
+source;share/python_orocos_kdl_vendor/local_setup.sh
+source;share/python_orocos_kdl_vendor/local_setup.zsh

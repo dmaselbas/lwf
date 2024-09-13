@@ -6,8 +6,12 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+<<<<<<< Updated upstream
   <component name="ProjectResources">
     <resource url="http://download.ros.org/schema/package_format3.xsd" location="$PROJECT_DIR$" />
   </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="Poetry (lwf)" project-jdk-type="Python SDK" />
+=======
+  <component name="ProjectRootManager" version="2" project-jdk-name="Remote Python 3.10.12 Docker (lwf-ros-dev:latest)" project-jdk-type="Python SDK" />
+>>>>>>> Stashed changes
 </project>

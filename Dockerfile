@@ -1,45 +1,24 @@
-ARG FROM_IMAGE=ros:humble
-ARG OVERLAY_WS=/opt/ros/overlay_ws
+# Use the official ROS 2 Humble base image
+FROM ros:humble
 
-# multi-stage for caching
-FROM $FROM_IMAGE AS cacher
-
-# clone overlay source
-ARG OVERLAY_WS
-COPY ./ros2_ws/src $OVERLAY_WS/src
-# copy manifests for caching
-WORKDIR /opt
-RUN mkdir -p /tmp/opt && \
-    find ./ -name "package.xml" | \
-      xargs cp --parents -t /tmp/opt && \
-    find ./ -name "COLCON_IGNORE" | \
-      xargs cp --parents -t /tmp/opt || true
-
-# multi-stage for building
-FROM $FROM_IMAGE AS builder
-
-# install overlay dependencies
-COPY ./docker-compose/apt_depss.txt /tmp/deps.txt
-RUN apt update && apt install python3-rosdep -y
-RUN xargs -a /tmp/deps.txt -r apt install -y
-
-ARG OVERLAY_WS
-WORKDIR $OVERLAY_WS
-COPY --from=cacher /tmp/$OVERLAY_WS/src ./src
-RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
-    apt-get update && rosdep install -y \
-      --ignore-src \
+# Install Python3 and pip if not already included
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    python3-colcon-common-extensions \
     && rm -rf /var/lib/apt/lists/*
 
-# build overlay source
-COPY --from=cacher $OVERLAY_WS/src ./src
-ARG OVERLAY_MIXINS="release"
-RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
-    colcon build \
-      --mixin $OVERLAY_MIXINS
+RUN pip install poetry
+# Create a workspace for your ROS2 project
+WORKDIR /ros2_ws
 
-# source entrypoint setup
-ENV OVERLAY_WS $OVERLAY_WS
-RUN sed --in-place --expression \
-      '$isource "$OVERLAY_WS/install/setup.bash"' \
-      /ros_entrypoint.sh
+# Copy your Python dependencies (if you have a requirements.txt)
+COPY requirements.txt /ros2_ws/
+
+# Install Python dependencies
+RUN pip install -r requirements.txt
+
+# Setup ROS 2 environment
+RUN /bin/bash -c "source /opt/ros/humble/setup.bash"
+
+# Set the default command to bash
+CMD ["bash"]
