@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<robot name="lwf">
+    <link name="base_link">
+      <visual>
+        <geometry>
+          <box size="0.432 0.305 0.203" />
+        </geometry>
+        <origin xyz="0 0 0.072"/>
+      </visual>
+    </link>
+    <link name="wheel_front_left">
+      <visual>
+        <geometry>
+          <cylinder length="0.029" radius="0.072"/>
+        </geometry>
+        <origin xyz="0.216 0.102 0" rpy="0 1.57 0"/>
+      </visual>
+    </link>
+    <link name="wheel_front_right">
+      <visual>
+        <geometry>
+          <cylinder length="0.029" radius="0.072"/>
+        </geometry>
+        <origin xyz="-0.216 0.102 0" rpy="0 2.967 0"/>
+      </visual>
+    </link>
+    <link name="wheel_rear_left">
+      <visual>
+        <geometry>
+          <cylinder length="0.029" radius="0.072"/>
+        </geometry>
+        <origin xyz="0.216 -0.102 0" rpy="0 1.57 0"/>
+      </visual>
+    </link>
+    <link name="wheel_rear_right">
+      <visual>
+        <geometry>
+          <cylinder length="0.029" radius="0.072"/>
+        </geometry>
+        <origin xyz="-0.216 -0.102 0" rpy="0 2.967 0"/>
+      </visual>
+  </link>
+  <joint name="wheel_front_left_hub" type="continuous">
+    <axis xyz="0 1 0"/>
+    <origin xyz="0.216 0.102 0.072"/>
+    <parent link="base_link"/>
+    <child link="wheel_front_left"/>
+  </joint>
+  <joint name="wheel_front_right_hub" type="continuous">
+    <axis xyz="0 1 0"/>
+    <origin xyz="0.216 -0.102 0.072"/>
+    <parent link="base_link"/>
+    <child link="wheel_front_right"/>
+  </joint>
+  <joint name="wheel_rear_left_hub" type="continuous">
+    <axis xyz="0 1 0"/>
+    <origin xyz="-0.216 0.102 0.072"/>
+    <parent link="base_link"/>
+    <child link="wheel_rear_left"/>
+  </joint>
+  <joint name="wheel_rear_right_hub" type="continuous">
+    <axis xyz="0 1 0"/>
+    <origin xyz="-0.216 -0.102 0.072"/>
+    <parent link="base_link"/>
+    <child link="wheel_rear_right"/>
+  </joint>
+  <collision>
+    <geometry>
+      <box size="0.461 0.305 0.275" />
+    </geometry>
+  </collision>
+</robot>
