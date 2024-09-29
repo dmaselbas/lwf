@@ -26,6 +26,7 @@
           - ros-humble-robot-localization
           - ros-humble-rclpy
           - ros-humble-rclcpp
+          - ros-humble-v4l2-camera
           - librealsense2-dkms
           - librealsense2-utils
           - ros-humble-realsense2-camera
@@ -33,6 +34,7 @@
           - ros-humble-desktop
           - ros-humble-rviz2
           - ros-humble-gazebo-ros-pkgs
+          - ros-humble-diagnostic-updater
         state: present
 
     - name: Add ROS 2 repository for Ubuntu Jammy

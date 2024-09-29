@@ -1,0 +1,17 @@
+ARG ROS_DISTRO=humble
+FROM robo-base:latest
+
+RUN apt update \
+    && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends --no-install-suggests \
+   \
+  wget
+
+RUN source /opt/ros/humble/setup.bash \
+    && rosdep init
+
+RUN apt update && apt upgrade -y \
+     && rosdep update \
+     && apt install \
+         ros-${ROS_DISTRO}-nav2* \
+         ros-${ROS_DISTRO}-nav2-bringup \
+         ros-${ROS_DISTRO}-navigation2
