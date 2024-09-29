@@ -30,6 +30,11 @@
         repo: "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable {{ ansible_distribution_release }} main"
         state: present
 
+    - name: Add Intel Real Sens
+      apt_repository:
+        repo: "deb https://librealsense.intel.com/Debian/apt-repo {{ ansible_distribution_release }} main"
+        state: present
+
     - name: Run apt update and upgrade
       apt:
         update_cache: yes

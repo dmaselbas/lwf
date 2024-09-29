@@ -1,4 +1,4 @@
-- hosts: orange_pi_nodes
+- hosts: all
   vars_files:
     - vault.yaml  # Reference the encrypted vault file
     - ros_vars.yaml
@@ -13,10 +13,47 @@
     - name: Add required packages for worker nodes
       apt:
         name:
+          - python3-serial
+          - python3-smbus
+          - python3-dev
           - python3-pip
-          - ros-humble-rosbridge-server
-          - ros-humble-rosbridge-msgs
-          - ros-humble-rclpy
-          - ros-humble-rclcpp
-          - ros-humble-rplidar-ros
+          - python3-rosdep2
+          - python3-colcon-common-extensions
+        state: present
+- hosts: raspberry_pi_hosts
+  vars_files:
+    - vault.yaml  # Reference the encrypted vault file
+    - ros_vars.yaml
+  become: true
+  become_method: sudo  # Use sudo for all nodes
+  tasks:
+    - name: Source ROS environment in .bashrc for orangepi user
+      lineinfile:
+        path: /home/rpi/.bashrc
+        line: "source /opt/ros/humble/setup.bash"
+        state: present
+    - name: Add required packages for worker nodes
+      apt:
+        name:
+          - python3-serial
+          - python3-smbus
+          - python3-dev
+          - python3-pip
+          - python3-rosdep2
+          - python3-colcon-common-extensions
+          - rpicam-apps
+          - libcamera
+        state: present
+- hosts: lwf-node2
+  vars_files:
+    - vault.yaml  # Reference the encrypted vault file
+    - ros_vars.yaml
+  become: true
+  become_method: sudo  # Use sudo for all nodes
+  tasks:
+    - name: Add required packages for node running depth camera
+      apt:
+        name:
+          - libcamera
+          - ros-humble-librealsense2*
         state: present

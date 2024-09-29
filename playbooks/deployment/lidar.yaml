@@ -20,4 +20,4 @@
         chdir: /home/orangepi/lwf/ros2_ws  # Run the command from the workspace directory
       environment:
         RMW_IMPLEMENTATION: rmw_fastrtps_cpp  # Set environment variables if needed
-      when: inventory_hostname == 'lwf_node1'
+      when: inventory_hostname == 'lwf_node4'

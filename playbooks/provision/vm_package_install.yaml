@@ -105,4 +105,9 @@
           - ros-humble-rviz-visual-tools
           - ros-humble-rviz2
           - ros-humble-vision-msgs-rviz-plugins
+          - gazebo_ros_ray_sensor
+          - gazebo_ros_camera
+          - gazebo_ros_depth_camera
+          - gazebo_ros_imu_sensor
+          - gazebo_ros_gps
         state: present

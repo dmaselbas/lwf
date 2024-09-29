@@ -33,3 +33,18 @@
 
     - name: Verify locale
       command: locale
+
+    - name: Use a fix for map messages not working with nav2 OrangePi
+      lineinfile:
+        path: /home/orangepi/.bashrc
+        line: 'export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp'
+        state: present
+      when: inventory_hostname != 'lwf-vm'
+
+    - name: Use a fix for map messages not working with nav2 Rpi
+      lineinfile:
+        path: /home/rpi/.bashrc
+        line: 'export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp'
+        state: present
+      when: inventory_hostname == 'lwf-vm'
+
