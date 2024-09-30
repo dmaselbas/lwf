@@ -46,3 +46,9 @@ RUN source /opt/ros/humble/setup.bash \
 RUN source /opt/ros/humble/setup.bash \
     && rosdep init \
     && rosdep update
+
+WORKDIR /root/ros2_ws/src
+COPY ros2_ws/src ./
+WORKDIR /root/ros2_ws
+RUN source /opt/ros/humble/setup.bash && colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
+RUN echo "source /root/ros2_ws/install/setup.bash" >> /root/.bashrc
