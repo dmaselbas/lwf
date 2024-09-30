@@ -9,7 +9,7 @@
   <!-- Base Link -->
   <link name="base_link">
     <visual>
-      <origin xyz="0 0 0.1715" rpy="0 0 0"/> <!-- Half height of 13.5 inches (0.343 m) -->
+<!--      <origin xyz="0 0 0.1715" rpy="0 0 0"/> &lt;!&ndash; Half height of 13.5 inches (0.343 m) &ndash;&gt;-->
       <geometry>
         <box size="0.483 0.343 0.343"/> <!-- Length: 19", Width: 13.5", Height: 13.5" -->
       </geometry>
@@ -26,7 +26,7 @@
   <!-- Front Right Wheel -->
   <link name="front_right_wheel">
     <visual>
-      <origin xyz="0.1524 -0.17145 0.0762" rpy="1.5708 0 0"/> <!-- X, Y, Z in meters -->
+      <origin xyz="0.07 -0.085 0.035" rpy="1.5708 0 0"/> <!-- X, Y, Z in meters -->
       <geometry>
         <cylinder radius="0.08255" length="0.05"/> <!-- Diameter is 6.5 inches -->
       </geometry>
