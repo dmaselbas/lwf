@@ -9,7 +9,7 @@
   <!-- Base Link -->
   <link name="base_link">
     <visual>
-<!--      <origin xyz="0 0 0.1715" rpy="0 0 0"/> &lt;!&ndash; Half height of 13.5 inches (0.343 m) &ndash;&gt;-->
+      <origin xyz="0 0 0.24" rpy="0 0 0"/> <!-- Half height of 13.5 inches (0.343 m) -->
       <geometry>
         <box size="0.483 0.343 0.343"/> <!-- Length: 19", Width: 13.5", Height: 13.5" -->
       </geometry>
