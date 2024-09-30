@@ -181,7 +181,7 @@
   <!-- Lidar -->
   <link name="lidar_link">
     <visual>
-      <origin xyz="0.0254 0.0254 0.4445" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.05" length="0.1"/> <!-- Simplified lidar -->
       </geometry>
@@ -198,7 +198,7 @@
   <!-- RGB-D Camera -->
   <link name="rgbd_camera">
     <visual>
-      <origin xyz="0.2159 0 0.3556" rpy="0 0 0"/> <!-- Front RGB-D Camera -->
+      <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Front RGB-D Camera -->
       <geometry>
         <box size="0.03 0.03 0.05"/> <!-- Simplified depth camera -->
       </geometry>
@@ -215,7 +215,7 @@
   <!-- Front Sonar -->
   <link name="front_sonar">
     <visual>
-      <origin xyz="0.2032 0 0.2159" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.01" length="0.05"/> <!-- Sonar model -->
       </geometry>
@@ -232,7 +232,7 @@
   <!-- Right Sonar -->
   <link name="right_sonar">
     <visual>
-      <origin xyz="0 -0.17145 0.2159" rpy="0 0 -1.5708"/> <!-- Pointing right -->
+      <origin xyz="0 0 0" rpy="0 0 -1.5708"/> <!-- Pointing right -->
       <geometry>
         <cylinder radius="0.01" length="0.05"/>
       </geometry>
@@ -249,7 +249,7 @@
   <!-- Left Sonar -->
   <link name="left_sonar">
     <visual>
-      <origin xyz="0 0.17145 0.2159" rpy="0 0 1.5708"/> <!-- Pointing left -->
+      <origin xyz="0 0 0" rpy="0 0 1.5708"/> <!-- Pointing left -->
       <geometry>
         <cylinder radius="0.01" length="0.05"/>
       </geometry>
@@ -266,7 +266,7 @@
   <!-- Rear Sonar -->
   <link name="rear_sonar">
     <visual>
-      <origin xyz="-0.2032 0 0.2159" rpy="0 0 3.14159"/> <!-- Pointing backward -->
+      <origin xyz="0 0 0" rpy="0 0 3.14159"/> <!-- Pointing backward -->
       <geometry>
         <cylinder radius="0.01" length="0.05"/>
       </geometry>
@@ -283,7 +283,7 @@
   <!-- Front Camera -->
   <link name="front_camera">
     <visual>
-      <origin xyz="0.2159 0.0508 0.3556" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="0.03 0.03 0.03"/> <!-- Simplified camera model -->
       </geometry>
@@ -300,7 +300,7 @@
   <!-- Rear Camera -->
   <link name="rear_camera">
     <visual>
-      <origin xyz="-0.2159 -0.0508 0.4064" rpy="0 0 3.14159"/>
+      <origin xyz="0 0 0" rpy="0 0 3.14159"/>
       <geometry>
         <box size="0.03 0.03 0.03"/>
       </geometry>
