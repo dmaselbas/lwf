@@ -1,0 +1,296 @@
+<?xml version="1.0"?>
+<robot name="lwf5000">
+  <!-- Base Link -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0.1715" rpy="0 0 0"/> <!-- Half height of 13.5 inches (0.343 m) -->
+      <geometry>
+        <box size="0.483 0.343 0.343"/> <!-- Length: 19", Width: 13.5", Height: 13.5" -->
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.1715" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.483 0.343 0.343"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Front Right Wheel -->
+  <link name="front_right_wheel">
+    <visual>
+      <origin xyz="0.1524 -0.2286 0.0762" rpy="0 0 0"/> <!-- X, Y, Z in meters -->
+      <geometry>
+        <cylinder radius="0.08255" length="0.05"/> <!-- Diameter is 6.5 inches -->
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <joint name="front_right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="front_right_wheel"/>
+    <origin xyz="0.1524 -0.2286 0.0762" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- Front Left Wheel -->
+  <link name="front_left_wheel">
+    <visual>
+      <origin xyz="0.1524 0.2286 0.0762" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.08255" length="0.05"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <joint name="front_left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="front_left_wheel"/>
+    <origin xyz="0.1524 0.2286 0.0762" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- Rear Right Wheel -->
+  <link name="rear_right_wheel">
+    <visual>
+      <origin xyz="-0.1524 -0.2286 0.0762" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.08255" length="0.05"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <joint name="rear_right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="rear_right_wheel"/>
+    <origin xyz="-0.1524 -0.2286 0.0762" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- Rear Left Wheel -->
+  <link name="rear_left_wheel">
+    <visual>
+      <origin xyz="-0.1524 0.2286 0.0762" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.08255" length="0.05"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <joint name="rear_left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="rear_left_wheel"/>
+    <origin xyz="-0.1524 0.2286 0.0762" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- IMU Sensor -->
+  <link name="imu_link">
+    <visual>
+      <origin xyz="0 0 0.343" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.02 0.02 0.02"/> <!-- Size for IMU -->
+      </geometry>
+      <material name="green"/>
+    </visual>
+  </link>
+
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0 0 0.343" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Magnetometer 1 -->
+  <link name="magnetometer_1">
+    <visual>
+      <origin xyz="0 0 0.343" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.02 0.02 0.02"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+
+  <joint name="magnetometer_1_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="magnetometer_1"/>
+    <origin xyz="0 0 0.343" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Magnetometer 2 -->
+  <link name="magnetometer_2">
+    <visual>
+      <origin xyz="-0.0254 -0.1524 0.343" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.02 0.02 0.02"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+
+  <joint name="magnetometer_2_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="magnetometer_2"/>
+    <origin xyz="-0.0254 -0.1524 0.343" rpy="0 0 0"/>
+  </joint>
+
+  <!-- PTZ Camera -->
+  <link name="ptz_camera_link">
+    <visual>
+      <origin xyz="0.2413 -0.1143 0.419" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.05 0.1"/> <!-- PTZ camera model -->
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <joint name="ptz_camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="ptz_camera_link"/>
+    <origin xyz="0.2413 -0.1143 0.419" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Lidar -->
+  <link name="lidar_link">
+    <visual>
+      <origin xyz="0.0254 0.0254 0.4445" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.05" length="0.1"/> <!-- Simplified lidar -->
+      </geometry>
+      <material name="blue"/>
+    </visual>
+  </link>
+
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+    <origin xyz="0.0254 0.0254 0.4445" rpy="0 0 0"/>
+  </joint>
+
+  <!-- RGB-D Camera -->
+  <link name="rgbd_camera">
+    <visual>
+      <origin xyz="0.2159 0 0.3556" rpy="0 0 0"/> <!-- Front RGB-D Camera -->
+      <geometry>
+        <box size="0.03 0.03 0.05"/> <!-- Simplified depth camera -->
+      </geometry>
+      <material name="blue"/>
+    </visual>
+  </link>
+
+  <joint name="rgbd_camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="rgbd_camera"/>
+    <origin xyz="0.2159 0 0.3556" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Front Sonar -->
+  <link name="front_sonar">
+    <visual>
+      <origin xyz="0.2032 0 0.2159" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.01" length="0.05"/> <!-- Sonar model -->
+      </geometry>
+      <material name="gray"/>
+    </visual>
+  </link>
+
+  <joint name="front_sonar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="front_sonar"/>
+    <origin xyz="0.2032 0 0.2159" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Right Sonar -->
+  <link name="right_sonar">
+    <visual>
+      <origin xyz="0 -0.17145 0.2159" rpy="0 0 -1.5708"/> <!-- Pointing right -->
+      <geometry>
+        <cylinder radius="0.01" length="0.05"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+  </link>
+
+  <joint name="right_sonar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="right_sonar"/>
+    <origin xyz="0 -0.17145 0.2159" rpy="0 0 -1.5708"/>
+  </joint>
+
+  <!-- Left Sonar -->
+  <link name="left_sonar">
+    <visual>
+      <origin xyz="0 0.17145 0.2159" rpy="0 0 1.5708"/> <!-- Pointing left -->
+      <geometry>
+        <cylinder radius="0.01" length="0.05"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+  </link>
+
+  <joint name="left_sonar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="left_sonar"/>
+    <origin xyz="0 0.17145 0.2159" rpy="0 0 1.5708"/>
+  </joint>
+
+  <!-- Rear Sonar -->
+  <link name="rear_sonar">
+    <visual>
+      <origin xyz="-0.2032 0 0.2159" rpy="0 0 3.14159"/> <!-- Pointing backward -->
+      <geometry>
+        <cylinder radius="0.01" length="0.05"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+  </link>
+
+  <joint name="rear_sonar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="rear_sonar"/>
+    <origin xyz="-0.2032 0 0.2159" rpy="0 0 3.14159"/>
+  </joint>
+
+  <!-- Front Camera -->
+  <link name="front_camera">
+    <visual>
+      <origin xyz="0.2159 0.0508 0.3556" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.03 0.03 0.03"/> <!-- Simplified camera model -->
+      </geometry>
+      <material name="blue"/>
+    </visual>
+  </link>
+
+  <joint name="front_camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="front_camera"/>
+    <origin xyz="0.2159 0.0508 0.3556" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Rear Camera -->
+  <link name="rear_camera">
+    <visual>
+      <origin xyz="-0.2159 -0.0508 0.4064" rpy="0 0 3.14159"/>
+      <geometry>
+        <box size="0.03 0.03 0.03"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+  </link>
+
+  <joint name="rear_camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="rear_camera"/>
+    <origin xyz="-0.2159 -0.0508 0.4064" rpy="0 0 3.14159"/>
+  </joint>
+
+</robot>

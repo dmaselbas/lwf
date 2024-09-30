@@ -22,10 +22,10 @@ class StatePublisher(Node):
         loop_rate = self.create_rate(30)
 
         # robot state
-        wheel_left_front = 0.
-        wheel_right_front = 0.
-        wheel_left_rear = 0.
-        wheel_right_rear = 0.
+        front_left_wheel = 0.
+        front_right_wheel = 0.
+        rear_left_wheel = 0.
+        rear_right_wheel = 0.
         tinc = degree
         hinc = 0.005
 
@@ -42,8 +42,8 @@ class StatePublisher(Node):
                 # update joint_state
                 now = self.get_clock().now()
                 joint_state.header.stamp = now.to_msg()
-                joint_state.name = ['wheel_left_front', 'wheel_right_front', 'wheel_left_rear', 'wheel_right_rear']
-                joint_state.position = [wheel_left_front, wheel_right_front, wheel_left_rear, wheel_right_rear]
+                joint_state.name = ['front_left_wheel', 'front_right_wheel', 'rear_left_wheel', 'rear_right_wheel']
+                joint_state.position = [front_left_wheel, front_right_wheel, rear_left_wheel, rear_right_wheel]
 
                 # update transform
                 # (moving in a circle with radius=2)
