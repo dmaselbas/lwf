@@ -9,8 +9,8 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
 
     urdf_file_name = 'lwf_robot.urdf'
-    default_model_path = os.path.join(get_package_share_directory('lwf_robot'), "urdf", urdf_file_name)
-    default_rviz_config_path = os.path.join(get_package_share_directory('lwf_robot'), "rviz", 'urdf_config.rviz')
+    default_model_path = os.path.join(get_package_share_directory('lwf_robot'), urdf_file_name)
+    default_rviz_config_path = os.path.join(get_package_share_directory('lwf_robot'), 'urdf_config.rviz')
 
     with open(default_model_path, 'r') as infp:
         robot_desc = infp.read()
