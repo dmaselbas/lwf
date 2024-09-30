@@ -6,6 +6,21 @@
   <material name="grey">
     <color rgba=".2 .2 .3 1"/>
   </material>
+  <material name="imu_blue">
+    <color rgba=".02 .06 .24 1"/>
+  </material>
+  <material name="mag_orange">
+    <color rgba=".20 .10 .03 1"/>
+  </material>
+  <material name="green">
+    <color rgba="0 1 0 1"/>
+  </material>
+  <material name="purple">
+    <color rgba=".76 0 1 1"/>
+  </material>
+  <material name="red">
+    <color rgba="1 0 0 1"/>
+  </material>
   <!-- Base Link -->
   <link name="base_link">
     <visual>
@@ -98,10 +113,11 @@
   <!-- IMU Sensor -->
   <link name="imu_link">
     <visual>
-      <origin xyz="0 0 0.343" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="0.02 0.02 0.02"/> <!-- Size for IMU -->
       </geometry>
+      <material name="imu_blue"/>
     </visual>
   </link>
 
@@ -114,10 +130,11 @@
   <!-- Magnetometer 1 -->
   <link name="magnetometer_1">
     <visual>
-      <origin xyz="0 0 0.343" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="0.02 0.02 0.02"/>
       </geometry>
+      <material name="mag_orange"/>
     </visual>
   </link>
 
@@ -130,10 +147,11 @@
   <!-- Magnetometer 2 -->
   <link name="magnetometer_2">
     <visual>
-      <origin xyz="-0.0254 -0.1524 0.343" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="0.02 0.02 0.02"/>
       </geometry>
+      <material name="mag_orange"/>
     </visual>
   </link>
 
@@ -150,6 +168,7 @@
       <geometry>
         <box size="0.05 0.05 0.1"/> <!-- PTZ camera model -->
       </geometry>
+      <material name="green"/>
     </visual>
   </link>
 
@@ -166,6 +185,7 @@
       <geometry>
         <cylinder radius="0.05" length="0.1"/> <!-- Simplified lidar -->
       </geometry>
+      <material name="red"/>
     </visual>
   </link>
 
@@ -182,6 +202,7 @@
       <geometry>
         <box size="0.03 0.03 0.05"/> <!-- Simplified depth camera -->
       </geometry>
+      <material name="green"/>
     </visual>
   </link>
 
@@ -198,6 +219,7 @@
       <geometry>
         <cylinder radius="0.01" length="0.05"/> <!-- Sonar model -->
       </geometry>
+      <material name="purple"/>
     </visual>
   </link>
 
@@ -214,6 +236,7 @@
       <geometry>
         <cylinder radius="0.01" length="0.05"/>
       </geometry>
+      <material name="purple"/>
     </visual>
   </link>
 
@@ -230,6 +253,7 @@
       <geometry>
         <cylinder radius="0.01" length="0.05"/>
       </geometry>
+      <material name="purple"/>
     </visual>
   </link>
 
@@ -246,6 +270,7 @@
       <geometry>
         <cylinder radius="0.01" length="0.05"/>
       </geometry>
+      <material name="purple"/>
     </visual>
   </link>
 
@@ -262,6 +287,7 @@
       <geometry>
         <box size="0.03 0.03 0.03"/> <!-- Simplified camera model -->
       </geometry>
+      <material name="green"/>
     </visual>
   </link>
 
@@ -278,6 +304,7 @@
       <geometry>
         <box size="0.03 0.03 0.03"/>
       </geometry>
+      <material name="green"/>
     </visual>
   </link>
 
