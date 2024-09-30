@@ -124,7 +124,7 @@
   <joint name="imu_joint" type="fixed">
     <parent link="base_link"/>
     <child link="imu_link"/>
-    <origin xyz="0 0 0.343" rpy="0 0 0"/>
+    <origin xyz="0 0 0.4" rpy="0 0 0"/>
   </joint>
 
   <!-- Magnetometer 1 -->
@@ -141,7 +141,7 @@
   <joint name="magnetometer_1_joint" type="fixed">
     <parent link="base_link"/>
     <child link="magnetometer_1"/>
-    <origin xyz="0 0 0.343" rpy="0 0 0"/>
+    <origin xyz="0 0 0.4" rpy="0 0 0"/>
   </joint>
 
   <!-- Magnetometer 2 -->
@@ -158,13 +158,13 @@
   <joint name="magnetometer_2_joint" type="fixed">
     <parent link="base_link"/>
     <child link="magnetometer_2"/>
-    <origin xyz="-0.0254 -0.1524 0.343" rpy="0 0 0"/>
+    <origin xyz="-0.0254 -0.1524 0.4" rpy="0 0 0"/>
   </joint>
 
   <!-- PTZ Camera -->
   <link name="ptz_camera_link">
     <visual>
-      <origin xyz="0.2413 -0.1143 0.419" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="0.05 0.05 0.1"/> <!-- PTZ camera model -->
       </geometry>
@@ -209,7 +209,7 @@
   <joint name="rgbd_camera_joint" type="fixed">
     <parent link="base_link"/>
     <child link="rgbd_camera"/>
-    <origin xyz="0.2159 0 0.3556" rpy="0 0 0"/>
+    <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
   </joint>
 
   <!-- Front Sonar -->
@@ -294,7 +294,7 @@
   <joint name="front_camera_joint" type="fixed">
     <parent link="base_link"/>
     <child link="front_camera"/>
-    <origin xyz="0.2159 0.0508 0.3556" rpy="0 0 0"/>
+    <origin xyz="0.2159 0.0508 0.4" rpy="0 0 0"/>
   </joint>
 
   <!-- Rear Camera -->
@@ -311,7 +311,7 @@
   <joint name="rear_camera_joint" type="fixed">
     <parent link="base_link"/>
     <child link="rear_camera"/>
-    <origin xyz="-0.2159 -0.0508 0.4064" rpy="0 0 3.14159"/>
+    <origin xyz="-0.2159 -0.0508 0.5" rpy="0 0 3.14159"/>
   </joint>
 
 </robot>
