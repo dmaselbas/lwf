@@ -1,0 +1,17 @@
+version: '3'
+services:
+  robo_base:
+    build:
+      context: ./
+      dockerfile: docker/robo_base.dockerfile
+    image: robo_base:latest
+  robot_state_publisher:
+    build:
+      context: ./
+      dockerfile: docker/robot_state_publisher.dockerfile
+    image: robot_state_publisher:latest
+    container_name: robot_state_publisher
+    depends_on:
+      - robo_base
+    command: /bin/bash -c "source /root/ros2_ws/install/setup.bash && ros2 launch lwf_robot lwf_robot.launch.py"
+    network_mode: host
