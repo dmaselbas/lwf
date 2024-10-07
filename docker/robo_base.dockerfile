@@ -19,7 +19,8 @@ RUN apt update -y \
     python3-rosdistro \
     python3-wstool \
     ros-humble-rmw-cyclonedds-cpp \
-    ros-humble-diagnostic-updater
+    ros-humble-diagnostic-updater \
+    ros-humble-asio-cmake-module
 
 WORKDIR /root/ros2_ws/src
 COPY ros2_ws/src ./
