@@ -4,7 +4,7 @@ services:
     build:
       context: ./
       dockerfile: docker/robo_base.dockerfile
-    image: robo_base:latest
+    image: 192.168.5.239:5000/robo_base:latest
   robot_state_publisher:
     build:
       context: ./
@@ -16,7 +16,7 @@ services:
     deploy:
       placement:
         constraints:
-          - node.hostname == sbc2
+          - node.hostname == lwf-vm
 #    volumes:
 #      - ./your_robot.urdf:/root/your_robot.urdf
     environment:
@@ -31,7 +31,7 @@ services:
     build:
       context: ./
       dockerfile: docker/realsense.dockerfile
-    image: realsense2_camera:latest
+    image: 192.168.5.239:5000/realsense2_camera:latest
     container_name: realsense2_camera
     depends_on:
       - robo_base
