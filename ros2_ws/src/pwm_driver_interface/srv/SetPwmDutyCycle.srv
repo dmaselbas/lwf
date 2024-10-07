@@ -1,5 +1,0 @@
-int8 channel
-int32 duty_cycle
----
-int8 channel
-int32 duty_cycle
