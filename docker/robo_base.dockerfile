@@ -18,26 +18,6 @@ RUN apt update -y \
     python3-vcstool \
     python3-rosdistro \
     python3-wstool \
-    python3-xdiagnose \
-    python3-xacro \
-    python3-rosbag2 \
-    python3-rosbag2-bagfile-v2 \
-    python3-rosbag2-converter \
-    python3-rosbag2-storage \
-    python3-rosbag2-typesupport \
-    python3-rosbag2-compression \
-    python3-rosbag2-diagnostics \
-    python3-rosbag2-py3-common \
-    python3-rosbag2-python \
-    python3-rosbag2-rosbag2-storage \
-    python3-rosbag2-storage-default-plugins \
-    python3-rosbag2-transport \
-    python3-rosbag2-transport-default-plugins \
-    python3-rosbag2-validate \
-    python3-rosbag2-yaml \
-    python3-rosbag2-dataset \
-    python3-rosbag2-interface \
-    python3-rosbag2-storage-all \
     ros-humble-rmw-cyclonedds-cpp \
     ros-humble-diagnostic-updater
 
