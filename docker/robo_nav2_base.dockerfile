@@ -6,7 +6,7 @@ RUN apt update \
    \
   wget
 
-RUN . /opt/ros/humble/setup.bash \
+RUN . /opt/ros/humble/setup.sh \
     && rosdep init
 
 RUN apt update && apt upgrade -y \

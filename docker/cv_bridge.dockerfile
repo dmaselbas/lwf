@@ -2,7 +2,7 @@ FROM robo-base:latest
 
 #https://index.ros.org/p/cv_bridge/
 
-RUN . /opt/ros/humble/setup.bash \
+RUN . /opt/ros/humble/setup.sh \
     && apt install -y \
     python3-numpy \
     ros-humble-cv-bridge \

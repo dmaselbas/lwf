@@ -22,12 +22,12 @@ RUN apt update -y \
     ros-humble-diagnostic-updater
 
 
-RUN . /opt/ros/humble/setup.bash \
+RUN . /opt/ros/humble/setup.sh \
     && rosdep init \
     && rosdep update
 
 WORKDIR /root/ros2_ws/src
 COPY ros2_ws/src ./
 WORKDIR /root/ros2_ws
-RUN . /opt/ros/humble/setup.bash && colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
-RUN echo ". /root/ros2_ws/install/setup.bash" >> /root/.bashrc
+RUN . /opt/ros/humble/setup.sh && colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
+RUN echo ". /root/ros2_ws/install/setup.sh" >> /root/.bashrc
