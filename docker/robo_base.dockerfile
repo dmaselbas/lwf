@@ -1,4 +1,4 @@
-FROM osrf/ros:humble-desktop-full-jammy
+FROM ros:humble-ros-base
 
 RUN source /opt/ros/humble/setup.bash \
     && apt update -y \
