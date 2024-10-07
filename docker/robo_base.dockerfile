@@ -21,11 +21,6 @@ RUN apt update -y \
     ros-humble-rmw-cyclonedds-cpp \
     ros-humble-diagnostic-updater
 
-
-RUN . /opt/ros/humble/setup.sh \
-    && rosdep init \
-    && rosdep update
-
 WORKDIR /root/ros2_ws/src
 COPY ros2_ws/src ./
 WORKDIR /root/ros2_ws
