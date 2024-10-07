@@ -52,7 +52,13 @@ services:
       bash -c "source /opt/ros/humble/setup.bash &&
                ros2 launch realsense2_camera rs_launch.py"
   rtabmap_ros:
-    image: rtabmap_ros:latest
+    build:
+      context: ./
+      dockerfile: docker/rtab_map.dockerfile
+    image: 192.168.5.239:5000/rtabmap:latest
+    container_name: rtabmap
+    depends_on:
+      - realsense2_camera
     deploy:
       placement:
         constraints:
