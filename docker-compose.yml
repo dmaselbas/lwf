@@ -40,6 +40,7 @@ services:
         constraints:
           - node.hostname == lwf-node4
     network_mode: host
+    privileged: true
     volumes:
       - /dev/bus/usb:/dev/bus/usb
     devices:
@@ -66,4 +67,4 @@ services:
                depth_topic:=/camera/aligned_depth_to_color/image_raw \
                rgb_topic:=/camera/color/image_raw \
                camera_info_topic:=/camera/color/camera_info \
-               frame_id:=camera_link"
+               frame_id:=rgbd_camera"
