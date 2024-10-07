@@ -1,6 +1,6 @@
 FROM ros:humble-ros-base
 
-RUN source /opt/ros/humble/setup.bash \
+RUN . /opt/ros/humble/setup.bash \
     && apt update -y \
     && apt upgrade -y \
     && apt install -y \
