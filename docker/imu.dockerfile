@@ -10,4 +10,4 @@ COPY ros2_ws/src ./
 WORKDIR /root/ros2_ws
 RUN colcon build --packages-select witmotion_ros
 
-CMD source install/setup.bash && ros2 launch witmotion_ros wt61c.py
+CMD . install/setup.bash && ros2 launch witmotion_ros wt61c.py

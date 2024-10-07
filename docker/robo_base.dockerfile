@@ -1,7 +1,6 @@
 FROM ros:humble-ros-base
 
-RUN . /opt/ros/humble/setup.bash \
-    && apt update -y \
+RUN apt update -y \
     && apt upgrade -y \
     && apt install -y \
     ros-dev-tools \
@@ -43,12 +42,12 @@ RUN . /opt/ros/humble/setup.bash \
     ros-humble-diagnostic-updater
 
 
-RUN source /opt/ros/humble/setup.bash \
+RUN . /opt/ros/humble/setup.bash \
     && rosdep init \
     && rosdep update
 
 WORKDIR /root/ros2_ws/src
 COPY ros2_ws/src ./
 WORKDIR /root/ros2_ws
-RUN source /opt/ros/humble/setup.bash && colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
-RUN echo "source /root/ros2_ws/install/setup.bash" >> /root/.bashrc
+RUN . /opt/ros/humble/setup.bash && colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
+RUN echo ". /root/ros2_ws/install/setup.bash" >> /root/.bashrc

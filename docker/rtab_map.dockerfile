@@ -61,4 +61,4 @@ RUN . /opt/ros/humble/setup.sh && \
 ENV ROS_PACKAGE_PATH=/root/ros2_ws/src/rtabmap_ros:$ROS_PACKAGE_PATH
 
 # Set the entrypoint
-CMD ["bash", "-c", "source /opt/ros/humble/setup.bash && source install/setup.bash && ros2 launch rtabmap_ros rtabmap.launch.py"]
+CMD ["bash", "-c", ". /opt/ros/humble/setup.bash && . install/setup.bash && ros2 launch rtabmap_ros rtabmap.launch.py"]
