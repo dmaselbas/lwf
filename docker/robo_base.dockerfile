@@ -3,6 +3,7 @@ FROM ros:humble-ros-base
 RUN apt update -y \
     && apt upgrade -y \
     && apt install -y \
+    libasio-dev \
     ros-dev-tools \
     python3-colcon-common-extensions \
     python3-rosdep \
