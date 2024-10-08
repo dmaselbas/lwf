@@ -1,40 +1,31 @@
 version: '3'
 services:
-  robo_base:
-    build:
-      context: ./
-      dockerfile: docker/robo_base.dockerfile
-    image: 192.168.5.239:5000/robo_base:latest
+#  robo_base:
+#    build:
+#      context: ./
+#      dockerfile: docker/robo_base.dockerfile
+#    image: 192.168.5.239:5000/robo_base:latest
   robot_state_publisher:
     build:
       context: ./
       dockerfile: docker/robot_state_publisher.dockerfile
     image: robot_state_publisher:latest
-    container_name: robot_state_publisher
-    depends_on:
-      - robo_base
     deploy:
       placement:
         constraints:
           - node.hostname == lwf-vm
-#    volumes:
-#      - ./your_robot.urdf:/root/your_robot.urdf
     environment:
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
       - ROS_DOMAIN_ID=0
-#    command: >
-#      bash -c "source /opt/ros/humble/setup.bash &&
-#               ros2 run robot_state_publisher robot_state_publisher /root/your_robot.urdf"
-    command: /bin/bash -c "source /root/ros2_ws/install/setup.bash && ros2 launch lwf_robot lwf_robot.launch.py"
+    command: >
+      bash -c "source /opt/ros/humble/setup.bash &&
+               ros2 run robot_state_publisher robot_state_publisher /root/ros2_ws/src/lwf_robot/urdf/lwf_robot.urdf"
     network_mode: host
   realsense2_camera:
     build:
       context: ./
       dockerfile: docker/realsense.dockerfile
     image: 192.168.5.239:5000/realsense2_camera:latest
-    container_name: realsense2_camera
-    depends_on:
-      - robo_base
     deploy:
       placement:
         constraints:
@@ -42,9 +33,9 @@ services:
     network_mode: host
     privileged: true
     volumes:
-      - /dev/bus/usb:/dev/bus/usb
+      - /etc/udev/rules.d:/etc/udev/rules.d
     devices:
-      - /dev/video0:/dev/video0
+      - /dev/bus/usb:/dev/bus/usb
     environment:
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
       - ROS_DOMAIN_ID=0
@@ -53,7 +44,6 @@ services:
                ros2 launch realsense2_camera rs_launch.py"
   rtabmap_ros:
     image: introlab3it/rtabmap_ros:humble-latest
-    container_name: rtabmap
     depends_on:
       - realsense2_camera
     deploy:
