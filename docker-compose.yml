@@ -20,7 +20,7 @@ services:
 #    volumes:
 #      - ./your_robot.urdf:/root/your_robot.urdf
     environment:
-      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
       - ROS_DOMAIN_ID=0
 #    command: >
 #      bash -c "source /opt/ros/humble/setup.bash &&
@@ -46,7 +46,7 @@ services:
     devices:
       - /dev/video0:/dev/video0
     environment:
-      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
       - ROS_DOMAIN_ID=0
     command: >
       bash -c "source /opt/ros/humble/setup.bash &&
@@ -65,7 +65,7 @@ services:
           - node.hostname == lwf-node4
     network_mode: host
     environment:
-      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
       - ROS_DOMAIN_ID=0
     command: >
       bash -c "source /opt/ros/humble/setup.bash &&

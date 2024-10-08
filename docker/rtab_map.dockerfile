@@ -49,7 +49,6 @@ RUN git clone https://github.com/introlab/rtabmap.git src/rtabmap \
 # Build RTAB-Map core library
 RUN . /opt/ros/humble/setup.sh && \
     cd src/rtabmap && \
-    mkdir build && cd build && \
     cmake .. -DCMAKE_INSTALL_PREFIX=/opt/ros/humble -DCMAKE_BUILD_TYPE=Release && \
     make -j$(nproc) && make install
 
