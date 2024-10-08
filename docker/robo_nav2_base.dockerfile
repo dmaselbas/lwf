@@ -1,5 +1,5 @@
 ARG ROS_DISTRO=humble
-FROM 192.168.5.239:5000/robo-base:latest
+FROM 192.168.5.239:5000/robo_base:latest
 
 RUN apt update \
     && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends --no-install-suggests \
