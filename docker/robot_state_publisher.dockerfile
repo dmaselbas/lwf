@@ -1,4 +1,4 @@
-FROM robo-base:latest
+FROM 192.168.5.239:5000/robo-base:latest
 
 #https://index.ros.org/r/robot_state_publisher/github-ros-robot_state_publisher/
 #https://index.ros.org/p/robot_state_publisher

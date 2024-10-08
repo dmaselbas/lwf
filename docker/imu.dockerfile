@@ -1,4 +1,4 @@
-FROM robo-base:latest
+FROM 192.168.5.239:5000/robo-base:latest
 
 RUN apt-get update && apt-get install -y \
     libqt5serialport5-dev \
