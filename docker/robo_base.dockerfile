@@ -26,9 +26,8 @@ RUN apt update -y \
 
 WORKDIR /root/ros2_ws/src
 COPY ros2_ws/src ./
-RUN git clone https://github.com/ros-drivers/transport_drivers.git
-WORKDIR /root/ros2_ws
 
+WORKDIR /root/ros2_ws
 RUN . /opt/ros/humble/setup.sh && rosdep init && rosdep update \
     && rosdep install --from-paths src --ignore-src -r -y \
     && colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
