@@ -31,7 +31,7 @@ RUN apt update -y \
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_DOMAIN_ID=0
 
-COPY ./ros2_ws/src /root/ros2_ws/src
+COPY ros2_ws/src /root/ros2_ws/src
 
 WORKDIR /root/ros2_ws
 RUN . /opt/ros/humble/setup.sh && rosdep update \
