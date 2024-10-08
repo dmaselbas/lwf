@@ -22,7 +22,14 @@ RUN apt update -y \
     ros-humble-rmw-cyclonedds-cpp \
     ros-humble-diagnostic-updater \
     ros-humble-asio-cmake-module \
-    ros-humble-ament*
+    ros-humble-ament* \
+    ros-humble-librealsense2* \
+    ros-humble-realsense2* \
+    ros-humble-rtabmap \
+    ros-humble-rtabmap-ros \
+
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+ENV ROS_DOMAIN_ID=0
 
 WORKDIR /root/ros2_ws/src
 COPY ros2_ws/src ./
