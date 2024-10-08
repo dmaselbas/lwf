@@ -1,10 +1,4 @@
-version: '3.6'
 services:
-#  robo_base:
-#    build:
-#      context: ./
-#      dockerfile: docker/robo_base.dockerfile
-#    image: 192.168.5.239:5000/robo_base:latest
   robot_state_publisher:
     build:
       context: ./
