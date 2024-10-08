@@ -32,11 +32,11 @@ services:
           - node.hostname == lwf-node4
     network_mode: host
     privileged: true
-    volumes:
-      - /dev:/dev
-    device_cgroup_rules:
-      - 'c 81:* rmw'
-      - 'c 189:* rmw'
+    devices:
+      - "/dev:/dev:rmw"
+#    device_cgroup_rules:
+#      - 'c 81:* rmw'
+#      - 'c 189:* rmw'
     environment:
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
       - ROS_DOMAIN_ID=0
