@@ -3,7 +3,7 @@ services:
     build:
       context: ./
       dockerfile: docker/robot_state_publisher.dockerfile
-    image: robot_state_publisher:latest
+    image: 192.168.5.239:5000/robot_state_publisher:latest
     environment:
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
       - ROS_DOMAIN_ID=0
@@ -16,7 +16,7 @@ services:
       context: ./
       dockerfile: docker/lwf.dockerfile
     image: 192.168.5.239:5000/lwf:latest
-    profiles: [slam]
+#    profiles: [slam]
     network_mode: host
     ipc: "shareable"
     volumes:
