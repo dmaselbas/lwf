@@ -54,7 +54,7 @@ services:
     deploy:
       placement:
         constraints:
-          - node.hostname == lwf-node4
+          - node.hostname == lwf-vm
     network_mode: host
     ipc: "shareable"
 #    volumes:
