@@ -26,7 +26,7 @@ RUN apt update -y \
     ros-humble-librealsense2* \
     ros-humble-realsense2* \
     ros-humble-rtabmap \
-    ros-humble-rtabmap-ros \
+    ros-humble-rtabmap-ros
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_DOMAIN_ID=0
