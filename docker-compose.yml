@@ -1,4 +1,4 @@
-version: '3'
+version: '3.6'
 services:
 #  robo_base:
 #    build:
@@ -28,6 +28,8 @@ services:
     image: 192.168.5.239:5000/realsense2_camera:latest
     network_mode: host
     privileged: true
+    volumes:
+      - /dev:/dev
     device_cgroup_rules:
       - 'c 81:* rmw'
       - 'c 189:* rmw'
