@@ -25,8 +25,8 @@ services:
 #    device_cgroup_rules:
 #      - 'c 81:* rmw'
 #      - 'c 189:* rmw'
-    devices:
-      - "/dev:/dev:rwm"
+    volumes:
+      - /dev:/dev
     deploy:
       placement:
         constraints:
