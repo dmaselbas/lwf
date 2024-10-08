@@ -44,12 +44,13 @@ WORKDIR /root/ros2_ws
 RUN git clone https://github.com/introlab/rtabmap.git src/rtabmap \
     && git clone -b ros2 https://github.com/introlab/rtabmap_ros.git src/rtabmap_ros
 
+WORKDIR /root/ros2_ws/src/rtabmap
 # Build RTAB-Map core library
 RUN . /opt/ros/humble/setup.sh && \
-    cd src/rtabmap && \
     cmake .. -DCMAKE_INSTALL_PREFIX=/opt/ros/humble -DCMAKE_BUILD_TYPE=Release && \
     make -j$(nproc) && make install
 
+WORKDIR /root/ros2_ws
 # Build RTAB-Map ROS package
 RUN . /opt/ros/humble/setup.sh && \
     colcon build --symlink-install --packages-select rtabmap_ros
