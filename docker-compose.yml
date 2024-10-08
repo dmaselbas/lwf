@@ -26,15 +26,15 @@ services:
       context: ./
       dockerfile: docker/realsense.dockerfile
     image: 192.168.5.239:5000/realsense2_camera:latest
-    deploy:
-      placement:
-        constraints:
-          - node.hostname == lwf-node4
     network_mode: host
     privileged: true
     device_cgroup_rules:
       - 'c 81:* rmw'
       - 'c 189:* rmw'
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == lwf-node4
     environment:
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
       - ROS_DOMAIN_ID=0
