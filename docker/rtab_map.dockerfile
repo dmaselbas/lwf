@@ -38,9 +38,7 @@ RUN apt-get update && apt-get install -y \
     libopenni-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a workspace
-RUN mkdir -p /root/ros2_ws/src
-WORKDIR /rtabmap_ws
+WORKDIR /root/ros2_ws
 
 # Clone RTAB-Map repositories
 RUN git clone https://github.com/introlab/rtabmap.git src/rtabmap \
