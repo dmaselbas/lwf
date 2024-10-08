@@ -52,8 +52,8 @@ services:
           - node.hostname == lwf-node4
     network_mode: host
     ipc: "shareable"
-    volumes:
-      - /tmp/.ros:/tmp/.ros
+#    volumes:
+#      - /tmp/.ros:/tmp/.ros
     environment:
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
       - ROS_DOMAIN_ID=0
