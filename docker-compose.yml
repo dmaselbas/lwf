@@ -21,12 +21,13 @@ services:
       dockerfile: docker/realsense.dockerfile
     image: 192.168.5.239:5000/realsense2_camera:latest
     network_mode: host
-    privileged: true
-#    device_cgroup_rules:
-#      - 'c 81:* rmw'
-#      - 'c 189:* rmw'
-    volumes:
-      - /dev:/dev
+    devices:
+      - "/dev/video0:/dev/video0:rwm"
+      - "/dev/video1:/dev/video1:rwm"
+      - "/dev/video2:/dev/video2:rwm"
+      - "/dev/video3:/dev/video3:rwm"
+      - "/dev/video4:/dev/video4:rwm"
+      - "/dev/video5:/dev/video5:rwm"
     deploy:
       placement:
         constraints:
