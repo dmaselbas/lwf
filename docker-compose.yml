@@ -15,30 +15,30 @@ services:
       bash -c "source /opt/ros/humble/setup.bash &&
                ros2 run robot_state_publisher robot_state_publisher /root/ros2_ws/src/lwf_robot/urdf/lwf_robot.urdf"
     network_mode: host
-  realsense2_camera:
-    build:
-      context: ./
-      dockerfile: docker/realsense.dockerfile
-    image: 192.168.5.239:5000/realsense2_camera:latest
-    network_mode: host
-    devices:
-      - "/dev/video0:/dev/video0:rwm"
-      - "/dev/video1:/dev/video1:rwm"
-      - "/dev/video2:/dev/video2:rwm"
-      - "/dev/video3:/dev/video3:rwm"
-      - "/dev/video4:/dev/video4:rwm"
-      - "/dev/video5:/dev/video5:rwm"
-    deploy:
-      placement:
-        constraints:
-          - node.hostname == lwf-node4
-    environment:
-      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-      - ROS_DOMAIN_ID=0
-    command: >
-      bash -c "source /opt/ros/humble/setup.bash && \
-               ros2 launch realsense2_camera rs_launch.py pointcloud.enable:=true \
-               enable_gyro:=true enable_accel:=true unite_imu_method:=2"
+#  realsense2_camera:
+#    build:
+#      context: ./
+#      dockerfile: docker/realsense.dockerfile
+#    image: 192.168.5.239:5000/realsense2_camera:latest
+#    network_mode: host
+#    devices:
+#      - "/dev/video0:/dev/video0:rwm"
+#      - "/dev/video1:/dev/video1:rwm"
+#      - "/dev/video2:/dev/video2:rwm"
+#      - "/dev/video3:/dev/video3:rwm"
+#      - "/dev/video4:/dev/video4:rwm"
+#      - "/dev/video5:/dev/video5:rwm"
+#    deploy:
+#      placement:
+#        constraints:
+#          - node.hostname == lwf-node4
+#    environment:
+#      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+#      - ROS_DOMAIN_ID=0
+#    command: >
+#      bash -c "source /opt/ros/humble/setup.bash && \
+#               ros2 launch realsense2_camera rs_launch.py pointcloud.enable:=true \
+#               enable_gyro:=true enable_accel:=true unite_imu_method:=2"
   rtabmap_ros:
     build:
       context: ./
