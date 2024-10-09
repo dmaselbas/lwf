@@ -1,3 +1,2 @@
 ---
-  - import_playbook: service_deployment/sync_project.yaml
-  - import_playbook: service_deployment/lidar.yaml
+  - import_playbook: deployment/deployment_v2.yml

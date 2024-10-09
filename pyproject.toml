@@ -30,6 +30,7 @@ colcon-common-extensions = "^0.3.0"
 jc = "^1.25.3"
 rclpy-intellisense = "^1.0.0"
 mpremote = "^1.23.0"
+requests = "^2.32.3"
 
 [build-system]
 requires = ["poetry-core"]

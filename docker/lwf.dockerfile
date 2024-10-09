@@ -27,7 +27,8 @@ RUN apt update -y \
     ros-humble-realsense2* \
     ros-humble-rtabmap \
     ros-humble-rtabmap-ros \
-    ros-humble-spatio-temporal-voxel-layer
+    ros-humble-spatio-temporal-voxel-layer \
+    libqt5serialport5-dev
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_DOMAIN_ID=0
@@ -35,7 +36,7 @@ ENV ROS_DOMAIN_ID=0
 ADD ros2_ws/src /root/ros2_ws/src
 
 WORKDIR /root/ros2_ws
-RUN . /opt/ros/humble/setup.sh && rosdep update \
+RUN rosdep update \
     && rosdep install --from-paths src --ignore-src -r -y \
     && colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
 RUN echo ". /root/ros2_ws/install/setup.sh" >> /root/.bashrc

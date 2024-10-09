@@ -31,7 +31,17 @@
     #################################################################
     # SBC1 Nodes
     #################################################################
-    - name: Start realsense2_camera node on lwf-node4
+    - name: Start RTAB-Map node on sbc2
+      docker_container:
+        name: rtabmap_ros
+        image: "{{ docker_image }}"
+        command: ros2 launch rtabmap_ros rtabmap.launch.py frame_id:=rgbd_camera odom_frame_id:=odom rgbd_sync:=true approx_sync:=true
+        network_mode: host
+        environment: "{{ ros_environment }}"
+        restart_policy: unless-stopped
+      when: inventory_hostname == 'lwf-node1
+
+    - name: Start realsense2_camera node on lwf-node1
       docker_container:
         name: realsense2_camera
         image: "{{ docker_image }}"
@@ -42,7 +52,25 @@
         network_mode: host
         environment: "{{ ros_environment }}"
         restart_policy: unless-stopped
-      when: inventory_hostname == 'lwf-node4'
+      when: inventory_hostname == 'lwf-node1'
+
+
+#    - name: Start PTZ Controller node on lwf-node3
+#      docker_container:
+#        name: ptz_controller
+#        image: "{{ docker_image }}"
+#        command: ros2 launch ptz_controller ptz_controller.launch.py
+#        devices:
+#          - "/dev/ttyUSB0:/dev/ttyUSB0"
+#        privileged: true
+#        network_mode: host
+#        environment: "{{ ros_environment }}"
+#        restart_policy: unless-stopped
+#      when: inventory_hostname == 'lwf-node3'
+
+    #################################################################
+    # SBC2 Nodes
+    #################################################################
 
     - name: Start USB camera node on lwf-node2
       docker_container:
@@ -70,61 +98,11 @@
         restart_policy: unless-stopped
       when: inventory_hostname == 'lwf-node2'
 
-    - name: Start PTZ Controller node on lwf-node3
-      docker_container:
-        name: ptz_controller
-        image: "{{ docker_image }}"
-        command: ros2 launch ptz_controller ptz_controller.launch.py
-        devices:
-          - "/dev/ttyUSB0:/dev/ttyUSB0"
-        privileged: true
-        network_mode: host
-        environment: "{{ ros_environment }}"
-        restart_policy: unless-stopped
-      when: inventory_hostname == 'lwf-node3'
 
     #################################################################
-    # SBC2 Nodes
+    # lwf-node3
     #################################################################
-    - name: Start RTAB-Map node on sbc2
-      docker_container:
-        name: rtabmap_ros
-        image: "{{ docker_image }}"
-        command: ros2 launch rtabmap_ros rtabmap.launch.py frame_id:=rgbd_camera odom_frame_id:=odom rgbd_sync:=true approx_sync:=true
-        network_mode: host
-        environment: "{{ ros_environment }}"
-        restart_policy: unless-stopped
-      when: inventory_hostname == 'lwf-node4'
-
-    - name: Start IMU node on sbc2
-      docker_container:
-        name: imu_node
-        image: "{{ docker_image }}"
-        command: ros2 launch imu_driver imu_driver.launch.py
-        devices:
-          - "/dev/ttyUSB1:/dev/ttyUSB1"
-        privileged: true
-        network_mode: host
-        environment: "{{ ros_environment }}"
-        restart_policy: unless-stopped
-      when: inventory_hostname == 'sbc2'
-
-    - name: Start IMU Fusion node on sbc2
-      docker_container:
-        name: imu_fusion_node
-        image: "{{ docker_image }}"
-        command: ros2 launch robot_localization ekf.launch.py
-        volumes:
-          - "/path/to/robot_localization/config:/config:ro"
-        network_mode: host
-        environment: "{{ ros_environment }}"
-        restart_policy: unless-stopped
-      when: inventory_hostname == 'sbc2'
-
-    #################################################################
-    # SBC3 Nodes
-    #################################################################
-    - name: Start Differential Drive Controller node on sbc3
+    - name: Start Differential Drive Controller node on lwf-node3
       docker_container:
         name: diff_drive_controller
         image: "{{ docker_image }}"
@@ -134,22 +112,47 @@
         network_mode: host
         environment: "{{ ros_environment }}"
         restart_policy: unless-stopped
-      when: inventory_hostname == 'sbc3'
+      when: inventory_hostname == 'lwf-node3'
 
-    - name: Start Serial Bridge node on sbc3
+    - name: Start Serial Bridge for ESP32
       docker_container:
-        name: serial_bridge
+        name: serial_bridge_esp32
         image: "{{ docker_image }}"
         command: ros2 launch serial_bridge serial_bridge.launch.py
         devices:
-          - "/dev/ttyUSB2:/dev/ttyUSB2"
+          - "/dev/ttyUSB1:/dev/ttyUSB1"
         privileged: true
         network_mode: host
         environment: "{{ ros_environment }}"
         restart_policy: unless-stopped
-      when: inventory_hostname == 'sbc3'
+      when: inventory_hostname == 'lwf-node3'
 
-    - name: Start Robot State Publisher node on sbc3
+    - name: Start node for IMU
+      docker_container:
+        name: imu
+        image: "{{ docker_image }}"
+        command: ros2 launch witmotion_ros wt901.launch.py
+        devices:
+          - "/dev/ttyUSB0:/dev/ttyUSB0"
+        privileged: true
+        network_mode: host
+        environment: "{{ ros_environment }}"
+        restart_policy: unless-stopped
+      when: inventory_hostname == 'lwf-node3'
+
+    - name: Start IMU Fusion node on lwf-node3
+      docker_container:
+        name: imu_fusion_node
+        image: "{{ docker_image }}"
+        command: ros2 launch robot_localization ekf.launch.py
+        volumes:
+          - "/path/to/robot_localization/config:/config:ro"
+        network_mode: host
+        environment: "{{ ros_environment }}"
+        restart_policy: unless-stopped
+      when: inventory_hostname == 'lwf-node3'
+
+    - name: Start Robot State Publisher node on lwf-node3
       docker_container:
         name: robot_state_publisher
         image: "{{ docker_image }}"
@@ -159,9 +162,9 @@
         network_mode: host
         environment: "{{ ros_environment }}"
         restart_policy: unless-stopped
-      when: inventory_hostname == 'sbc3'
+      when: inventory_hostname == 'lwf-node3'
 
-    - name: Start Joint State Publisher node on sbc3
+    - name: Start Joint State Publisher node on lwf-node3
       docker_container:
         name: joint_state_publisher
         image: "{{ docker_image }}"
@@ -171,7 +174,7 @@
         network_mode: host
         environment: "{{ ros_environment }}"
         restart_policy: unless-stopped
-      when: inventory_hostname == 'sbc3'
+      when: inventory_hostname == 'lwf-node3'
 
     #################################################################
     # SBC4 Nodes
