@@ -16,7 +16,7 @@ services:
       context: ./
       dockerfile: docker/lwf.dockerfile
     image: 192.168.5.239:5000/lwf:latest
-#    profiles: [slam]
+#    profiles: [node4]
     network_mode: host
     ipc: "shareable"
     volumes:
@@ -31,3 +31,19 @@ services:
       - OMP_WAIT_POLICY=passive
     command: >
       bash -c 'source /opt/ros/humble/setup.bash && ros2 launch rtabmap_examples realsense_d435i_color.launch.py'
+    lidar:
+      build:
+        context: ./
+        dockerfile: docker/lwf.dockerfile
+      image: 192.168.5.239:5000/lwf:latest
+      #    profiles: [node1]
+      network_mode: host
+      volumes:
+        - /dev/ttyUSB0:/dev/ttyUSB0
+      restart: always
+      privileged: true
+      environment:
+        - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+        - ROS_DOMAIN_ID=0
+      command: >
+        bash -c 'source /opt/ros/humble/setup.bash &&  ros2 launch sllidar_ros2 view_sllidar_c1_launch.py'
