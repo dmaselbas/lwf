@@ -1,4 +1,4 @@
-FROM 192.168.5.239:5000/robo_base:latest
+FROM 192.168.5.239:5000/lwf:latest
 
 #https://index.ros.org/p/camera_ros/
 #https://index.ros.org/r/image_pipeline/
