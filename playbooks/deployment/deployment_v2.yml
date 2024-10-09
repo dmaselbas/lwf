@@ -35,7 +35,7 @@
       docker_container:
         name: realsense2_camera
         image: "{{ docker_image }}"
-        command: ros2 launch realsense2_camera rs_launch.py name:=rgbd_camera depth_module.hdr_enabled:=true enable_sync:=true enable_rgbd:=true pointcloud.enable:=true colorizer.enable:=true
+        command: ros2 launch realsense2_camera rs_launch.py name:=rgbd_camera depth_module.hdr_enabled:=true enable_sync:=true enable_rgbd:=true pointcloud.enable:=true enable_depth:=true enable_accel:=true enable_gyro:=true colorizer.enable:=true
         devices:
           - "/dev/bus/usb:/dev/bus/usb"
         privileged: true
