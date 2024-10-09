@@ -1,0 +1,4 @@
+FROM 192.168.5.239:5000/robo_base:latest
+
+
+CMD ros2 launch realsense2_camera rs_launch.py name:=rgbd_camera depth_module.hdr_enabled:=true enable_sync:=true enable_rgbd:=true pointcloud.enable:=true colorizer.enable:=true

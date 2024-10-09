@@ -31,20 +31,20 @@
     #################################################################
     # SBC1 Nodes
     #################################################################
-    - name: Start realsense2_camera node on sbc1
+    - name: Start realsense2_camera node on lwf-node4
       docker_container:
         name: realsense2_camera
         image: "{{ docker_image }}"
-        command: ros2 launch realsense2_camera rs_launch.py
+        command: ros2 launch realsense2_camera rs_launch.py name:=rgbd_camera depth_module.hdr_enabled:=true enable_sync:=true enable_rgbd:=true pointcloud.enable:=true colorizer.enable:=true
         devices:
           - "/dev/bus/usb:/dev/bus/usb"
         privileged: true
         network_mode: host
         environment: "{{ ros_environment }}"
         restart_policy: unless-stopped
-      when: inventory_hostname == 'sbc1'
+      when: inventory_hostname == 'lwf-node4'
 
-    - name: Start USB camera node on sbc1
+    - name: Start USB camera node on lwf-node2
       docker_container:
         name: usb_cam_node
         image: "{{ docker_image }}"
@@ -55,9 +55,9 @@
         network_mode: host
         environment: "{{ ros_environment }}"
         restart_policy: unless-stopped
-      when: inventory_hostname == 'sbc1'
+      when: inventory_hostname == 'lwf-node2'
 
-    - name: Start Edge TPU Object Detection node on sbc1
+    - name: Start Edge TPU Object Detection node on sbc2
       docker_container:
         name: edge_tpu_object_detection
         image: "{{ docker_image }}"
@@ -68,9 +68,9 @@
         network_mode: host
         environment: "{{ ros_environment }}"
         restart_policy: unless-stopped
-      when: inventory_hostname == 'sbc1'
+      when: inventory_hostname == 'lwf-node2'
 
-    - name: Start PTZ Controller node on sbc1
+    - name: Start PTZ Controller node on lwf-node3
       docker_container:
         name: ptz_controller
         image: "{{ docker_image }}"
@@ -81,7 +81,7 @@
         network_mode: host
         environment: "{{ ros_environment }}"
         restart_policy: unless-stopped
-      when: inventory_hostname == 'sbc1'
+      when: inventory_hostname == 'lwf-node3'
 
     #################################################################
     # SBC2 Nodes
@@ -90,11 +90,11 @@
       docker_container:
         name: rtabmap_ros
         image: "{{ docker_image }}"
-        command: ros2 launch rtabmap_ros rtabmap.launch.py
+        command: ros2 launch rtabmap_ros rtabmap.launch.py frame_id:=rgbd_camera odom_frame_id:=odom rgbd_sync:=true approx_sync:=true
         network_mode: host
         environment: "{{ ros_environment }}"
         restart_policy: unless-stopped
-      when: inventory_hostname == 'sbc2'
+      when: inventory_hostname == 'lwf-node4'
 
     - name: Start IMU node on sbc2
       docker_container:
