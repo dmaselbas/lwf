@@ -29,11 +29,10 @@ RUN apt update -y \
     ros-humble-rtabmap-ros \
     ros-humble-spatio-temporal-voxel-layer \
     libqt5serialport5-dev \
-    ros-humble-foxglove-bridge \
+    ros-humble-foxglove-bridge
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_DOMAIN_ID="0"
-ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_DOMAIN_ID="0"
 ENV ROS_VERSION="2"
 ENV ROS_PYTHON_VERSION="3"
