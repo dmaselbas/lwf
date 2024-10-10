@@ -28,7 +28,8 @@ servo_pwm = PCA9685(i2c=pwm_i2c, address=0x41)
 nav_cam_tilt = Servo(servo_pwm, min_pulse=750, max_pulse=2250)
 nav_cam_pan = Servo(servo_pwm, min_pulse=750, max_pulse=2250)
 
-indicator_leds = NeoPixel(Pin(16), 48)
+status_led = NeoPixel(Pin(16), 1)
+indicator_leds = NeoPixel(Pin(17), 48)
 
 imu = MPU9250(imu_i2c)
 
@@ -102,14 +103,7 @@ def report_slow_frame():
 
 while True:
     watchdog.feed()  # Feed the watchdog to prevent reset
-    clock.alarm(0, (1000 // 30))
     send_imu_data()
     send_compass_data()
     send_ping_data()
     update_indicator_leds()
-    if clock.alarm_left():
-        while clock.alarm_left():
-            pass
-    else:
-        report_slow_frame()
-
