@@ -17,31 +17,13 @@
       args:
         chdir: /home/ros2/lwf
 
-    - name: Install ROS dependencies using rosdep
-      shell: |
-        source /opt/ros/humble/setup.sh
-        rosdep install --from-paths src --ignore-src -r -y
-      args:
-        chdir: /home/ros2/lwf/ros2_ws
-
-    - name: Build the workspace using colcon
-      command: colcon build
-      args:
-        chdir: /home/ros2/lwf/ros2_ws
-      register: build_output
-      ignore_errors: yes
-
-    - name: Check if the build was successful
-      fail:
-        msg: "Build failed."
-      when: build_output.rc != 0
-
     - name: Build lwf container
       community.docker.docker_image:
         build:
-          path: /home/ros2/lwf
+          path: .
         name: 192.168.5.239:5000/lwf
         tag: latest
-        dockerfile: /home/ros2/lwf/docker/lwf.dockerfile
-        pull: true
+        dockerfile: docker/lwf.dockerfile
         push: true
+        args:
+          chdir: /home/ros2/lwf
