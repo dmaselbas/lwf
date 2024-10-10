@@ -39,7 +39,7 @@
         network_mode: host
         environment: "{{ ros_environment }}"
         restart_policy: unless-stopped
-      when: inventory_hostname == 'lwf-node1
+      when: inventory_hostname == 'lwf-node1'
 
     - name: Start realsense2_camera node on lwf-node1
       docker_container:
@@ -102,17 +102,16 @@
     #################################################################
     # lwf-node3
     #################################################################
-    - name: Start Differential Drive Controller node on lwf-node3
-      docker_container:
-        name: diff_drive_controller
-        image: "{{ docker_image }}"
-        command: ros2 launch diff_drive_controller diff_drive_controller.launch.py
-        volumes:
-          - "/path/to/diff_drive_controller/config:/config:ro"
-        network_mode: host
-        environment: "{{ ros_environment }}"
-        restart_policy: unless-stopped
-      when: inventory_hostname == 'lwf-node3'
+#    - name: Start Differential Drive Controller node on lwf-node3
+#      docker_container:
+#        name: diff_drive_controller
+#        image: "{{ docker_image }}"
+#        command: ros2 launch diff_drive_controller diff_drive_controller.launch.py
+#        volumes:
+#          - "/path/to/diff_drive_controller/config:/config:ro"
+#        network_mode: host
+#        restart_policy: unless-stopped
+#      when: inventory_hostname == 'lwf-node3'
 
     - name: Start Serial Bridge for ESP32
       docker_container:
@@ -123,7 +122,6 @@
           - "/dev/ttyUSB1:/dev/ttyUSB1"
         privileged: true
         network_mode: host
-        environment: "{{ ros_environment }}"
         restart_policy: unless-stopped
       when: inventory_hostname == 'lwf-node3'
 
@@ -136,21 +134,20 @@
           - "/dev/ttyUSB0:/dev/ttyUSB0"
         privileged: true
         network_mode: host
-        environment: "{{ ros_environment }}"
         restart_policy: unless-stopped
       when: inventory_hostname == 'lwf-node3'
 
-    - name: Start IMU Fusion node on lwf-node3
-      docker_container:
-        name: imu_fusion_node
-        image: "{{ docker_image }}"
-        command: ros2 launch robot_localization ekf.launch.py
-        volumes:
-          - "/path/to/robot_localization/config:/config:ro"
-        network_mode: host
-        environment: "{{ ros_environment }}"
-        restart_policy: unless-stopped
-      when: inventory_hostname == 'lwf-node3'
+#    - name: Start IMU Fusion node on lwf-node3
+#      docker_container:
+#        name: imu_fusion_node
+#        image: "{{ docker_image }}"
+#        command: ros2 launch robot_localization ekf.launch.py
+#        volumes:
+#          - "/path/to/robot_localization/config:/config:ro"
+#        network_mode: host
+#        environment: "{{ ros_environment }}"
+#        restart_policy: unless-stopped
+#      when: inventory_hostname == 'lwf-node3'
 
     - name: Start Robot State Publisher node on lwf-node3
       docker_container:
@@ -160,7 +157,7 @@
         volumes:
           - "/path/to/urdf:/urdf:ro"
         network_mode: host
-        environment: "{{ ros_environment }}"
+        privileged: true
         restart_policy: unless-stopped
       when: inventory_hostname == 'lwf-node3'
 
@@ -172,7 +169,7 @@
         volumes:
           - "/path/to/urdf:/urdf:ro"
         network_mode: host
-        environment: "{{ ros_environment }}"
+        privileged: true
         restart_policy: unless-stopped
       when: inventory_hostname == 'lwf-node3'
 

@@ -9,17 +9,18 @@
         path: /home/ros2/lwf
         state: directory
 
-    - name: Stash any uncommitted changes
+    - name: Pull newest commits
       shell: |
         git checkout main
         git reset HEAD --hard
         git pull
       args:
         chdir: /home/ros2/lwf
-      ignore_errors: yes  # If there are no changes, this prevents failure
 
     - name: Install ROS dependencies using rosdep
-      command: rosdep install --from-paths src --ignore-src -r -y
+      shell: |
+        source /opt/ros/humble/setup.sh
+        rosdep install --from-paths src --ignore-src -r -y
       args:
         chdir: /home/ros2/lwf/ros2_ws
 
@@ -35,24 +36,12 @@
         msg: "Build failed."
       when: build_output.rc != 0
 
-    - name: Git add ros2_ws directory before commit
-      command: git add ros2_ws/*
-      args:
-        chdir: /home/ros2/lwf
-      when: build_output.rc == 0
-
-    - name: Commit changes if build is successful
-      shell: |
-        git commit -am "Build ROS 2 Workspace"
-      args:
-        chdir: /home/ros2/lwf
-      when: build_output.rc == 0
-      ignore_errors: yes  # In case there's nothing to commit
-
-    - name: Push the changes back to origin/main
-      shell: |
-        git push
-      args:
-        chdir: /home/ros2/lwf
-      when: build_output.rc == 0
-      ignore_errors: yes  # Ignore errors if there's nothing to push
+    - name: Build lwf container
+      community.docker.docker_image:
+        build:
+          path: /home/ros2/lwf
+        name: 192.168.5.239:5000/lwf
+        tag: latest
+        dockerfile: /home/ros2/lwf/docker/lwf.dockerfile
+        pull: true
+        push: true
