@@ -30,9 +30,7 @@ RUN apt update -y \
     ros-humble-spatio-temporal-voxel-layer \
     libqt5serialport5-dev \
     ros-humble-foxglove-bridge \
-    ros-humble-teleop-twist-joy \
-    ros-humble-teleop-twist-republisher \
-    ros-humble-rplidar-ros
+    ros-humble-teleop-twist-joy
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_DOMAIN_ID="0"
