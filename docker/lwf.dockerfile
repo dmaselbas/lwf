@@ -1,4 +1,4 @@
-FROM osrf/ros:humble-desktop
+FROM ros:humble-ros-base
 
 RUN apt update -y \
     && apt upgrade -y \
@@ -29,7 +29,10 @@ RUN apt update -y \
     ros-humble-rtabmap-ros \
     ros-humble-spatio-temporal-voxel-layer \
     libqt5serialport5-dev \
-    ros-humble-foxglove-bridge
+    ros-humble-foxglove-bridge \
+    ros-humble-teleop-twist-joy \
+    ros-humble-teleop-twist-republisher \
+    ros-humble-rplidar-ros
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_DOMAIN_ID="0"
