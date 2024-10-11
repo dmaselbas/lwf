@@ -8,7 +8,6 @@
       RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
       ROS_DOMAIN_ID: "0"
       ROS_VERSION: "2"
-      ROS_PYTHON_VERSION: "3"
       ROS_DISTRO: humble
 
   tasks:
@@ -40,6 +39,10 @@
         image: "{{ docker_image }}"
         command: > 
           ros2 launch rtabmap_launch rtabmap.launch.py
+          /camera/color/image_raw:=/camera/camera/color/image_raw
+          /camera/rgbd:=/camera/camera/rgbd
+          /camera/color/camera_info:=/camera/camera/color/camera_info
+          /camera/depth/camera_info:=/camera/camera/depth/camera_info
           frame_id:=camera_link
           odom_frame_id:=odom
           rgbd_sync:=true
@@ -222,7 +225,7 @@
       docker_container:
         name: joint_state_publisher
         image: "{{ docker_image }}"
-        command: ros2 launch joint_state_publisher joint_state_publisher.launch.py
+        command: apt reinstall ros-humble-rclpy -y && ros2 launch joint_state_publisher joint_state_publisher.launch.py
         network_mode: host
         privileged: true
         restart_policy: unless-stopped
