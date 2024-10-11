@@ -1,8 +1,6 @@
 FROM arm64v8/ros:humble-ros-base
 
-RUN apt-key adv --keyserver keys.gnupg.net --recv-key 49B6EE622B8B61ED \
-    && add-apt-repository "deb http://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u \
-    && apt update -y \
+RUN  apt update -y \
     && apt upgrade -y \
     && apt install -y \
     librealsense2-dkms \
