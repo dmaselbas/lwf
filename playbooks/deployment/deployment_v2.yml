@@ -40,6 +40,7 @@
         command: > 
           ros2 launch rtabmap_launch rtabmap.launch.py
           /camera/color/image_raw:=/camera/camera/color/image_raw
+          /camera/depth/image_rect_raw:=/camera/camera/depth/image_rect_raw
           /camera/rgbd:=/camera/camera/rgbd
           /camera/color/camera_info:=/camera/camera/color/camera_info
           /camera/depth/camera_info:=/camera/camera/depth/camera_info
@@ -47,15 +48,16 @@
           odom_frame_id:=odom
           rgbd_sync:=true
           approx_sync:=true
-          rgbd_topic:=/camera/camera/rgbd
-          rgb_topic:=/camera/camera/color/image_raw
-          depth_topic:=/camera/camera/depth/image_rect_raw
-          camera_info_topic:=/camera/camera/color/camera_info
-          depth_camera_info_topic:=/camera/camera/depth/camera_info
+          rgbd_topic:=/camera/rgbd
+          rgb_topic:=/camera/color/image_raw
+          depth_topic:=/camera/depth/image_rect_raw
+          camera_info_topic:=/camera/color/camera_info
+          depth_camera_info_topic:=/camera/depth/camera_info
         network_mode: host
         restart_policy: unless-stopped
         pull: true
         recreate: true
+        env: "{{ ros_environment }}"
       when: inventory_hostname == 'lwf-node1'
 
     - name: Start realsense2_camera node on lwf-node1
@@ -64,11 +66,6 @@
         image: "{{ docker_image }}"
         command: >
           ros2 launch realsense2_camera rs_launch.py
-          /camera/camera/rgbd:=/camera/rgbd
-          /camera/camera/color:=/camera/color/image_raw
-          /camera/camera/depth:=/camera/depth/image_rect_raw
-          /camera/camera/color/camera_info:=/camera/color/camera_info
-          /camera/camera/depth/camera_info:=/camera/depth/camera_info
           enable_color:=true
           enable_sync:=true
           enable_rgbd:=true
@@ -86,6 +83,7 @@
         restart_policy: unless-stopped
         pull: true
         recreate: true
+        env: "{{ ros_environment }}"
       when: inventory_hostname == 'lwf-node1'
 
 
@@ -116,9 +114,11 @@
           - "/dev/video0:/dev/video0"
         privileged: true
         network_mode: host
-        environment: "{{ ros_environment }}"
         restart_policy: unless-stopped
         pull: true
+        recreate: true
+        force_kill: true
+        env: "{{ ros_environment | string}}"
       when: inventory_hostname == 'lwf-node2'
 
 #    - name: Start Edge TPU Object Detection node on sbc2
@@ -168,7 +168,7 @@
       docker_container:
         name: imu
         image: "{{ docker_image }}"
-        command: ros2 launch shit_imu wt901_launch.py port:=ttyUSB0
+        command: ros2 launch shit_imu wit_imu.launch port:=/dev/ttyUSB0 baud:=115200
         devices:
           - "/dev/ttyUSB0:/dev/ttyUSB0"
         privileged: true
@@ -184,7 +184,9 @@
       docker_container:
         name: lidar
         image: "{{ docker_image }}"
-        command: ros2 launch rplidar_ros rplidar_c1_launch.py serial_port:=/dev/ttyS7
+        command: >
+          /bin/bash -c "apt install --reinstall ros-humble-rclpy -y &&
+          ros2 launch rplidar_ros rplidar_c1_launch.py serial_port:=/dev/ttyS7"
         devices:
           - "/dev/ttyS7:/dev/ttyS7"
         privileged: true
@@ -219,17 +221,23 @@
         privileged: true
         restart_policy: unless-stopped
         pull: true
+        recreate: true
+        force_kill: true
+        env: "{{ ros_environment | string}}"
       when: inventory_hostname == 'lwf-node3'
 
     - name: Start Joint State Publisher node on lwf-node3
       docker_container:
         name: joint_state_publisher
         image: "{{ docker_image }}"
-        command: apt reinstall ros-humble-rclpy -y && ros2 launch joint_state_publisher joint_state_publisher.launch.py
+        command: ros2 launch joint_state_publisher joint_state_publisher.launch.py
         network_mode: host
         privileged: true
         restart_policy: unless-stopped
         pull: true
+        recreate: true
+        force_kill: true
+        env: "{{ ros_environment | string}}"
       when: inventory_hostname == 'lwf-node3'
 
     #################################################################
@@ -244,21 +252,12 @@
           - "/path/to/nav2/maps:/maps:ro"
           - "/path/to/nav2/config:/config:ro"
         network_mode: host
-        env: "{{ ros_env }}"
         restart_policy: unless-stopped
         pull: true
-      when: inventory_hostname == 'sbc4'
-
-    - name: Start Teleoperation node on sbc4
-      docker_container:
-        name: teleop_node
-        image: "{{ docker_image }}"
-        command: ros2 launch teleop_twist_keyboard teleop_twist_keyboard.launch.py
-        network_mode: host
-        environment: "{{ ros_environment }}"
-        restart_policy: unless-stopped
-        pull: true
-      when: inventory_hostname == 'sbc4'
+        recreate: true
+        force_kill: true
+        env: "{{ ros_environment | string}}"
+      when: inventory_hostname == 'lwf-node4'
 
     #################################################################
     # VM Nodes
