@@ -1,11 +1,16 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(rplidar_ros)
 
-set(RPLIDAR_SDK_PATH "./sdk/")
-set(CMAKE_BUILD_TYPE "Release")
-set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+# Default to C++14
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-FILE(GLOB RPLIDAR_SDK_SRC 
+set(CMAKE_BUILD_TYPE "Release")
+
+set(RPLIDAR_SDK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/sdk")
+file(GLOB RPLIDAR_SDK_SRC
   "${RPLIDAR_SDK_PATH}/src/arch/linux/*.cpp"
   "${RPLIDAR_SDK_PATH}/src/dataunpacker/*.cpp"
   "${RPLIDAR_SDK_PATH}/src/dataunpacker/unpacker/*.cpp"
@@ -13,33 +18,27 @@ FILE(GLOB RPLIDAR_SDK_SRC
   "${RPLIDAR_SDK_PATH}/src/*.cpp"
 )
 
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  rosconsole
-  sensor_msgs
-)
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 include_directories(
   ${RPLIDAR_SDK_PATH}/include
   ${RPLIDAR_SDK_PATH}/src
-  ${catkin_INCLUDE_DIRS}
 )
-
-catkin_package()
 
 add_executable(rplidarNode src/node.cpp ${RPLIDAR_SDK_SRC})
-target_link_libraries(rplidarNode ${catkin_LIBRARIES})
+ament_target_dependencies(rplidarNode rclcpp sensor_msgs)
 
 add_executable(rplidarNodeClient src/client.cpp)
-target_link_libraries(rplidarNodeClient ${catkin_LIBRARIES})
+ament_target_dependencies(rplidarNodeClient rclcpp)
 
 install(TARGETS rplidarNode rplidarNodeClient
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  DESTINATION lib/${PROJECT_NAME}
 )
 
-install(DIRECTORY launch rviz sdk
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-  USE_SOURCE_PERMISSIONS
+install(DIRECTORY launch rviz
+  DESTINATION share/${PROJECT_NAME}
 )
+
+ament_package()
