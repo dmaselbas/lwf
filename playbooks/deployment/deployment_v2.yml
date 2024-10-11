@@ -8,7 +8,7 @@
       RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
       ROS_DOMAIN_ID: "0"
       ROS_VERSION: "2"
-      ROS_PYTHON_VERSION: 3
+      ROS_PYTHON_VERSION: "3"
       ROS_DISTRO: humble
 
   tasks:
@@ -148,18 +148,18 @@
 #        pull: true
 #      when: inventory_hostname == 'lwf-node3'
 
-    - name: Start Serial Bridge for ESP32
-      docker_container:
-        name: serial_bridge_esp32
-        image: "{{ docker_image }}"
-        command: ros2 launch serial_bridge serial_bridge.launch.py
-        devices:
-          - "/dev/ttyUSB0:/dev/ttyUSB1"
-        privileged: true
-        network_mode: host
-        restart_policy: unless-stopped
-        pull: true
-      when: inventory_hostname == 'lwf-node3'
+#    - name: Start Serial Bridge for ESP32
+#      docker_container:
+#        name: serial_bridge_esp32
+#        image: "{{ docker_image }}"
+#        command: ros2 launch serial_bridge serial_bridge.launch.py
+#        devices:
+#          - "/dev/ttyUSB0:/dev/ttyUSB1"
+#        privileged: true
+#        network_mode: host
+#        restart_policy: unless-stopped
+#        pull: true
+#      when: inventory_hostname == 'lwf-node3'
 
     - name: Start node for IMU
       docker_container:
@@ -172,13 +172,16 @@
         network_mode: host
         restart_policy: unless-stopped
         pull: true
+        recreate: true
+        force_kill: true
+        env: "{{ ros_environment | string}}"
       when: inventory_hostname == 'lwf-node3'
 
     - name: Start node for LiDAR
       docker_container:
         name: lidar
         image: "{{ docker_image }}"
-        command: ros2 launch rplidar_ros rplidar_c1_launch.py serial_port:=ttyS7
+        command: ros2 launch rplidar_ros rplidar_c1_launch.py serial_port:=/dev/ttyS7
         devices:
           - "/dev/ttyS7:/dev/ttyS7"
         privileged: true
@@ -206,7 +209,7 @@
       docker_container:
         name: robot_state_publisher
         image: "{{ docker_image }}"
-        command: . /root/ros2_ws/install/setup.sh && ros2 launch robot_state_publisher robot_state_publisher.launch.py
+        command: ros2 launch robot_state_publisher robot_state_publisher.launch.py
         volumes:
           - "/path/to/urdf:/urdf:ro"
         network_mode: host
@@ -238,7 +241,7 @@
           - "/path/to/nav2/maps:/maps:ro"
           - "/path/to/nav2/config:/config:ro"
         network_mode: host
-        environment: "{{ ros_environment }}"
+        env: "{{ ros_env }}"
         restart_policy: unless-stopped
         pull: true
       when: inventory_hostname == 'sbc4'
