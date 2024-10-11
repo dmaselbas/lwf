@@ -1,4 +1,4 @@
-FROM ros:humble-ros-base
+FROM arm64v8/ros:humble-ros-base
 
 RUN apt update -y \
     && apt upgrade -y \
