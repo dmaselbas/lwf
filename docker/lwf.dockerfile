@@ -38,14 +38,14 @@ RUN apt update -y \
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_DOMAIN_ID="0"
-ENV ROS_DOMAIN_ID="0"
 ENV ROS_VERSION="2"
 ENV ROS_DISTRO=humble
 
+RUN rm -rf ros2_ws/build ros2_ws/install ros2_ws/log ./path/file
 COPY ros2_ws/src/ /root/ros2_ws/src/
 
 WORKDIR /root/ros2_ws
 RUN . /opt/ros/humble/setup.sh && rosdep update \
     && rosdep install --from-paths src --ignore-src -r -y \
-    && colcon build --merge-install --install-base /opt/ros/$ROS_DISTRO
+    && colcon build --symlink-install
 RUN echo ". /root/ros2_ws/install/setup.sh" >> /root/.bashrc
