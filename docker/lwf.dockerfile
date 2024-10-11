@@ -3,10 +3,6 @@ FROM arm64v8/ros:humble-ros-base
 RUN apt update -y \
     && apt upgrade -y \
     && apt install -y \
-    librealsense2-dkms \
-    librealsense2-utils \
-    librealsense2-dev \
-    librealsense2-dbg \
     libasio-dev \
     ros-dev-tools \
     python3-colcon-common-extensions \
@@ -37,10 +33,11 @@ RUN apt update -y \
     ros-humble-teleop-twist-joy \
     ros-humble-navigation2 \
     ros-humble-nav2-bringup \
-    ros-humble-usb-cam
+    ros-humble-usb-cam \
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_DOMAIN_ID="0"
+ENV ROS_VERSION="2"
 ENV ROS_DISTRO=humble
 
 RUN rm -rf ros2_ws/build ros2_ws/install ros2_ws/log
