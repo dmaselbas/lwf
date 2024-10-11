@@ -39,7 +39,7 @@ ENV ROS_VERSION="2"
 ENV ROS_PYTHON_VERSION="3"
 ENV ROS_DISTRO=humble
 
-COPY ros2_ws/src /root/ros2_ws/src
+COPY ros2_ws/src/ /root/ros2_ws/src/
 
 WORKDIR /root/ros2_ws
 RUN . /opt/ros/humble/setup.sh && rosdep update \
