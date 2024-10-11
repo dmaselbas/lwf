@@ -39,8 +39,7 @@ RUN apt-key adv --keyserver keys.gnupg.net --recv-key 49B6EE622B8B61ED \
     ros-humble-teleop-twist-joy \
     ros-humble-navigation2 \
     ros-humble-nav2-bringup \
-    ros-humble-usb-cam \
-    ros-humble-rplidar-ros
+    ros-humble-usb-cam
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_DOMAIN_ID="0"
