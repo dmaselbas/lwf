@@ -1,6 +1,7 @@
 FROM arm64v8/ros:humble-ros-base
 
-RUN  apt update -y \
+RUN apt-key adv --keyserver keys.gnupg.net --recv-key 49B6EE622B8B61ED \
+    && apt update -y \
     && apt upgrade -y \
     && apt install -y \
     librealsense2-dkms \
