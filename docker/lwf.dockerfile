@@ -1,8 +1,14 @@
 FROM arm64v8/ros:humble-ros-base
 
-RUN apt update -y \
+RUN apt-key adv --keyserver keys.gnupg.net --recv-key 49B6EE622B8B61ED \
+    && add-apt-repository "deb http://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u \
+    && apt update -y \
     && apt upgrade -y \
     && apt install -y \
+    librealsense2-dkms \
+    librealsense2-utils \
+    librealsense2-dev \
+    librealsense2-dbg \
     libasio-dev \
     ros-dev-tools \
     python3-colcon-common-extensions \
@@ -38,10 +44,9 @@ RUN apt update -y \
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_DOMAIN_ID="0"
-ENV ROS_VERSION="2"
 ENV ROS_DISTRO=humble
 
-RUN rm -rf ros2_ws/build ros2_ws/install ros2_ws/log ./path/file
+RUN rm -rf ros2_ws/build ros2_ws/install ros2_ws/log
 COPY ros2_ws/src/ /root/ros2_ws/src/
 
 WORKDIR /root/ros2_ws

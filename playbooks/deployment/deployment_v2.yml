@@ -5,10 +5,9 @@
   vars:
     docker_image: "192.168.5.239:5000/lwf:latest"
     ros_environment:
-      RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+      RMW_IMPLEMENTATION: "rmw_cyclonedds_cpp"
       ROS_DOMAIN_ID: "0"
-      ROS_VERSION: "2"
-      ROS_DISTRO: humble
+      ROS_DISTRO: "humble"
 
   tasks:
     - name: Ensure Docker is installed
@@ -184,7 +183,9 @@
       docker_container:
         name: lidar
         image: "{{ docker_image }}"
-        command: ros2 launch rplidar_ros rplidar_c1.launch serial_port:=/dev/ttyS7
+        command: >
+          /bin/bash -c "apt install ros-dev-tools -y && \
+                        ros2 launch rplidar_ros rplidar_c1.launch serial_port:=/dev/ttyS7"
         devices:
           - "/dev/ttyS7:/dev/ttyS7"
         privileged: true
