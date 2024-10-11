@@ -184,9 +184,7 @@
       docker_container:
         name: lidar
         image: "{{ docker_image }}"
-        command: >
-          /bin/bash -c "apt install --reinstall ros-humble-rclpy -y &&
-          ros2 launch rplidar_ros rplidar_c1_launch.py serial_port:=/dev/ttyS7"
+        command: ros2 launch rplidar_ros rplidar_c1.launch serial_port:=/dev/ttyS7"
         devices:
           - "/dev/ttyS7:/dev/ttyS7"
         privileged: true
