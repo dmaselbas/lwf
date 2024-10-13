@@ -47,4 +47,4 @@ WORKDIR /root/ros2_ws
 RUN . /opt/ros/humble/setup.sh \
     && rosdep update \
     && rosdep install --from-paths src --ignore-src -r -y \
-    && colcon build --install-symlink
+    && colcon build --symlink-install
