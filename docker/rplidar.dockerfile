@@ -16,4 +16,4 @@ RUN apt update && apt upgrade -y \
 RUN . /opt/ros/${ROS_DISTRO}/setup.sh \
     && colcon build --symlink-install
 
-CMD ros2 launch rplidar_ros rplidar_c1_launch.py serial_port:=/dev/ttyS7
+ENTRYPOINT ["/bin/bash", "-c", "/ros_entrypoint.sh && source install/setup.bash && ros2 launch rplidar_ros rplidar_c1_launch.py serial_port:=/dev/ttyS7"]
