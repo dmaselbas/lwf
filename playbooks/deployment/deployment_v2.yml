@@ -32,46 +32,10 @@
     #################################################################
     # SBC1 Nodes
     #################################################################
-    - name: Start RTAB-Map node on lwf-node1
+    - name: Start slam lwf-node1
       docker_container:
-        name: rtabmap_ros
-        image: "{{ docker_image }}"
-        command: > 
-          ros2 launch rtabmap_launch rtabmap.launch.py
-          /camera/color/image_raw:=/camera/camera/color/image_raw
-          /camera/depth/image_rect_raw:=/camera/camera/depth/image_rect_raw
-          /camera/rgbd:=/camera/camera/rgbd
-          /camera/color/camera_info:=/camera/camera/color/camera_info
-          /camera/depth/camera_info:=/camera/camera/depth/camera_info
-          frame_id:=camera_link
-          odom_frame_id:=odom
-          rgbd_sync:=true
-          approx_sync:=true
-          rgbd_topic:=/camera/rgbd
-          rgb_topic:=/camera/color/image_raw
-          depth_topic:=/camera/depth/image_rect_raw
-          camera_info_topic:=/camera/color/camera_info
-          depth_camera_info_topic:=/camera/depth/camera_info
-        network_mode: host
-        restart_policy: unless-stopped
-        pull: true
-        recreate: true
-        env: "{{ ros_environment }}"
-      when: inventory_hostname == 'lwf-node1'
-
-    - name: Start realsense2_camera node on lwf-node1
-      docker_container:
-        name: realsense2_camera
-        image: "{{ docker_image }}"
-        command: >
-          ros2 launch realsense2_camera rs_launch.py
-          enable_color:=true
-          enable_sync:=true
-          enable_rgbd:=true
-          enable_depth:=true
-          enable_gyro:=true
-          initial_reset:=true
-          align_depth.enable:=true
+        name: slam
+        image: 192.168.5.239:5000/slam:latest
         device_cgroup_rules:
           - 'c 81:* rmw'
           - 'c 189:* rmw'
@@ -166,11 +130,12 @@
     - name: Start node for IMU
       docker_container:
         name: imu
-        image: "{{ docker_image }}"
-        command: ros2 launch shit_imu wit_imu.launch port:=/dev/ttyUSB0 baud:=115200
+        image: 192.168.5.239:5000/imu:latest
         devices:
-          - "/dev/ttyUSB0:/dev/ttyUSB0"
-        privileged: true
+          - "/dev/serial:/dev/serial"
+        device_cgroup_rules:
+          - 'c *:* rmw'
+          - 'c *:* rmw'
         network_mode: host
         restart_policy: unless-stopped
         pull: true
@@ -183,13 +148,11 @@
       docker_container:
         name: lidar
         image: 192.168.5.239:5000/lidar:latest
-        entrypoint:
-          - . /opt/ros/humble/setup.sh
-          - . /root/ros2_ws/install/setup.sh
-          - ros2 launch rplidar_ros rplidar_c1_launch.py serial_port:=/dev/ttyS7
         devices:
-          - "/dev/ttyS7:/dev/ttyS7"
-        privileged: true
+          - "/dev/serial:/dev/serial"
+        device_cgroup_rules:
+          - 'c *:* rmw'
+          - 'c *:* rmw'
         network_mode: host
         restart_policy: unless-stopped
         pull: true
