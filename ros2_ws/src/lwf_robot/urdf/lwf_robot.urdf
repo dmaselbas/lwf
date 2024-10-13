@@ -317,7 +317,13 @@
     </joint>
 
     <!-- Lidar -->
-    <link name="lidar_frame">
+     <joint name="lidar_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="laser_frame"/>
+        <origin xyz="0.0254 0.0254 0.4445" rpy="0 0 0"/>
+    </joint>
+
+    <link name="laser_frame">
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
@@ -332,11 +338,7 @@
         </inertial>
     </link>
 
-    <joint name="lidar_joint" type="fixed">
-        <parent link="base_link"/>
-        <child link="lidar_frame"/>
-        <origin xyz="0.0254 0.0254 0.4445" rpy="0 0 0"/>
-    </joint>
+
 
     <!-- RGB-D Camera -->
     <link name="rgbd_camera">
