@@ -18,7 +18,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 def generate_launch_description():
     parameters = [{
-        'frame_id':            'rgbd_camera',
+        'frame_id':            'rgbd_camera_frame',
         'subscribe_depth':     True,
         'subscribe_odom_info': True,
         'approx_sync':         False,
@@ -28,16 +28,17 @@ def generate_launch_description():
         }]
 
     remappings = [
-        ('imu', '/imu/data'),
-        ('/camera/camera/rgb/image', '/camera/color/image_raw'),
-        ('/camera/camera/depth/image_rect_raw', '/camera/depth/image_rect_raw'),
-        ('/camera/camera/rgb/camera_info', '/camera/color/camera_info'),
-        ('/camera/camera/depth/camera_info', '/camera/color/camera_info'),
-        ('/camera/camera/depth/camera_info', '/camera/color/camera_info'),
-        ('/camera/camera/rgbd', '/camera/rgbd'),
-        ('/camera/camera/aligned_depth/image', '/camera/aligned_depth_to_color/image_raw'),
-        ('/rtabmap/map', '/map'),
-        ('/rtabmap/odom', '/odom'), ]
+        ('/imu', '/imu/data_raw'),
+        ('/scan', '/rtabmap/scan'),
+        ('/camera/imu', '/rtabmap/camera/imu'),
+        ('/camera/color/image_raw', '/rtabmap/camera/color/image_raw'),
+        ('/camera/depth/image_rect_raw', '/rtabmap/camera/depth/image_raw'),
+        ('/camera/color/camera_info', '/camera/color/camera_info'),
+        ('/camera/depth/camera_info', '/camera/depth/camera_info'),
+        ('/camera/depth/points', '/rtabmap/camera/depth/points'),
+        ('/camera/aligned_depth/image', '/rtabmap/camera/aligned_depth_to_color/image_raw'),
+        ('/map', '/rtabmap/map'),
+        ('/odom', '/rtabmap/odom'), ]
 
     return LaunchDescription([
 
@@ -53,6 +54,7 @@ def generate_launch_description():
                                   'enable_accel':               'true',
                                   'enable_color':               'true',
                                   'enable_depth':               'true',
+                                  'enable_pointcloud':          'true',
                                   'unite_imu_method':           '2',
                                   'align_depth.enable':         'true',
                                   'enable_sync':                'true',
@@ -61,7 +63,7 @@ def generate_launch_description():
                                   'depth_module.depth_profile': '640x360x30',
                                   'colorizer.enable':           'true',
                                   'initial_reset':              'true',
-                                  'base_frame_id':              'rgbd_camera'
+                                  'base_frame_id':              'rgbd_camera_frame'
                                   }.items(),
                 ),
 
@@ -88,7 +90,7 @@ def generate_launch_description():
                              'world_frame': 'enu',
                              'publish_tf':  True
                              }],
-                remappings=[('imu/data_raw', '/camera/imu')]),
+                remappings=[('imu/data_raw', '/rtabmap/imu')],),
 
         # The IMU frame is missing in TF tree, add it:
         Node(

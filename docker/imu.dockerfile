@@ -1,13 +1,7 @@
-FROM 192.168.5.239:5000/lwf:latest
+FROM  192.168.5.239:5000/lwf_base:latest
 
-RUN apt-get update && apt-get install -y \
-    libqt5serialport5-dev \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt update \
+    && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends --no-install-suggests \
+    ros-humble-imu-tools \
 
-WORKDIR /root/ros2_ws/src
-
-COPY ros2_ws/src ./
-WORKDIR /root/ros2_ws
-RUN colcon build --packages-select witmotion_ros
-
-CMD . install/setup.bash && ros2 launch witmotion_ros wt61c.py
+ENTRYPOINT ["/bin/bash", "-c", "/ros_entrypoint.sh && source install/setup.bash && ros2 launch lwf_launch imu.launch.py"]

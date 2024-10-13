@@ -162,7 +162,7 @@
         </plugin>
     </gazebo>
     <!-- IMU Sensor -->
-    <link name="imu_link">
+    <link name="imu_frame">
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
@@ -179,10 +179,10 @@
 
     <joint name="imu_joint" type="fixed">
         <parent link="base_link"/>
-        <child link="imu_link"/>
+        <child link="imu_frame"/>
         <origin xyz="0 0 0.4" rpy="0 0 0"/>
     </joint>
-    <gazebo reference="imu_link">
+    <gazebo reference="imu_frame">
         <sensor name="imu_sensor" type="imu">
             <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
                 <ros>
@@ -341,7 +341,7 @@
 
 
     <!-- RGB-D Camera -->
-    <link name="rgbd_camera">
+    <link name="rgbd_camera_frame">
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Front RGB-D Camera -->
             <geometry>
@@ -358,10 +358,23 @@
 
     <joint name="rgbd_camera_joint" type="fixed">
         <parent link="base_link"/>
-        <child link="rgbd_camera"/>
+        <child link="rgbd_camera_frame"/>
         <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
     </joint>
-
+    <link name="camera">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Front RGB-D Camera -->
+            <geometry>
+                <box size="0.03 0.03 0.05"/> <!-- Simplified depth camera -->
+            </geometry>
+            <material name="green"/>
+        </visual>
+    </link>
+    <joint name="camera_link_joint" type="fixed">
+        <parent link="rgbd_camera_frame"/>
+        <child link="camera"/>
+        <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
+    </joint>
     <link name="camera_color_frame">
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Front RGB-D Camera -->
@@ -390,11 +403,6 @@
             </geometry>
             <material name="green"/>
         </visual>
-        <inertial>
-            <origin xyz="0 0 0" rpy="0 0 0"/>
-            <mass value="0.5"/>  <!-- Small mass -->
-            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
-        </inertial>
     </link>
 
     <joint name="camera_color_optical_frame_joint" type="fixed">
@@ -410,11 +418,6 @@
             </geometry>
             <material name="green"/>
         </visual>
-        <inertial>
-            <origin xyz="0 0 0" rpy="0 0 0"/>
-            <mass value="0.5"/>  <!-- Small mass -->
-            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
-        </inertial>
     </link>
 
     <joint name="camera_depth_frame_joint" type="fixed">
@@ -430,19 +433,18 @@
             </geometry>
             <material name="green"/>
         </visual>
-        <inertial>
-            <origin xyz="0 0 0" rpy="0 0 0"/>
-            <mass value="0.5"/>  <!-- Small mass -->
-            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
-        </inertial>
     </link>
-
     <joint name="camera_depth_optical_frame_joint" type="fixed">
-        <parent link="camera"/>
+        <parent link="camera_depth_frame"/>
         <child link="camera_depth_optical_frame"/>
         <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
     </joint>
-    <link name="camera">
+    <joint name="camera_imu_frame_joint" type="fixed">
+        <parent link="camera"/>
+        <child link="camera_imu_frame"/>
+        <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
+    </joint>
+    <link name="camera_imu_frame">
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Front RGB-D Camera -->
             <geometry>
@@ -450,18 +452,7 @@
             </geometry>
             <material name="green"/>
         </visual>
-        <inertial>
-            <origin xyz="0 0 0" rpy="0 0 0"/>
-            <mass value="0.5"/>  <!-- Small mass -->
-            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
-        </inertial>
     </link>
-
-    <joint name="camera_link_joint" type="fixed">
-        <parent link="rgbd_camera"/>
-        <child link="camera"/>
-        <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
-    </joint>
 
     <!-- Front Sonar -->
     <link name="front_sonar">

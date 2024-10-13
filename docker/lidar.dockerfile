@@ -1,6 +1,3 @@
-FROM 192.168.5.239:5000/lwf:latest
-#https://index.ros.org/p/rplidar_ros/
+FROM  192.168.5.239:5000/lwf_base:latest
 
-CMD . /opt/ros/humble/setup.sh && ros2 launch sllidar_ros2 view_sllidar_c1_launch.py
-
-r
+ENTRYPOINT ["/bin/bash", "-c", "/ros_entrypoint.sh && source install/setup.bash && ros2 launch lwf_launch lidar.launch.py"]
