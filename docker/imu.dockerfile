@@ -1,4 +1,4 @@
-FROM  192.168.5.239:5000/lwf_base:latest
+FROM  192.168.5.239:5000/lwf_arm_base:latest
 
 RUN apt update \
     && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends --no-install-suggests \
