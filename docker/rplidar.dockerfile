@@ -7,7 +7,7 @@ RUN apt update \
   wget
 
 # For Rolling or want to build from source a particular branch / fork
-WORKDIR /root/nav2_ws
+WORKDIR /root/ros2_ws
 RUN mkdir -p ~/nav2_ws/src
 RUN git clone -b ros2 https://github.com/Slamtec/rplidar_ros.git ./src/rplidar_ros
 RUN apt update && apt upgrade -y \

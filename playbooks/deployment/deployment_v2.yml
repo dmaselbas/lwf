@@ -182,7 +182,7 @@
     - name: Start node for LiDAR
       docker_container:
         name: lidar
-        image: "{{ docker_image }}"
+        image: 192.168.5.239:5000/lidar:latest
         entrypoint:
           - . /opt/ros/humble/setup.sh
           - . /root/ros2_ws/install/setup.sh

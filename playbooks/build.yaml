@@ -27,3 +27,14 @@
         push: true
         args:
           chdir: /home/ros2/lwf
+
+    - name: Build lidar container
+      community.docker.docker_image:
+        build:
+          path: .
+        name: 192.168.5.239:5000/lidar
+        tag: latest
+        dockerfile: docker/rplidar.dockerfile
+        push: true
+        args:
+          chdir: /home/ros2/lwf
