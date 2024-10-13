@@ -378,7 +378,7 @@
     </link>
 
     <joint name="camera_color_frame_joint" type="fixed">
-        <parent link="rgbd_camera"/>
+        <parent link="camera"/>
         <child link="camera_color_frame"/>
         <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
     </joint>
@@ -398,7 +398,7 @@
     </link>
 
     <joint name="camera_color_optical_frame_joint" type="fixed">
-        <parent link="rgbd_camera"/>
+        <parent link="camera"/>
         <child link="camera_color_optical_frame"/>
         <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
     </joint>
@@ -418,7 +418,7 @@
     </link>
 
     <joint name="camera_depth_frame_joint" type="fixed">
-        <parent link="rgbd_camera"/>
+        <parent link="camera"/>
         <child link="camera_depth_frame"/>
         <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
     </joint>
@@ -438,11 +438,11 @@
     </link>
 
     <joint name="camera_depth_optical_frame_joint" type="fixed">
-        <parent link="rgbd_camera"/>
+        <parent link="camera"/>
         <child link="camera_depth_optical_frame"/>
         <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
     </joint>
-    <link name="camera_link">
+    <link name="camera">
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Front RGB-D Camera -->
             <geometry>
@@ -459,7 +459,7 @@
 
     <joint name="camera_link_joint" type="fixed">
         <parent link="rgbd_camera"/>
-        <child link="camera_link"/>
+        <child link="camera"/>
         <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
     </joint>
 
