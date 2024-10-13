@@ -1,4 +1,4 @@
-FROM arm64v8/ros:humble-ros-base
+FROM osrf/humble-desktop-full-jammy
 
 RUN apt update -y \
     && apt upgrade -y \
@@ -44,7 +44,7 @@ RUN rm -rf ros2_ws/build ros2_ws/install ros2_ws/log
 COPY ros2_ws/src/ /root/ros2_ws/src/
 
 WORKDIR /root/ros2_ws
-RUN . /opt/ros/humble/setup.sh && rosdep update \
+RUN . /opt/ros/humble/setup.sh \
+    && rosdep update \
     && rosdep install --from-paths src --ignore-src -r -y \
-    && colcon build --install-base /opt/ros/humble
-RUN echo ". /root/ros2_ws/install/setup.sh" >> /root/.bashrc
+    && colcon build --install-symlink
