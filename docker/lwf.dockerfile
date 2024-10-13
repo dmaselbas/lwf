@@ -1,4 +1,4 @@
-FROM osrf/humble-desktop-full-jammy
+FROM osrf/ros:humble-desktop-full-jammy
 
 RUN apt update -y \
     && apt upgrade -y \
