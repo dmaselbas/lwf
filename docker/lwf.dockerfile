@@ -46,5 +46,5 @@ COPY ros2_ws/src/ /root/ros2_ws/src/
 WORKDIR /root/ros2_ws
 RUN . /opt/ros/humble/setup.sh && rosdep update \
     && rosdep install --from-paths src --ignore-src -r -y \
-    && colcon build --symlink-install
+    && colcon build --install-base /opt/ros/humble
 RUN echo ". /root/ros2_ws/install/setup.sh" >> /root/.bashrc
