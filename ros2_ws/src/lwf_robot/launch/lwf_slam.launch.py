@@ -22,14 +22,22 @@ def generate_launch_description():
         'subscribe_depth':     True,
         'subscribe_odom_info': True,
         'approx_sync':         False,
-        'wait_imu_to_init':    True
+        'wait_imu_to_init':    True,
+        'subscribe_rgb':       True,
+        'subscribe_imu':       True,
         }]
 
     remappings = [
         ('imu', '/imu/data'),
-        ('rgb/image', '/camera/color/image_raw'),
-        ('rgb/camera_info', '/camera/color/camera_info'),
-        ('depth/image', '/camera/aligned_depth_to_color/image_raw')]
+        ('/camera/camera/rgb/image', '/camera/color/image_raw'),
+        ('/camera/camera/depth/image_rect_raw', '/camera/depth/image_rect_raw'),
+        ('/camera/camera/rgb/camera_info', '/camera/color/camera_info'),
+        ('/camera/camera/depth/camera_info', '/camera/color/camera_info'),
+        ('/camera/camera/depth/camera_info', '/camera/color/camera_info'),
+        ('/camera/camera/rgbd', '/camera/rgbd'),
+        ('/camera/camera/aligned_depth/image', '/camera/aligned_depth_to_color/image_raw'),
+        ('/rtabmap/map', '/map'),
+        ('/rtabmap/odom', '/odom'), ]
 
     return LaunchDescription([
 
@@ -41,12 +49,19 @@ def generate_launch_description():
                 PythonLaunchDescriptionSource([os.path.join(
                         get_package_share_directory('realsense2_camera'), 'launch'),
                     '/rs_launch.py']),
-                launch_arguments={'enable_gyro':        'true',
-                                  'enable_accel':       'true',
-                                  'unite_imu_method':   '1',
-                                  'align_depth.enable': 'true',
-                                  'enable_sync':        'true',
-                                  'rgb_camera.profile': '640x360x30'
+                launch_arguments={'enable_gyro':                'true',
+                                  'enable_accel':               'true',
+                                  'enable_color':               'true',
+                                  'enable_depth':               'true',
+                                  'unite_imu_method':           '2',
+                                  'align_depth.enable':         'true',
+                                  'enable_sync':                'true',
+                                  'rgb_camera.color_profile':   '640x360x30',
+                                  'depth_module.infra_profile': '640x360x30',
+                                  'depth_module.depth_profile': '640x360x30',
+                                  'colorizer.enable':           'true',
+                                  'initial_reset':              'true',
+                                  'base_frame_id':              'rgbd_camera'
                                   }.items(),
                 ),
 
@@ -71,7 +86,7 @@ def generate_launch_description():
                 package='imu_filter_madgwick', executable='imu_filter_madgwick_node', output='screen',
                 parameters=[{'use_mag':     False,
                              'world_frame': 'enu',
-                             'publish_tf':  False
+                             'publish_tf':  True
                              }],
                 remappings=[('imu/data_raw', '/camera/imu')]),
 
