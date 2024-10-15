@@ -5,4 +5,5 @@ RUN apt update \
     ros-humble-imu-tools
 
 COPY ros2_ws/src/witmotion_imu/ /root/ros2_ws/src/witmotion_imu/
+RUN colcon build --symlink-install
 ENTRYPOINT ["/bin/bash", "-c", "/ros_entrypoint.sh && source install/setup.bash && ros2 launch lwf_launch imu.launch.py"]
