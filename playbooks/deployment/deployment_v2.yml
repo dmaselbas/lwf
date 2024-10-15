@@ -132,7 +132,7 @@
         name: imu
         image: 192.168.5.239:5000/imu:latest
         devices:
-          - "/dev/serial:/dev/serial"
+          - "/dev:/dev"
         device_cgroup_rules:
           - 'c *:* rmw'
         network_mode: host
