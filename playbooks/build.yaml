@@ -20,42 +20,42 @@
         build:
           path: /home/ros2/lwf
           dockerfile: /home/ros2/lwf/docker/lwf_arm_base.dockerfile
-          name: 192.168.5.239:5000/lwf
-          tag: latest
-          push: true
+        name: 192.168.5.239:5000/lwf
+        tag: latest
+        push: true
 
     - name: Build lidar container
       community.docker.docker_image:
         build:
           path: /home/ros2/lwf
-          name: 192.168.5.239:5000/lidar
-          tag: latest
           dockerfile: /home/ros2/lwf/docker/lidar.dockerfile
-          push: true
+        name: 192.168.5.239:5000/lidar
+        tag: latest
+        push: true
 
     - name: Build cam container
       community.docker.docker_image:
         build:
           path: /home/ros2/lwf
-          name: 192.168.5.239:5000/lwf_usb_cam
-          tag: latest
           dockerfile: /home/ros2/lwf/docker/lwf_usb_cam.dockerfile
-          push: true
+        name: 192.168.5.239:5000/lwf_usb_cam
+        tag: latest
+        push: true
 
     - name: Build IMU container
       community.docker.docker_image:
         build:
           path: /home/ros2/lwf
-          name: 192.168.5.239:5000/imu
-          tag: latest
           dockerfile: /home/ros2/lwf/docker/imu.dockerfile
-          push: true
+        push: true
+        name: 192.168.5.239:5000/imu
+        tag: latest
 
     - name: Build Robo State Publisher container
       community.docker.docker_image:
         build:
           path: /home/ros2/lwf
-          name: 192.168.5.239:5000/lwf_robot_state_publisher
-          tag: latest
           dockerfile: /home/ros2/lwf/docker/lwf_robot_state_publisher.dockerfile
-          push: true
+        push: true
+        name: 192.168.5.239:5000/lwf_robot_state_publisher
+        tag: latest
