@@ -15,7 +15,7 @@ RUN apt update \
     python3-opencv \
     libboost-python-dev \
     ros-humble-camera-ros \
-    ros-humble-cv-camera \
+    ros-humble-cv-bridge \
     ros-humble-image-transport \
     ros-humble-image-pipeline \
     ros-humble-robot-state-publisher \
