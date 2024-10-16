@@ -10,6 +10,13 @@ RUN apt update \
     && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends --no-install-suggests \
     ros-dev-tools \
     ros-humble-rmw-cyclonedds-cpp \
+    ros-humble-camera-ros \
+    ros-humble-cv-camera \
+    ros-humble-image-transport \
+    ros-humble-image-pipeline \
+    ros-humble-robot-state-publisher \
+    ros-humble-xacro \
+    ros-humble-rviz2 \
     wget git
 
 WORKDIR /root/ros2_ws

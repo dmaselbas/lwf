@@ -68,21 +68,23 @@
     # SBC2 Nodes
     #################################################################
 #
-#    - name: Start USB camera node on lwf-node2
-#      docker_container:
-#        name: usb_cam_node
-#        image: "{{ docker_image }}"
-#        command: ros2 launch usb_cam usb_cam_launch.py
-#        devices:
-#          - "/dev/video0:/dev/video0"
-#        privileged: true
-#        network_mode: host
-#        restart_policy: unless-stopped
-#        pull: true
-#        recreate: true
-#        force_kill: true
-#        env: "{{ ros_environment | string}}"
-#      when: inventory_hostname == 'lwf-node2'
+    - name: Start USB camera node on lwf-node2
+      docker_container:
+        name: usb_cam_node
+        image: 192.168.5.239:5000/lwf_usb_cam
+        devices:
+          - "/dev/video0:/dev/video0"
+          - "/dev/video1:/dev/video1"
+          - "/dev/video2:/dev/video2"
+          - "/dev/video3:/dev/video3"
+        privileged: true
+        network_mode: host
+        restart_policy: unless-stopped
+        pull: true
+        recreate: true
+        force_kill: true
+        env: "{{ ros_environment | string}}"
+      when: inventory_hostname == 'lwf-node1'
 
 #    - name: Start Edge TPU Object Detection node on sbc2
 #      docker_container:
@@ -141,7 +143,7 @@
         recreate: true
         force_kill: true
         env: "{{ ros_environment | string}}"
-      when: inventory_hostname == 'lwf-node3'
+      when: inventory_hostname == 'lwf-node1'
 
     - name: Start node for LiDAR
       docker_container:
@@ -157,7 +159,7 @@
         recreate: true
         force_kill: true
         env: "{{ ros_environment | string}}"
-      when: inventory_hostname == 'lwf-node3'
+      when: inventory_hostname == 'lwf-node1'
 #    - name: Start IMU Fusion node on lwf-node3
 #      docker_container:
 #        name: imu_fusion_node
@@ -171,21 +173,17 @@
 #        pull: true
 #      when: inventory_hostname == 'lwf-node3'
 
-#    - name: Start Robot State Publisher node on lwf-node3
-#      docker_container:
-#        name: robot_state_publisher
-#        image: "{{ docker_image }}"
-#        command: ros2 launch robot_state_publisher robot_state_publisher.launch.py
-#        volumes:
-#          - "/path/to/urdf:/urdf:ro"
-#        network_mode: host
-#        privileged: true
-#        restart_policy: unless-stopped
-#        pull: true
-#        recreate: true
-#        force_kill: true
-#        env: "{{ ros_environment | string}}"
-#      when: inventory_hostname == 'lwf-node3'
+    - name: Start Robot State Publisher node on lwf-node3
+      docker_container:
+        name: robot_state_publisher
+        image: "{{ docker_image }}"
+        network_mode: host
+        restart_policy: unless-stopped
+        pull: true
+        recreate: true
+        force_kill: true
+        env: "{{ ros_environment | string}}"
+      when: inventory_hostname == 'lwf-node1'
 #
 #    - name: Start Joint State Publisher node on lwf-node3
 #      docker_container:

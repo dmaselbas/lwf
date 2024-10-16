@@ -13,7 +13,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     channel_type = LaunchConfiguration('channel_type', default='serial')
     serial_port = LaunchConfiguration('serial_port',
-                                      default='/dev/serial/by-path/platform-xhci-hcd.0.auto-usb-0:1:1.0-port0')
+                                      default='/dev/ttyUSB0')
     serial_baudrate = LaunchConfiguration('serial_baudrate', default='460800')
     frame_id = LaunchConfiguration('frame_id', default='laser')
     inverted = LaunchConfiguration('inverted', default='true')
