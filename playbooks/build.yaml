@@ -23,8 +23,8 @@
         tag: latest
         dockerfile: docker/lwf_arm_base.dockerfile
         push: true
-        args:
-          chdir: /home/ros2/lwf
+      args:
+        chdir: /home/ros2/lwf
 
     - name: Build lidar container
       community.docker.docker_image:
@@ -34,8 +34,8 @@
         tag: latest
         dockerfile: docker/lidar.dockerfile
         push: true
-        args:
-          chdir: /home/ros2/lwf
+      args:
+        chdir: /home/ros2/lwf
 
     - name: Build cam container
       community.docker.docker_image:
@@ -45,8 +45,8 @@
         tag: latest
         dockerfile: docker/lwf_usb_cam.dockerfile
         push: true
-        args:
-          chdir: /home/ros2/lwf
+      args:
+        chdir: /home/ros2/lwf
 
     - name: Build IMU container
       community.docker.docker_image:
@@ -56,8 +56,8 @@
         tag: latest
         dockerfile: docker/imu.dockerfile
         push: true
-        args:
-          chdir: /home/ros2/lwf
+      args:
+        chdir: /home/ros2/lwf
 
     - name: Build Robo State Publisher container
       community.docker.docker_image:
@@ -67,5 +67,5 @@
         tag: latest
         dockerfile: docker/lwf_robot_state_publisher.dockerfile
         push: true
-        args:
-          chdir: /home/ros2/lwf
+      args:
+        chdir: /home/ros2/lwf
