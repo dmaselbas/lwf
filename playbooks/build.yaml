@@ -1,6 +1,6 @@
 ---
 - name: Build ROS 2 Workspace on lwf-vm
-  hosts: lwf-vm
+  hosts: localhost
   become: no
   tasks:
 
