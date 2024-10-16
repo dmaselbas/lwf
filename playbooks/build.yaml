@@ -23,6 +23,7 @@
         name: 192.168.5.239:5000/lwf
         tag: latest
         push: true
+        source: build
 
     - name: Build lidar container
       community.docker.docker_image:
@@ -32,6 +33,7 @@
         name: 192.168.5.239:5000/lidar
         tag: latest
         push: true
+        source: build
 
     - name: Build cam container
       community.docker.docker_image:
@@ -41,6 +43,7 @@
         name: 192.168.5.239:5000/lwf_usb_cam
         tag: latest
         push: true
+        source: build
 
     - name: Build IMU container
       community.docker.docker_image:
@@ -50,6 +53,7 @@
         push: true
         name: 192.168.5.239:5000/imu
         tag: latest
+        source: build
 
     - name: Build Robo State Publisher container
       community.docker.docker_image:
@@ -59,3 +63,4 @@
         push: true
         name: 192.168.5.239:5000/lwf_robot_state_publisher
         tag: latest
+        source: build
