@@ -10,6 +10,10 @@ RUN apt update \
     && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends --no-install-suggests \
     ros-dev-tools \
     ros-humble-rmw-cyclonedds-cpp \
+    python3-numpy \
+    ros-humble-cv-bridge \
+    python3-opencv \
+    libboost-python-dev \
     ros-humble-camera-ros \
     ros-humble-cv-camera \
     ros-humble-image-transport \

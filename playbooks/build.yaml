@@ -11,19 +11,17 @@
 
     - name: Pull newest commits
       shell: |
-        git checkout main
-        git reset HEAD --hard
         git pull
       args:
         chdir: /home/ros2/lwf
 
-    - name: Build lwf container
+    - name: Build base arm container
       community.docker.docker_image:
         build:
           path: .
         name: 192.168.5.239:5000/lwf
         tag: latest
-        dockerfile: docker/lwf.dockerfile
+        dockerfile: docker/lwf_arm_base.dockerfile
         push: true
         args:
           chdir: /home/ros2/lwf
@@ -34,7 +32,40 @@
           path: .
         name: 192.168.5.239:5000/lidar
         tag: latest
-        dockerfile: docker/rplidar.dockerfile
+        dockerfile: docker/lidar.dockerfile
+        push: true
+        args:
+          chdir: /home/ros2/lwf
+
+    - name: Build cam container
+      community.docker.docker_image:
+        build:
+          path: .
+        name: 192.168.5.239:5000/lwf_usb_cam
+        tag: latest
+        dockerfile: docker/lwf_usb_cam.dockerfile
+        push: true
+        args:
+          chdir: /home/ros2/lwf
+
+    - name: Build IMU container
+      community.docker.docker_image:
+        build:
+          path: .
+        name: 192.168.5.239:5000/imu
+        tag: latest
+        dockerfile: docker/imu.dockerfile
+        push: true
+        args:
+          chdir: /home/ros2/lwf
+
+    - name: Build Robo State Publisher container
+      community.docker.docker_image:
+        build:
+          path: .
+        name: 192.168.5.239:5000/lwf_robot_state_publisher
+        tag: latest
+        dockerfile: docker/lwf_robot_state_publisher.dockerfile
         push: true
         args:
           chdir: /home/ros2/lwf

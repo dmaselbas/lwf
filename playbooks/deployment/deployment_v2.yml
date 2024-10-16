@@ -176,7 +176,7 @@
     - name: Start Robot State Publisher node on lwf-node3
       docker_container:
         name: robot_state_publisher
-        image: "{{ docker_image }}"
+        image: 192.168.5.239:5000/lwf_robot_state_publisher.dockerfile
         network_mode: host
         restart_policy: unless-stopped
         pull: true
