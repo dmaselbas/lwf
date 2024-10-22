@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="69e133e8-cf5c-44d4-ab43-54b028645ac1" name="ros">
+        <fileTransfer rootFolder="/home/ros2/lwf" accessType="SFTP" sshConfigId="5addd0ea-764c-4a44-9ee3-288573de0e7e" sshConfig="ros2@192.168.6.38:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" isUseRsync="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

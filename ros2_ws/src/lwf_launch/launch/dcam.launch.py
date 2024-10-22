@@ -29,7 +29,7 @@ configurable_parameters = [{'name': 'camera_name',                  'default': '
                            {'name': 'config_file',                  'default': "''", 'description': 'yaml config file'},
                            {'name': 'json_file_path',               'default': "''", 'description': 'allows advanced configuration'},
                            {'name': 'initial_reset',                'default': 'true', 'description': "''"},
-                           {'name': 'accelerate_gpu_with_glsl',     'default': "false", 'description': 'enable GPU acceleration with GLSL'},
+                           {'name': 'accelerate_gpu_with_glsl',     'default': "true", 'description': 'enable GPU acceleration with GLSL'},
                            {'name': 'rosbag_filename',              'default': "''", 'description': 'A realsense bagfile to run from as a device'},
                            {'name': 'log_level',                    'default': 'info', 'description': 'debug log level [DEBUG|INFO|WARN|ERROR|FATAL]'},
                            {'name': 'output',                       'default': 'screen', 'description': 'pipe node output [screen|log]'},
@@ -42,7 +42,7 @@ configurable_parameters = [{'name': 'camera_name',                  'default': '
                            {'name': 'enable_infra1',                'default': 'false', 'description': 'enable infra1 stream'},
                            {'name': 'enable_infra2',                'default': 'false', 'description': 'enable infra2 stream'},
                            {'name': 'depth_module.depth_profile',   'default': '0,0,0', 'description': 'depth stream profile'},
-                           {'name': 'depth_module.depth_format',    'default': 'Z16', 'description': 'depth stream format'},
+                           {'name': 'depth_module.depth_format',    'default': '16UC1', 'description': 'depth stream format'},
                            {'name': 'depth_module.infra_profile',   'default': '0,0,0', 'description': 'infra streams (0/1/2) profile'},
                            {'name': 'depth_module.infra_format',    'default': 'RGB8', 'description': 'infra0 stream format'},
                            {'name': 'depth_module.infra1_format',   'default': 'Y8', 'description': 'infra1 stream format'},
@@ -57,8 +57,8 @@ configurable_parameters = [{'name': 'camera_name',                  'default': '
                            {'name': 'depth_module.gain.2',          'default': '16', 'description': 'Depth module second gain value. Used for hdr_merge filter'},
                            {'name': 'enable_sync',                  'default': 'true', 'description': "'enable sync mode'"},
                            {'name': 'enable_rgbd',                  'default': 'true', 'description': "'enable rgbd topic'"},
-                           {'name': 'enable_gyro',                  'default': 'true', 'description': "'enable gyro stream'"},
-                           {'name': 'enable_accel',                 'default': 'true', 'description': "'enable accel stream'"},
+                           {'name': 'enable_gyro',                  'default': 'false', 'description': "'enable gyro stream'"},
+                           {'name': 'enable_accel',                 'default': 'false', 'description': "'enable accel stream'"},
                            {'name': 'gyro_fps',                     'default': '10', 'description': "''"},
                            {'name': 'accel_fps',                    'default': '10', 'description': "''"},
                            {'name': 'unite_imu_method',             'default': "2", 'description': '[0-None, 1-copy, 2-linear_interpolation]'},
@@ -68,7 +68,7 @@ configurable_parameters = [{'name': 'camera_name',                  'default': '
                            {'name': 'diagnostics_period',           'default': '0.0', 'description': 'Rate of publishing diagnostics. 0=Disabled'},
                            {'name': 'publish_tf',                   'default': 'true', 'description': '[bool] enable/disable publishing static & dynamic TF'},
                            {'name': 'tf_publish_rate',              'default': '1.0', 'description': '[double] rate in Hz for publishing dynamic TF'},
-                           {'name': 'pointcloud.enable',            'default': 'true', 'description': ''},
+                           {'name': 'pointcloud.enable',            'default': 'false', 'description': ''},
                            {'name': 'pointcloud.stream_filter',     'default': '2', 'description': 'texture stream for pointcloud'},
                            {'name': 'pointcloud.stream_index_filter','default': '0', 'description': 'texture stream index for pointcloud'},
                            {'name': 'pointcloud.ordered_pc',        'default': 'false', 'description': ''},
@@ -83,7 +83,9 @@ configurable_parameters = [{'name': 'camera_name',                  'default': '
                            {'name': 'hdr_merge.enable',             'default': 'false', 'description': 'hdr_merge filter enablement flag'},
                            {'name': 'wait_for_device_timeout',      'default': '-1.', 'description': 'Timeout for waiting for device to connect (Seconds)'},
                            {'name': 'reconnect_timeout',            'default': '6.', 'description': 'Timeout(seconds) between consequtive reconnection attempts'},
-                          ]
+                           {'name': 'frame_ref', 'default': 'rgbd_camera_frame', 'description': 'Timeout(seconds) between consequtive reconnection attempts'
+                            },
+                           ]
 
 def declare_configurable_parameters(parameters):
     return [DeclareLaunchArgument(param['name'], default_value=param['default'], description=param['description']) for param in parameters]

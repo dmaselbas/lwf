@@ -1,0 +1,13 @@
+services:
+  robot_state_publisher:
+    build:
+      context: ./
+      dockerfile: docker/robot_state_publisher.dockerfile
+    image: 192.168.5.239:5000/robot_state_publisher:latest
+    environment:
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+      - ROS_DOMAIN_ID=0
+    command: >
+      bash -c "source /opt/ros/humble/setup.bash &&
+               ros2 run robot_state_publisher robot_state_publisher /root/ros2_ws/src/lwf_robot/urdf/lwf_robot.urdf"
+    network_mode: host

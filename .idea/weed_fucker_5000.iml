@@ -12,7 +12,7 @@
       <sourceFolder url="file://$MODULE_DIR$/ros2_ws/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/stubs" isTestSource="false" />
     </content>
-    <orderEntry type="jdk" jdkName="Poetry (weed_fucker_5000) (2)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Remote Python 3.10.12 (sftp://ros2@192.168.6.38:22/home/ros2/.virtualenvs/weed_fucker_5000/bin/python)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="MicroPython" level="project" />
     <orderEntry type="library" name="workspace" level="project" />

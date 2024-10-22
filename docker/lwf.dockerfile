@@ -1,4 +1,4 @@
-FROM arm64v8/ros:humble-ros-base-jammy
+FROM osrf/ros:humble-desktop-jammy
 
 RUN apt update -y \
     && apt upgrade -y \
@@ -33,18 +33,17 @@ RUN apt update -y \
     ros-humble-teleop-twist-joy \
     ros-humble-navigation2 \
     ros-humble-nav2-bringup \
-    ros-humble-usb-cam
+    ros-humble-usb-cam \
+    ros-humble-mimick-vendor \
+    ros-humble-robot-localization \
+    ros-humble-imu-filter-madgwick
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_DOMAIN_ID="0"
 ENV ROS_VERSION="2"
 ENV ROS_DISTRO=humble
 
-RUN rm -rf ros2_ws/build ros2_ws/install ros2_ws/log
 COPY ros2_ws/src/ /root/ros2_ws/src/
-
+RUN rm -rf ros2_ws/build ros2_ws/install ros2_ws/log
 WORKDIR /root/ros2_ws
-RUN . /opt/ros/humble/setup.sh \
-    && rosdep update \
-    && rosdep install --from-paths src --ignore-src -r -y \
-    && colcon build --symlink-install
+RUN /bin/bash -c "source /opt/ros/humble/setup.sh && rosdep update && rosdep install --from-paths src --ignore-src -r -y && colcon build --symlink-install"
