@@ -23,8 +23,9 @@ RUN apt update -y \
     ros-humble-diagnostic-updater \
     ros-humble-asio-cmake-module \
     ros-humble-ament* \
-    ros-humble-librealsense2* \
-    ros-humble-realsense2* \
+    librealsense \
+    ros-humble-realsense2-camera \
+    ros-humble-realsense2-description \
     ros-humble-rtabmap \
     ros-humble-rtabmap-ros \
     ros-humble-spatio-temporal-voxel-layer \
