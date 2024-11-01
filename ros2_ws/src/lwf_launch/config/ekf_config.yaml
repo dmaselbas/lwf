@@ -1,0 +1,27 @@
+ekf_filter_node:
+  ros__parameters:
+    frequency: 30.0  # Frequency of the filter update (in Hz)
+    publish_acceleration: true
+    sensor_timeout: 0.1
+    two_d_mode: true  # Set to true if you want to ignore the Z axis
+
+    # Topic to publish the state estimation (output)
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom
+
+    odometry0: "/odom"
+    odometry0_config: [ true, true, true, true, true, true, false, false, false, false, false, false ]
+    odometry0_differential: false
+    odometry0_relative: false
+
+    # IMU data topic and data to fuse
+    imu0: imu/data  # Replace with the topic from your IMU publisher
+    imu0_config: [ false, false, false,
+                   false,  false,  true,
+                   false,  false,  false,
+                   false, false, true,
+                   true, false, false ]
+    imu0_differential: true
+    imu0_queue_size: 10
+    imu0_remove_gravitational_acceleration: true

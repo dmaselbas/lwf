@@ -11,7 +11,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
     ],
-    install_requires=['setuptools', 'pyserial'],
+    install_requires=['setuptools', 'pyserial', 'pandas'],
     zip_safe=True,
     maintainer='ros2',
     maintainer_email='dmaselbas@gmail.com',

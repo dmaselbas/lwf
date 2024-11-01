@@ -1,6 +1,4 @@
-FROM 192.168.5.239:5000/lwf:latest
+FROM lwf_base
 
-
-RUN apt installdock
-
-CMD ros2 launch foxglove_bridge foxflove_bridge_launch.xml
+RUN apt install ros-humble-foxglove-bridge ros-humble-foxglove-compressed-video-transport -y
+ENTRYPOINT ["/bin/bash", "-c", "/ros_entrypoint.sh && source install/setup.bash && ros2 launch foxglove_bridge foxglove_bridge_launch.xml"]

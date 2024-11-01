@@ -3,12 +3,35 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="69e133e8-cf5c-44d4-ab43-54b028645ac1" name="ros">
-        <fileTransfer rootFolder="/home/ros2/lwf" accessType="SFTP" sshConfigId="5addd0ea-764c-4a44-9ee3-288573de0e7e" sshConfig="ros2@192.168.6.38:22 password">
+        <fileTransfer rootFolder="/home/ros2/lwf" accessType="SFTP" host="192.168.6.38" port="22" sshConfigId="5addd0ea-764c-4a44-9ee3-288573de0e7e" sshConfig="ros2@192.168.6.38:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" isUseRsync="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+      <webServer id="9eec16bf-8a5a-42c5-9dcb-77b0f6953281" name="ROS2 i5">
+        <fileTransfer rootFolder="/home/ros2/lwf" accessType="SFTP" host="192.168.6.71" port="22" sshConfigId="c52dfa76-21da-4252-b00a-88d867a01c36" sshConfig="ros2@192.168.6.71:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" isUseRsync="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+      <webServer id="e176302c-d2b5-40b3-9090-73cd4ccc343e" name="ROS2 i7">
+        <fileTransfer rootFolder="/home/ros2/lwf" accessType="SFTP" host="192.168.6.38" port="22" sshConfigId="5addd0ea-764c-4a44-9ee3-288573de0e7e" sshConfig="ros2@192.168.6.38:22 password">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" isUseRsync="true" />
           </advancedOptions>
         </fileTransfer>
       </webServer>
     </option>
+    <groups>
+      <group>
+        <name>ROS2 Nodes</name>
+        <servers>
+          <name value="ROS2 i5" />
+          <name value="ROS2 i7" />
+        </servers>
+      </group>
+    </groups>
   </component>
 </project>

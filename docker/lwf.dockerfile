@@ -19,11 +19,12 @@ RUN apt update -y \
     python3-vcstool \
     python3-rosdistro \
     python3-wstool \
+    python3-pandas \
     ros-humble-rmw-cyclonedds-cpp \
     ros-humble-diagnostic-updater \
     ros-humble-asio-cmake-module \
     ros-humble-ament* \
-    librealsense \
+    ros-humble-librealsense2 \
     ros-humble-realsense2-camera \
     ros-humble-realsense2-description \
     ros-humble-rtabmap \
@@ -37,7 +38,12 @@ RUN apt update -y \
     ros-humble-usb-cam \
     ros-humble-mimick-vendor \
     ros-humble-robot-localization \
-    ros-humble-imu-filter-madgwick
+    ros-humble-imu-filter-madgwick \
+    ros-humble-depth-image-proc \
+    ros-humble-libpointmatcher \
+    ros-humble-libg2o \
+    ros-humble-gtsam \
+    ros-humble-mqtt-client
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_DOMAIN_ID="0"

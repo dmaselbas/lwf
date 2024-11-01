@@ -1,12 +1,3 @@
 FROM lwf_base:latest
 
-RUN apt install -y \
-    va-driver-all \
-    libva-glx2 \
-    libva2 \
-    libdrm2 \
-    vainfo \
-    ros-humble-spatio-temporal-voxel-layer
-
-#ENTRYPOINT ["/bin/bash", "-c", "/ros_entrypoint.sh && source install/setup.bash && ros2 launch lwf_launch lwf_slam.launch.py"]
-ENTRYPOINT ["/bin/bash", "-c", "/ros_entrypoint.sh && source install/setup.bash && ros2 launch lwf_launch dcam.launch.py frame_id:=rgbd_camera_frame"]
+ENTRYPOINT ["/bin/bash", "-c", "/ros_entrypoint.sh && source install/setup.bash && ros2 run realsense2_camera realsense2_camera_node --ros-args -p color_width:=640 -p color_height:=480 -p color_fps:=30 -p depth_width:=640 -p depth_height:=480 -p depth_fps:=30 -p enable_color:=true -p enable_depth:=true -p align_depth.enable:=true -p enable_sync:=true -p pointcloud.enable:=true"]
