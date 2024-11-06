@@ -11,6 +11,8 @@
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
   <test_depend>python3-pytest</test_depend>
+  <exec_depends>rclpy</exec_depends>
+  <exec_depends>std_msgs</exec_depends>
 
   <export>
     <build_type>ament_python</build_type>

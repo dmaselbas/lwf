@@ -1,5 +1,4 @@
-FROM 192.168.5.239:5000/lwf:latest
+FROM lwf_base
 
 
-# https://index.ros.org/p/teleop_twist_joy/
-CMD ros2 launch teleop_twist_joy teleop-launch.py joy_config:='xbox'
+ENTRYPOINT ["/bin/bash", "-c", "/ros_entrypoint.sh && source install/setup.bash && ros2 launch lwf_launch joy.launch.py"]

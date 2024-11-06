@@ -32,6 +32,7 @@ RUN apt update -y \
     ros-humble-spatio-temporal-voxel-layer \
     libqt5serialport5-dev \
     ros-humble-foxglove-bridge \
+    ros-humble-joy \
     ros-humble-teleop-twist-joy \
     ros-humble-navigation2 \
     ros-humble-nav2-bringup \

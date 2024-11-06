@@ -1,0 +1,8 @@
+imu_filter_madgwick:
+  sensor_timeout: 1.0                   # Time (seconds) before the filter stops publishing if no data
+  use_mag: false                        # Set to true if you want to use magnetometer data
+  publish_tf: false                     # Set to true if you want the filter to publish a TF frame
+  world_frame: "enu"                    # Set to "enu" (East-North-Up) or "ned" (North-East-Down)
+  fixed_frame: "world"                  # Frame used as the fixed reference
+  gain: 0.1                             # Filter gain, adjust to control responsiveness (0.1-0.2 recommended)
+  z_gain: 0.05                          # Custom Z-axis specific gain to filter noise more aggressively

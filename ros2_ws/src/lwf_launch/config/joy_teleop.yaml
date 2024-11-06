@@ -1,0 +1,11 @@
+joy_config:
+  axis_linear: 1        # Index for the linear axis (typically the left stick Y-axis)
+  scale_linear: 0.5     # Scaling factor for linear movement
+  axis_angular: 2       # Index for the angular axis (typically the right stick X-axis)
+  scale_angular: 1.0    # Scaling factor for angular movement
+
+  enable_button: 5      # Index of the button to enable movement (e.g., RB)
+  enable_turbo_button: 7  # Index for a turbo button for faster movement (e.g., LB)
+
+  scale_linear_turbo: 1.0  # Scale for linear movement when turbo is enabled
+  scale_angular_turbo: 2.0 # Scale for angular movement when turbo is enabled
