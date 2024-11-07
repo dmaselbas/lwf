@@ -20,7 +20,6 @@ RUN apt update -y \
     python3-rosdistro \
     python3-wstool \
     python3-pandas \
-    python3-pyserial \
     ros-humble-rmw-cyclonedds-cpp \
     ros-humble-diagnostic-updater \
     ros-humble-asio-cmake-module \

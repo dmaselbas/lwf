@@ -1,0 +1,589 @@
+<?xml version="1.0"?>
+<robot name="lwf5000">
+    <material name="black">
+        <color rgba="0 0 0 1"/>
+    </material>
+    <material name="grey">
+        <color rgba=".2 .2 .3 1"/>
+    </material>
+    <material name="imu_blue">
+        <color rgba=".02 .06 .24 1"/>
+    </material>
+    <material name="mag_orange">
+        <color rgba=".20 .10 .03 1"/>
+    </material>
+    <material name="green">
+        <color rgba="0 1 0 1"/>
+    </material>
+    <material name="purple">
+        <color rgba=".76 0 1 1"/>
+    </material>
+    <material name="red">
+        <color rgba="1 0 0 1"/>
+    </material>
+    <!-- Base Link -->
+    <link name="base_link">
+        <visual>
+            <origin xyz="0 0 0.24" rpy="0 0 0"/> <!-- Half height of 13.5 inches (0.343 m) -->
+            <geometry>
+                <box size="0.483 0.343 0.343"/> <!-- Length: 19", Width: 13.5", Height: 13.5" -->
+            </geometry>
+            <material name="grey"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.1715" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.483 0.343 0.343"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="8.0"/>  <!-- Approx. 60% of total mass -->
+            <inertia ixx="0.154" ixy="0" ixz="0" iyy="0.244" iyz="0" izz="0.244"/>
+        </inertial>
+    </link>
+
+    <!-- Front Right Wheel -->
+    <link name="front_right_wheel">
+        <visual>
+            <origin xyz="0 -0.035 0" rpy="1.5708 0 0"/> <!-- X, Y, Z in meters -->
+            <geometry>
+                <cylinder radius="0.08255" length="0.05"/> <!-- Diameter is 6.5 inches -->
+            </geometry>
+            <material name="black"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="1.25"/>  <!-- Approx. 10% of total mass -->
+            <inertia ixx="0.011" ixy="0" ixz="0" iyy="0.011" iyz="0" izz="0.017"/>
+        </inertial>
+    </link>
+
+    <joint name="front_right_wheel_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="front_right_wheel"/>
+        <origin xyz="0.1524 -0.17145 0.0762" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+    </joint>
+
+    <!-- Front Left Wheel -->
+    <link name="front_left_wheel">
+        <visual>
+            <origin xyz="0 0.035 0" rpy="-1.5708 0 0"/>
+            <geometry>
+                <cylinder radius="0.08255" length="0.05"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="1.25"/>  <!-- Approx. 10% of total mass -->
+            <inertia ixx="0.011" ixy="0" ixz="0" iyy="0.011" iyz="0" izz="0.017"/>
+        </inertial>
+    </link>
+
+    <joint name="front_left_wheel_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="front_left_wheel"/>
+        <origin xyz="0.1524 0.17145 0.0762" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+    </joint>
+
+    <!-- Rear Right Wheel -->
+    <link name="rear_right_wheel">
+        <visual>
+            <origin xyz="0 -0.035 0" rpy="1.5708 0 0"/>
+            <geometry>
+                <cylinder radius="0.08255" length="0.05"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="1.25"/>  <!-- Approx. 10% of total mass -->
+            <inertia ixx="0.011" ixy="0" ixz="0" iyy="0.011" iyz="0" izz="0.017"/>
+        </inertial>
+    </link>
+
+    <joint name="rear_right_wheel_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="rear_right_wheel"/>
+        <origin xyz="-0.1524 -0.17145 0.0762" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+    </joint>
+
+    <!-- Rear Left Wheel -->
+    <link name="rear_left_wheel">
+        <visual>
+            <origin xyz="0 0.035 0" rpy="-1.5708 0 0"/>
+            <geometry>
+                <cylinder radius="0.08255" length="0.05"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="1.25"/>  <!-- Approx. 10% of total mass -->
+            <inertia ixx="0.011" ixy="0" ixz="0" iyy="0.011" iyz="0" izz="0.017"/>
+        </inertial>
+    </link>
+
+    <joint name="rear_left_wheel_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="rear_left_wheel"/>
+        <origin xyz="-0.1524 0.17145 0.0762" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+    </joint>
+    <gazebo>
+        <plugin name='diff_drive' filename='libgazebo_ros_diff_drive.so'>
+            <ros>
+                <namespace>/demo</namespace>
+            </ros>
+
+            <!-- wheels -->
+            <left_joint>front_left_wheel</left_joint>
+            <right_joint>front_right_wheel</right_joint>
+
+            <!-- kinematics -->
+            <wheel_separation>0.278</wheel_separation>
+            <wheel_diameter>0.1524</wheel_diameter>
+
+            <!-- limits -->
+            <max_wheel_torque>20</max_wheel_torque>
+            <max_wheel_acceleration>1.0</max_wheel_acceleration>
+
+            <!-- output -->
+            <publish_odom>true</publish_odom>
+            <publish_odom_tf>false</publish_odom_tf>
+            <publish_wheel_tf>true</publish_wheel_tf>
+
+            <odometry_frame>odom</odometry_frame>
+            <robot_base_frame>base_link</robot_base_frame>
+        </plugin>
+    </gazebo>
+    <!-- IMU Sensor -->
+    <link name="imu_frame">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.02 0.02 0.02"/> <!-- Size for IMU -->
+            </geometry>
+            <material name="imu_blue"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.5"/>  <!-- Small mass -->
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
+    </link>
+
+    <joint name="imu_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="imu_frame"/>
+        <origin xyz="0 0 0.4" rpy="0 0 0"/>
+    </joint>
+    <gazebo reference="imu_frame">
+        <sensor name="imu_sensor" type="imu">
+            <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+                <ros>
+                    <namespace>/demo</namespace>
+                    <remapping>~/out:=imu</remapping>
+                </ros>
+                <initial_orientation_as_reference>false</initial_orientation_as_reference>
+            </plugin>
+            <always_on>true</always_on>
+            <update_rate>100</update_rate>
+            <visualize>true</visualize>
+            <imu>
+                <angular_velocity>
+                    <x>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>2e-4</stddev>
+                            <bias_mean>0.0000075</bias_mean>
+                            <bias_stddev>0.0000008</bias_stddev>
+                        </noise>
+                    </x>
+                    <y>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>2e-4</stddev>
+                            <bias_mean>0.0000075</bias_mean>
+                            <bias_stddev>0.0000008</bias_stddev>
+                        </noise>
+                    </y>
+                    <z>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>2e-4</stddev>
+                            <bias_mean>0.0000075</bias_mean>
+                            <bias_stddev>0.0000008</bias_stddev>
+                        </noise>
+                    </z>
+                </angular_velocity>
+                <linear_acceleration>
+                    <x>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>1.7e-2</stddev>
+                            <bias_mean>0.1</bias_mean>
+                            <bias_stddev>0.001</bias_stddev>
+                        </noise>
+                    </x>
+                    <y>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>1.7e-2</stddev>
+                            <bias_mean>0.1</bias_mean>
+                            <bias_stddev>0.001</bias_stddev>
+                        </noise>
+                    </y>
+                    <z>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>1.7e-2</stddev>
+                            <bias_mean>0.1</bias_mean>
+                            <bias_stddev>0.001</bias_stddev>
+                        </noise>
+                    </z>
+                </linear_acceleration>
+            </imu>
+        </sensor>
+    </gazebo>
+    <!-- Magnetometer 1 -->
+    <link name="magnetometer_1">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.02 0.02 0.02"/>
+            </geometry>
+            <material name="mag_orange"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.5"/>  <!-- Small mass -->
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
+    </link>
+
+    <joint name="magnetometer_1_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="magnetometer_1"/>
+        <origin xyz="0 0 0.4" rpy="0 0 0"/>
+    </joint>
+
+    <!-- Magnetometer 2 -->
+    <link name="magnetometer_2">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.02 0.02 0.02"/>
+            </geometry>
+            <material name="mag_orange"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.5"/>  <!-- Small mass -->
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
+    </link>
+
+    <joint name="magnetometer_2_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="magnetometer_2"/>
+        <origin xyz="-0.0254 -0.1524 0.4" rpy="0 0 0"/>
+    </joint>
+
+    <!-- PTZ Camera -->
+    <link name="ptz_camera_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.05 0.05 0.1"/> <!-- PTZ camera model -->
+            </geometry>
+            <material name="green"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.5"/>  <!-- Small mass -->
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
+    </link>
+
+    <joint name="ptz_camera_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="ptz_camera_link"/>
+        <origin xyz="0.2413 -0.1143 0.419" rpy="0 0 0"/>
+    </joint>
+
+    <!-- Lidar -->
+     <joint name="lidar_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="laser"/>
+        <origin xyz="0.0254 0.0254 0.4445" rpy="0 0 0"/>
+    </joint>
+
+    <link name="laser">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="0.05" length="0.1"/> <!-- Simplified lidar -->
+            </geometry>
+            <material name="red"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.5"/>  <!-- Small mass -->
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
+    </link>
+
+
+
+    <!-- RGB-D Camera -->
+    <link name="rgbd_camera_frame">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Front RGB-D Camera -->
+            <geometry>
+                <box size="0.03 0.03 0.05"/> <!-- Simplified depth camera -->
+            </geometry>
+            <material name="green"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.5"/>  <!-- Small mass -->
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
+    </link>
+
+    <joint name="rgbd_camera_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="rgbd_camera_frame"/>
+        <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
+    </joint>
+    <link name="camera">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Front RGB-D Camera -->
+            <geometry>
+                <box size="0.03 0.03 0.05"/> <!-- Simplified depth camera -->
+            </geometry>
+            <material name="green"/>
+        </visual>
+    </link>
+    <joint name="camera_link_joint" type="fixed">
+        <parent link="rgbd_camera_frame"/>
+        <child link="camera"/>
+        <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
+    </joint>
+    <link name="camera_color_frame">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Front RGB-D Camera -->
+            <geometry>
+                <box size="0.03 0.03 0.05"/> <!-- Simplified depth camera -->
+            </geometry>
+            <material name="green"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.5"/>  <!-- Small mass -->
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
+    </link>
+
+    <joint name="camera_color_frame_joint" type="fixed">
+        <parent link="camera"/>
+        <child link="camera_color_frame"/>
+        <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
+    </joint>
+    <link name="camera_color_optical_frame">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Front RGB-D Camera -->
+            <geometry>
+                <box size="0.03 0.03 0.05"/> <!-- Simplified depth camera -->
+            </geometry>
+            <material name="green"/>
+        </visual>
+    </link>
+
+    <joint name="camera_color_optical_frame_joint" type="fixed">
+        <parent link="camera"/>
+        <child link="camera_color_optical_frame"/>
+        <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
+    </joint>
+    <link name="camera_depth_frame">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Front RGB-D Camera -->
+            <geometry>
+                <box size="0.03 0.03 0.05"/> <!-- Simplified depth camera -->
+            </geometry>
+            <material name="green"/>
+        </visual>
+    </link>
+
+    <joint name="camera_depth_frame_joint" type="fixed">
+        <parent link="camera"/>
+        <child link="camera_depth_frame"/>
+        <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
+    </joint>
+    <link name="camera_depth_optical_frame">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Front RGB-D Camera -->
+            <geometry>
+                <box size="0.03 0.03 0.05"/> <!-- Simplified depth camera -->
+            </geometry>
+            <material name="green"/>
+        </visual>
+    </link>
+    <joint name="camera_depth_optical_frame_joint" type="fixed">
+        <parent link="camera_depth_frame"/>
+        <child link="camera_depth_optical_frame"/>
+        <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
+    </joint>
+    <joint name="camera_imu_frame_joint" type="fixed">
+        <parent link="camera"/>
+        <child link="camera_imu_frame"/>
+        <origin xyz="0.2159 0 0.4" rpy="0 0 0"/>
+    </joint>
+    <link name="camera_imu_frame">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Front RGB-D Camera -->
+            <geometry>
+                <box size="0.03 0.03 0.05"/> <!-- Simplified depth camera -->
+            </geometry>
+            <material name="green"/>
+        </visual>
+    </link>
+
+    <!-- Front Sonar -->
+    <link name="front_sonar">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="0.01" length="0.05"/> <!-- Sonar model -->
+            </geometry>
+            <material name="purple"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.5"/>  <!-- Small mass -->
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
+    </link>
+
+    <joint name="front_sonar_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="front_sonar"/>
+        <origin xyz="0.2032 0 0.2159" rpy="0 0 0"/>
+    </joint>
+
+    <!-- Right Sonar -->
+    <link name="right_sonar">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 -1.5708"/> <!-- Pointing right -->
+            <geometry>
+                <cylinder radius="0.01" length="0.05"/>
+            </geometry>
+            <material name="purple"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.5"/>  <!-- Small mass -->
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
+    </link>
+
+    <joint name="right_sonar_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="right_sonar"/>
+        <origin xyz="0 -0.17145 0.2159" rpy="0 0 -1.5708"/>
+    </joint>
+
+    <!-- Left Sonar -->
+    <link name="left_sonar">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 1.5708"/> <!-- Pointing left -->
+            <geometry>
+                <cylinder radius="0.01" length="0.05"/>
+            </geometry>
+            <material name="purple"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.5"/>  <!-- Small mass -->
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
+    </link>
+
+    <joint name="left_sonar_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="left_sonar"/>
+        <origin xyz="0 0.17145 0.2159" rpy="0 0 1.5708"/>
+    </joint>
+
+    <!-- Rear Sonar -->
+    <link name="rear_sonar">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 3.14159"/> <!-- Pointing backward -->
+            <geometry>
+                <cylinder radius="0.01" length="0.05"/>
+            </geometry>
+            <material name="purple"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.5"/>  <!-- Small mass -->
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
+    </link>
+
+    <joint name="rear_sonar_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="rear_sonar"/>
+        <origin xyz="-0.2032 0 0.2159" rpy="0 0 3.14159"/>
+    </joint>
+
+    <!-- Front Camera -->
+    <link name="front_camera">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.03 0.03 0.03"/> <!-- Simplified camera model -->
+            </geometry>
+            <material name="green"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.5"/>  <!-- Small mass -->
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
+    </link>
+
+    <joint name="front_camera_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="front_camera"/>
+        <origin xyz="0.2159 0.0508 0.4" rpy="0 0 0"/>
+    </joint>
+
+    <!-- Rear Camera -->
+    <link name="rear_camera">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 3.14159"/>
+            <geometry>
+                <box size="0.03 0.03 0.03"/>
+            </geometry>
+            <material name="green"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.5"/>  <!-- Small mass -->
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
+    </link>
+
+    <joint name="rear_camera_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="rear_camera"/>
+        <origin xyz="-0.2159 -0.0508 0.5" rpy="0 0 3.14159"/>
+    </joint>
+
+</robot>

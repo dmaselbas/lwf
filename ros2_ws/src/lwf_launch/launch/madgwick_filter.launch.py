@@ -14,7 +14,7 @@ def generate_launch_description():
                 output='screen',
                 remappings=[
                     ('/imu/data', '/imu/data_raw'),
-                    ('/imu/clean_data', '/filtered_imu/data')],
+                    ('/imu/magnetometer', '/imu/mag')],
                 parameters=[config_file]  # Replace with your config path
                 )
         ])

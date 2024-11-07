@@ -14,8 +14,6 @@ watchdog = WDT(timeout=2000)
 
 ros2_host = UART(0, 115200, tx=1, rx=3)
 
-pwm_i2c = I2C(0, scl=Pin(18), sda=Pin(19), freq=400000)
-
 compass_sensor = HMC5883L(scl=4, sda=5)
 
 front_left_motor_dir = Pin(35, Pin.OUT)
@@ -67,6 +65,7 @@ def do_connect():
 
 
 def send_ros2_data(sensor_prefix, data):
+    print(f"Sending ROS2 data: {sensor_prefix}|{data}")
     ros2_host.write(f'{sensor_prefix}|{data}\n')
 
 def on_data(data):

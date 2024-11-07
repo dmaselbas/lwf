@@ -20,7 +20,7 @@ class BNO085IMUPublisher(Node):
         self.serial_connection = serial.Serial(self.serial_port, self.baud_rate, timeout=1)
 
         # Publisher for IMU data
-        self.imu_publisher = self.create_publisher(Imu, 'imu/data', 10)
+        self.imu_publisher = self.create_publisher(Imu, 'imu/data_raw', 10)
 
         # Set a timer to publish data at 10 Hz (0.1 seconds)
         self.timer_period = 0.1  # 10 Hz
@@ -145,7 +145,7 @@ class BNO085IMUPublisher(Node):
 
         # Publish the IMU message
         self.imu_publisher.publish(imu_msg)
-        self.get_logger().info("Published IMU data with covariance.")
+        # self.get_logger().info("Published IMU data with covariance.")
 
     def ypr_to_quaternion(self, yaw, pitch, roll):
         """Convert yaw, pitch, and roll to quaternion representation."""

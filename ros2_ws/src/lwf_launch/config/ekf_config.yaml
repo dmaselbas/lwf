@@ -10,7 +10,7 @@ ekf_filter_node:
     map_frame: map
     odom_frame: odom
     base_link_frame: base_link
-    world_frame: odom
+    world_frame: enu
 
     # IMU data topic and data to fuse
     imu0: /imu/clean_data  # Replace with the topic from your IMU publisher
@@ -39,19 +39,19 @@ ekf_filter_node:
     odom0_differential: false  # Set to true if the input is in a differential form
     odom0_relative: false      # Set to true if the input is in a relative form
     odom0_queue_size: 10       # Queue size for the subscriber
-
-    # Process noise covariance matrix
-    process_noise_covariance: [ 0.05, 0,    0,    0,    0,    0,
-                                0,    0.05, 0,    0,    0,    0,
-                                0,    0,    0.05, 0,    0,    0,
-                                0,    0,    0,    0.01, 0,    0,
-                                0,    0,    0,    0,    0.01, 0,
-                                0,    0,    0,    0,    0,    0.01 ]
-
-    # Initial estimate covariance matrix
-    initial_estimate_covariance: [ 1e-9, 0,    0,    0,    0,    0,
-                                   0,    1e-9, 0,    0,    0,    0,
-                                   0,    0,    1e-9, 0,    0,    0,
-                                   0,    0,    0,    1e-9, 0,    0,
-                                   0,    0,    0,    0,    1e-9, 0,
-                                   0,    0,    0,    0,    0,    1e-9 ]
+#
+#    # Process noise covariance matrix
+#    process_noise_covariance: [ 0.05, 0,    0,    0,    0,    0,
+#                                0,    0.05, 0,    0,    0,    0,
+#                                0,    0,    0.05, 0,    0,    0,
+#                                0,    0,    0,    0.01, 0,    0,
+#                                0,    0,    0,    0,    0.01, 0,
+#                                0,    0,    0,    0,    0,    0.01 ]
+#
+#    # Initial estimate covariance matrix
+#    initial_estimate_covariance: [ 1e-9, 0,    0,    0,    0,    0,
+#                                   0,    1e-9, 0,    0,    0,    0,
+#                                   0,    0,    1e-9, 0,    0,    0,
+#                                   0,    0,    0,    1e-9, 0,    0,
+#                                   0,    0,    0,    0,    1e-9, 0,
+#                                   0,    0,    0,    0,    0,    1e-9 ]

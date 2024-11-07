@@ -1,0 +1,2 @@
+source;share/hwt905_ros_driver/environment/ament_prefix_path.sh
+source;share/hwt905_ros_driver/environment/path.sh
