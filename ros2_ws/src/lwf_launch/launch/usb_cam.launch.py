@@ -48,7 +48,7 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     front_cam_params = [
-        {"video_device": "/dev/video2"},
+        {"video_device": "/dev/video1"},
         {"framerate": 30.0},
         {"io_method": "mmap"},
         {"frame_id": "front_camera"},

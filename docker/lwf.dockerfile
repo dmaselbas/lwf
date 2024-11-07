@@ -20,6 +20,7 @@ RUN apt update -y \
     python3-rosdistro \
     python3-wstool \
     python3-pandas \
+    python3-pyserial \
     ros-humble-rmw-cyclonedds-cpp \
     ros-humble-diagnostic-updater \
     ros-humble-asio-cmake-module \
@@ -32,9 +33,11 @@ RUN apt update -y \
     ros-humble-spatio-temporal-voxel-layer \
     libqt5serialport5-dev \
     ros-humble-foxglove-bridge \
+    ros-humble-foxglove-compressed-video-transport \
     ros-humble-joy \
     ros-humble-teleop-twist-joy \
     ros-humble-navigation2 \
+    ros-humble-nav2* \
     ros-humble-nav2-bringup \
     ros-humble-usb-cam \
     ros-humble-mimick-vendor \

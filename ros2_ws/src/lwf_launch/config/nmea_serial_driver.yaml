@@ -1,6 +1,6 @@
 nmea_navsat_driver:
   ros__parameters:
-    port: "/dev/serial/by-id/usb-Prolific_Technology_Inc._USB-Serial_Controller_D-if00-port0"
+    port: "/dev/ttyUSB0"
     baud: 9600
     frame_id: "gps"
     time_ref_source: "gps"
