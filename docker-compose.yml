@@ -160,7 +160,7 @@ services:
     devices:
       - /dev/input
     volumes:
-      - ./src/lwf_launch/config/:/config/
+      - ./ros2_ws/src/lwf_launch/config/:/config/
     command: ros2 run joy joy_node --ros-args --params-file /config/joy_params.yaml
     profiles: [ vm ]
   micro_ros_agent:
