@@ -46,7 +46,11 @@ RUN apt update -y \
     ros-humble-libpointmatcher \
     ros-humble-libg2o \
     ros-humble-gtsam \
-    ros-humble-mqtt-client
+    ros-humble-mqtt-client \
+    ros-humble-camera-ros \
+    ros-humble-cv-bridge \
+    ros-humble-image-transport \
+    ros-humble-image-pipeline
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_DOMAIN_ID="0"

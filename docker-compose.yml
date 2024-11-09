@@ -1,10 +1,10 @@
-name: lwf_robot
+version: "3.3"
 services:
-  lwf_base: &service-common
+  lwf_base: &service-common-x86
     build:
       context: ./
       dockerfile: docker/lwf.dockerfile
-    image: lwf_base:latest
+    image: lwf-base-x86:latest
     environment:
       RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
       ROS_DOMAIN_ID: 0
@@ -12,8 +12,20 @@ services:
     network_mode: host
     restart: unless-stopped
     profiles: [ build ]
+  lwf_arm_base: &service-common-arm
+    build:
+      context: ./
+      dockerfile: docker/lwf_arm_base.dockerfile
+    image: lwf-base-arm:latest
+    environment:
+      RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+      ROS_DOMAIN_ID: 0
+    working_dir: /root/ros2_ws
+    network_mode: host
+    restart: unless-stopped
+    profiles: [ arm-build ]
   robot_state_publisher:
-    <<: *service-common
+    <<: *service-common-x86
     container_name: robot-state-publisher
     command: >
       bash -c "/ros_entrypoint.sh &&
@@ -22,17 +34,17 @@ services:
     profiles: [ nuc_gen ]
     privileged: true
   imu:
-    <<: *service-common
+    <<: *service-common-x86
     container_name: imu
     command: >
       bash -c "/ros_entrypoint.sh &&
           source install/setup.bash &&
           ros2 run lwf_imu imu_publisher"
     devices:
-      - "/dev/ttyACM2:/dev/ttyUSB0:rwm"
+      - "/dev/ttyACM0:/dev/ttyUSB0:rwm"
     profiles: [ nuc_gen ]
   imu_filter:
-    <<: *service-common
+    <<: *service-common-x86
     container_name: imu-madgwick-filter
     depends_on:
       - imu
@@ -41,8 +53,16 @@ services:
           source install/setup.bash &&
           ros2 launch lwf_launch madgwick_filter.launch.py"
     profiles: [ nuc_gen ]
+  static_transforms:
+    <<: *service-common-x86
+    container_name: static-transforms
+    command: >
+      bash -c "/ros_entrypoint.sh &&
+          source install/setup.bash &&
+          ros2 launch lwf_launch static_transforms.launch.py"
+    profiles: [ nuc_gen ]
   robot_localization:
-    <<: *service-common
+    <<: *service-common-x86
     container_name: robot-localization
     depends_on:
       - imu
@@ -53,7 +73,7 @@ services:
           ros2 launch lwf_launch localization.launch.py"
     profiles: [ nuc_gen ]
   foxglox_bridge:
-    <<: *service-common
+    <<: *service-common-x86
     container_name: foxglove-bridge
     command: >
       bash -c "/ros_entrypoint.sh &&
@@ -61,7 +81,7 @@ services:
           ros2 launch foxglove_bridge foxglove_bridge_launch.xml"
     profiles: [ nuc_gen ]
   lidar:
-    <<: *service-common
+    <<: *service-common-x86
     container_name: lidar
     command: >
       bash -c "/ros_entrypoint.sh &&
@@ -69,19 +89,19 @@ services:
           ros2 launch lwf_launch lidar.launch.py"
     devices:
       - "/dev/ttyACM0:/dev/ttyUSB0:rwm"
-    profiles: [ nuc_gen ]
+    profiles: [ nuc_slam ]
   gps:
-    <<: *service-common
+    <<: *service-common-x86
     container_name: gps
     command: >
       bash -c "/ros_entrypoint.sh &&
           source install/setup.bash &&
           ros2 launch lwf_launch gps.launch.py"
     devices:
-      - "/dev/ttyACM3:/dev/ttyUSB0:rwm"
+      - "/dev/ttyACM1:/dev/ttyUSB0:rwm"
     profiles: [ nuc_gen ]
   usb_cams:
-    <<: *service-common
+    <<: *service-common-x86
     container_name: usb-cams
     command: >
       bash -c "/ros_entrypoint.sh &&
@@ -92,7 +112,7 @@ services:
       - "/dev/video1:/dev/video1:rwm"
     profiles: [ nuc_rpi ]
   esp32_interface:
-    <<: *service-common
+    <<: *service-common-x86
     container_name: esp32_interface
     command: >
       bash -c "/ros_entrypoint.sh &&
@@ -100,9 +120,9 @@ services:
           ros2 run lwf_esp32_interface motor_controller"
     devices:
       - "/dev/ttyACM1:/dev/ttyUSB0:rwm"
-    profiles: [ nuc_gen ]
+    profiles: [ nuc_slam ]
   slam:
-    <<: *service-common
+    <<: *service-common-x86
     container_name: slam
     command: >
       bash -c "/ros_entrypoint.sh &&
@@ -115,7 +135,7 @@ services:
     volumes:
       - "/home/ros2/maps:/root/.ros2/maps:rw"
   realsense:
-    <<: *service-common
+    <<: *service-common-x86
     container_name: realsense
     command: >
       bash -c "/ros_entrypoint.sh &&
@@ -126,7 +146,7 @@ services:
       - "/dev:/dev:rwm"
     privileged: true
   slam_viz:
-    <<: *service-common
+    <<: *service-common-x86
     container_name: slam-viz
     command: >
       bash -c "/ros_entrypoint.sh &&
@@ -134,12 +154,25 @@ services:
           ros2 launch lwf_launch slam_viz.launch.py"
     profiles: [ vm ]
   joy_teleop:
-    <<: *service-common
+    <<: *service-common-x86
     container_name: joy-teleop
+    image: husarion/teleop-twist-joy:humble-2.4.5-20240318
+    devices:
+      - /dev/input
+    volumes:
+      - ./src/lwf_launch/config/joy_teleop.yaml:/joy_params.yaml
+    command: ros2 run joy joy_node --ros-args --params-file /joy_params.yaml
+    profiles: [ vm ]
+  micro_ros_agent:
+    <<: *service-common-arm
+    container_name: micro-ros-agent
     command: >
       bash -c "/ros_entrypoint.sh &&
           source install/setup.bash &&
-          ros2 launch lwf_launch joy.launch.py"
+          rm -rf /root/ros2_ws/src/lwf_* &&
+          ros2 run micro_ros_setup create_agent_ws.sh &&
+          ros2 run micro_ros_setup build_agent.sh &&
+          source install/local_setup.sh &&
+          ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0"
     devices:
-      - "/dev/input/js0:/dev/input/js0:rwm"
-    profiles: [ vm ]
+      - "/dev/ttyUSB0:/dev/ttyUSB0:rwm"
