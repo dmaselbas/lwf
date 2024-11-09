@@ -161,7 +161,7 @@ services:
       - /dev/input
     volumes:
       - ./ros2_ws/src/lwf_launch/config/:/config/
-    command: ros2 run joy joy_node --ros-args --params-file /config/joy_params.yaml
+    command: ros2 run joy joy_node --ros-args --params-file /config/joy_teleop.yaml
     profiles: [ vm ]
   micro_ros_agent:
     <<: *service-common-arm
