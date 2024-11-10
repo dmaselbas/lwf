@@ -50,7 +50,8 @@ RUN apt update -y \
     ros-humble-camera-ros \
     ros-humble-cv-bridge \
     ros-humble-image-transport \
-    ros-humble-image-pipeline
+    ros-humble-image-pipeline \
+    ros-humble-laser-filters
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_DOMAIN_ID="0"

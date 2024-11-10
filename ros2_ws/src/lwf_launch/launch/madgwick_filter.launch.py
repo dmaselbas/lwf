@@ -5,16 +5,12 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    config_file = os.path.join(get_package_share_directory("lwf_launch"), "config", "madgwick_filter_config.yaml")
     return LaunchDescription([
         Node(
                 package='imu_filter_madgwick',
                 executable='imu_filter_madgwick_node',
                 name='imu_filter_madgwick_node',
                 output='screen',
-                remappings=[
-                    ('/imu/data', '/imu/data_raw'),
-                    ('/imu/magnetometer', '/imu/mag')],
-                parameters=[config_file]  # Replace with your config path
+                parameters=[{"use_mag": False}]  # Replace with your config path
                 )
         ])

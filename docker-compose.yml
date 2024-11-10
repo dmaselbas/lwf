@@ -174,5 +174,6 @@ services:
           ros2 run micro_ros_setup build_agent.sh &&
           source install/local_setup.sh &&
           ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0"
-    devices:
-      - "/dev/ttyUSB0:/dev/ttyUSB0:rwm"
+    volumes:
+      - "/dev:/dev"
+    privileged: true

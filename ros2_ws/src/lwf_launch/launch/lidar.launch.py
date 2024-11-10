@@ -20,6 +20,34 @@ def generate_launch_description():
     angle_compensate = LaunchConfiguration('angle_compensate', default='true')
     scan_mode = LaunchConfiguration('scan_mode', default='Standard')
 
+    laser_filter_config = {
+        "scan_to_scan_filter_chain": {
+            "ros__parameters": {
+                "filter1": {
+                    "name":   "median_spatial",
+                    "type":   "laser_filters/LaserScanMedianSpatialFilter",
+                    "params": {
+                        "window_size": 31
+                        }
+                    },
+                "filter2": {
+                    "name":   "median_filter",
+                    "type":   "laser_filters/LaserArrayFilter",
+                    "params": {
+                        "range_filter_chain": {
+                            "filter1": {
+                                "name":   "median",
+                                "type":   "filters/MultiChannelMedianFilterFloat",
+                                "params": {
+                                    "number_of_observations": 3
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     return LaunchDescription([
         DeclareLaunchArgument(
                 'channel_type',
@@ -69,4 +97,9 @@ def generate_launch_description():
                              'scan_mode':        scan_mode
                              }],
                 output='screen'),
+        Node(
+                package="laser_filters",
+                executable="scan_to_scan_filter_chain",
+                parameters=[laser_filter_config],
+                ),
         ])

@@ -3,4 +3,4 @@ hwt905_ros_driver:
     serial_port: "/dev/ttyUSB0"
     baud_rate: 115200
     frame_id: "imu_frame"
-    imu_topic: "/imu/data"
+    imu_topic: "/imu/data_raw"
